@@ -833,3 +833,204 @@ time {
     justify-content: flex-end;
   }
 }
+
+/* ── 分頁切換 ──────────────────────────────────────────── */
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.nav button {
+  min-height: var(--tap);
+  padding: 0 14px;
+  background: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  color: var(--ink-3);
+  font-size: 14px;
+  font-family: var(--font-serif);
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.nav button[aria-current='true'] {
+  background: var(--panel);
+  border-color: var(--rule-strong);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.nav button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* ── 課表編輯 ──────────────────────────────────────────── */
+.field-legend {
+  font-size: 12px;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.period-chip {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 10px;
+  background: var(--ground);
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.period-chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--panel);
+  font-weight: 600;
+}
+
+.period-chip:focus-visible,
+.hue-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.hue-chip {
+  min-height: var(--tap);
+  padding: 0 12px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-bar);
+  border-left: 4px solid var(--c-bar);
+  border-radius: 3px;
+  color: var(--ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.hue-chip[aria-pressed='true'] {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+  font-weight: 600;
+}
+
+.sessions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.sessions-head .field-legend {
+  margin-bottom: 0;
+}
+
+.session-box {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 10px 12px 12px;
+  margin: 0 0 10px;
+  background: var(--ground);
+}
+
+.session-box legend {
+  font-size: 12px;
+  color: var(--ink-3);
+  padding: 0 5px;
+}
+
+.session-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.session-remove {
+  margin-top: 10px;
+}
+
+.editor-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.editor-row {
+  padding: 10px 12px;
+}
+
+.editor-row-head {
+  display: grid;
+  grid-template-columns: 3px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.editor-row-main {
+  min-width: 0;
+}
+
+.editor-row-meta {
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.editor-row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.editor-row .course-bar {
+  min-height: 100%;
+}
+
+.confirm-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--danger);
+  border-radius: 3px;
+  background: var(--panel);
+}
+
+.confirm-box p {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.course-form {
+  margin-top: 12px;
+}
+
+@media (min-width: 721px) {
+  .session-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-row-head {
+    grid-template-columns: 3px minmax(0, 1fr);
+  }
+
+  .editor-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
