@@ -1,122 +1,58 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { SEMESTER_PLACEHOLDER } from './constants'
+import { CourseTable } from './components/CourseTable'
+import { Masthead } from './components/Masthead'
+import { TodayClasses } from './components/TodayClasses'
+import { UpNext } from './components/UpNext'
+import { WeekSchedule } from './components/WeekSchedule'
+import { todayISO } from './lib/dates'
+import { useAppState } from './state'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const { state, actions, saveError, loadSource, loadError } = useAppState()
+  const today = todayISO()
+
+  const semesterUnconfirmed =
+    state.semester.start === SEMESTER_PLACEHOLDER.start &&
+    state.semester.end === SEMESTER_PLACEHOLDER.end
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <Masthead profile={state.profile} term={state.profile.term} today={today} />
 
-      <div className="ticks"></div>
+      {loadSource === 'recovered' && (
+        <p className="notice" data-tone="warn">
+          上次存的資料讀不回來（{loadError}），已改用預設課表。原始內容留在
+          localStorage 的 mcu-schedule.state.v1.corrupt，還沒被刪掉。
+        </p>
+      )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {saveError && (
+        <p className="notice" data-tone="warn">
+          資料沒能存進瀏覽器：{saveError}。上一份存檔沒有被覆蓋。
+        </p>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {semesterUnconfirmed && (
+        <p className="notice">
+          學期起訖目前是暫定值（{state.semester.start} 到 {state.semester.end}），
+          <strong>尚未對過銘傳行事曆</strong>。匯出行事曆前記得改成正確日期，
+          否則課程會重複到錯的週次。
+        </p>
+      )}
+
+      <UpNext
+        items={state.items}
+        courses={state.courses}
+        today={today}
+        defaultRemindDaysBefore={state.settings.defaultRemindDaysBefore}
+        onAdd={actions.addItem}
+        onToggle={actions.toggleItem}
+        onDelete={actions.deleteItem}
+      />
+
+      <TodayClasses courses={state.courses} today={today} />
+      <WeekSchedule courses={state.courses} today={today} />
+      <CourseTable courses={state.courses} />
+    </div>
   )
 }
-
-export default App
