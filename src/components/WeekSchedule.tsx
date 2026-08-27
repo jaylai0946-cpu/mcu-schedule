@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { WEEK_ZOOM_MAX, WEEK_ZOOM_MIN, useWeekView } from '../useWeekView'
 import { LUNCH_PERIOD, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
 import { weekdayOf } from '../lib/dates'
-import { buildWeekLayout, classesOnWeekday, courseColorStyle } from '../lib/schedule'
+import { buildWeekLayout, classesOnWeekday } from '../lib/schedule'
 import type { Course } from '../types'
 
 export function WeekSchedule({
@@ -146,11 +146,7 @@ export function WeekSchedule({
             <div
               key={b.key}
               className="week-block"
-              style={{
-                gridColumn: b.d + 1,
-                gridRow: `${b.rowStart + 2} / span ${b.rowSpan}`,
-                ...courseColorStyle(b.course),
-              }}
+              style={{ gridColumn: b.d + 1, gridRow: `${b.rowStart + 2} / span ${b.rowSpan}` }}
             >
               <div className="week-block-name">
                 {b.course.name}
@@ -180,7 +176,7 @@ export function WeekSchedule({
                 <p className="day-empty">整天沒課</p>
               ) : (
                 classes.map((c) => (
-                  <div key={c.key} className="day-row" style={courseColorStyle(c.course)}>
+                  <div key={c.key} className="day-row">
                     <div className="day-row-time">
                       {c.start}–{c.end}
                       <b>

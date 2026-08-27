@@ -1,6 +1,6 @@
 import { WEEKDAY_NAMES } from '../constants'
 import { weekdayOf } from '../lib/dates'
-import { classesOnWeekday, courseColorStyle } from '../lib/schedule'
+import { classesOnWeekday } from '../lib/schedule'
 import type { Course } from '../types'
 
 export function TodayClasses({ courses, today }: { courses: Course[]; today: string }) {
@@ -25,7 +25,7 @@ export function TodayClasses({ courses, today }: { courses: Course[]; today: str
       ) : (
         <div className="today-list">
           {classes.map((c) => (
-            <article key={c.key} className="today-card" style={courseColorStyle(c.course)}>
+            <article key={c.key} className="today-card">
               <div className="today-time">
                 {c.start}
                 <br />

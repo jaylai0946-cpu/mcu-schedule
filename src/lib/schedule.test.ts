@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SEED_COURSES } from '../seed'
-import { buildWeekLayout, classesOnWeekday, courseColorStyle, splitContiguous, totalCredits } from './schedule'
+import { buildWeekLayout, classesOnWeekday, splitContiguous, totalCredits } from './schedule'
 import type { Period } from '../types'
 
 describe('splitContiguous', () => {
@@ -76,23 +76,8 @@ describe('classesOnWeekday', () => {
   })
 })
 
-describe('學分與顏色', () => {
+describe('學分', () => {
   it('學分合計 15', () => {
     expect(totalCredits(SEED_COURSES)).toBe(15)
-  })
-
-  it('色塊四個角色都算得出來，深色也有對應的一組', () => {
-    const style = courseColorStyle(SEED_COURSES[0]) as Record<string, string>
-    expect(style['--c-bg']).toBe('hsl(214 42% 94%)')
-    expect(style['--c-border']).toBe('hsl(214 42% 74%)')
-    expect(style['--c-text']).toBe('hsl(214 34% 30%)')
-    expect(style['--c-bar']).toBe('hsl(214 56% 52%)')
-    expect(style['--c-bg-dark']).toBe('hsl(214 42% 24% / 0.55)')
-  })
-
-  it('低彩度的課不會算出負的彩度', () => {
-    const hr = SEED_COURSES.find((c) => c.id === 'hr')!
-    const style = courseColorStyle(hr) as Record<string, string>
-    expect(style['--c-text']).toBe('hsl(214 2% 30%)')
   })
 })

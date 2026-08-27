@@ -970,29 +970,12 @@ time {
   font-weight: 600;
 }
 
-.period-chip:focus-visible,
-.hue-chip:focus-visible {
+.period-chip:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.hue-chip {
-  min-height: var(--tap);
-  padding: 0 12px;
-  background: var(--c-bg);
-  border: 1px solid var(--c-bar);
-  border-left: 4px solid var(--c-bar);
-  border-radius: 3px;
-  color: var(--ink);
-  font-size: 13px;
-  cursor: pointer;
-}
 
-.hue-chip[aria-pressed='true'] {
-  outline: 2px solid var(--ink);
-  outline-offset: 1px;
-  font-weight: 600;
-}
 
 .sessions-head {
   display: flex;
@@ -1664,7 +1647,7 @@ table.almanac thead th {
    ══════════════════════════════════════════════════════════════ */
 
 /* 2.1 全部方角、無陰影：這一版是工程圖，不是圓角卡片 */
-.panel, .btn, .tag, .field input, .field select, .period-chip, .hue-chip,
+.panel, .btn, .tag, .field input, .field select, .period-chip,
 .notice, .confirm-box, .session-box, .empty, .day-empty, .today-card,
 .week-grid, .week-block, .day-row, .week-empty-day, .almanac-viewport,
 .sync-key, table.almanac th, table.almanac td, .legend i, .export-cta {

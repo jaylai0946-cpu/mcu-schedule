@@ -53,17 +53,12 @@ export const SCHOOL_EVENT_KIND_NAMES: Record<SchoolEventKind, string> = {
 /** 「接下來」要往後看幾天的學校行事曆。再遠的只在行事曆分頁看得到。 */
 export const SCHOOL_EVENT_LOOKAHEAD_DAYS = 30
 
-/** 課程可選色相，不開自由色票。 */
-export const HUE_PRESETS: { hue: number; sat: number; name: string }[] = [
-  { hue: 214, sat: 42, name: '藍' },
-  { hue: 32, sat: 42, name: '橘' },
-  { hue: 346, sat: 42, name: '玫瑰' },
-  { hue: 266, sat: 42, name: '紫' },
-  { hue: 152, sat: 42, name: '綠' },
-  { hue: 190, sat: 42, name: '青' },
-  { hue: 100, sat: 34, name: '橄欖' },
-  { hue: 214, sat: 10, name: '灰' },
-]
+/**
+ * 新課程的預設色相。Industry 主題是單色系統，課塊一律鋼藍，
+ * 這兩個值目前不會被畫出來——保留是為了不動 Course 既有的欄位，
+ * 而且哪天換回彩色主題時，使用者原本的資料還在。
+ */
+export const DEFAULT_COURSE_COLOR = { hue: 214, sat: 42 }
 
 /**
  * 115 學年度第 1 學期的起訖，取自官方行事曆：

@@ -1,6 +1,6 @@
 import { WEEKDAY_NAMES } from '../constants'
 import { periodSpanTime } from '../lib/dates'
-import { courseColorStyle, splitContiguous, totalCredits } from '../lib/schedule'
+import { splitContiguous, totalCredits } from '../lib/schedule'
 import type { Course, Session } from '../types'
 
 function sessionWhen(s: Session): string {
@@ -38,7 +38,7 @@ export function CourseTable({ courses }: { courses: Course[] }) {
               course.sessions.map((s, i) => (
                 <tr key={`${course.id}-${i}`}>
                   <td>
-                    <div className="course-name-cell" style={courseColorStyle(course)}>
+                    <div className="course-name-cell">
                       <span className="course-bar" />
                       <span className="course-name">
                         {i === 0 ? course.name : ''}

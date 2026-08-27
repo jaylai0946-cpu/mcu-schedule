@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import { PERIOD_ORDER, WEEKDAYS } from '../constants'
 import type { Course, Period, Session, Weekday } from '../types'
 import { periodSpanTime, timeToMinutes } from './dates'
@@ -109,20 +108,3 @@ export function totalCredits(courses: Course[]): number {
   return courses.reduce((sum, c) => sum + c.credits, 0)
 }
 
-/**
- * 課程色塊的顏色。淺色與深色各出一組變數，
- * 由 CSS 決定套用哪一組——顏色的定義不能只存在於 media query 裡。
- */
-export function courseColorStyle(course: Course): CSSProperties {
-  const { hue: h, sat: s } = course
-  return {
-    '--c-bg': `hsl(${h} ${s}% 94%)`,
-    '--c-border': `hsl(${h} ${s}% 74%)`,
-    '--c-text': `hsl(${h} ${Math.max(0, s - 8)}% 30%)`,
-    '--c-bar': `hsl(${h} ${Math.min(100, s + 14)}% 52%)`,
-    '--c-bg-dark': `hsl(${h} ${s}% 24% / 0.55)`,
-    '--c-border-dark': `hsl(${h} ${s}% 38%)`,
-    '--c-text-dark': `hsl(${h} ${Math.max(0, s - 8)}% 84%)`,
-    '--c-bar-dark': `hsl(${h} ${Math.min(100, s + 14)}% 60%)`,
-  } as CSSProperties
-}

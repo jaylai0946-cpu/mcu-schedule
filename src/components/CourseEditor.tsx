@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { WEEKDAY_NAMES } from '../constants'
-import { courseColorStyle, splitContiguous, totalCredits } from '../lib/schedule'
+import { splitContiguous, totalCredits } from '../lib/schedule'
 import { periodSpanTime } from '../lib/dates'
 import type { Course, Session, TodoItem } from '../types'
 import { CourseForm } from './CourseForm'
@@ -61,7 +61,7 @@ export function CourseEditor({ courses, items, onSave, onDelete }: Props) {
           const isEditing = editingId === course.id
 
           return (
-            <div key={course.id} className="editor-row panel" style={courseColorStyle(course)}>
+            <div key={course.id} className="editor-row panel">
               <div className="editor-row-head">
                 <span className="course-bar" />
                 <div className="editor-row-main">

@@ -156,3 +156,42 @@ describe('編輯與刪除課程', () => {
     expect(state.items[0].courseId).toBeUndefined()
   })
 })
+
+describe('課程顏色（Industry 主題已移除選擇器）', () => {
+  it('新增課程的表單裡沒有顏色選擇器', () => {
+    gotoEditor()
+    fireEvent.click(screen.getByRole('button', { name: '＋ 新增課程' }))
+
+    expect(screen.queryByText('顏色')).not.toBeInTheDocument()
+    for (const name of ['藍', '橘', '玫瑰', '紫', '綠', '青', '橄欖', '灰']) {
+      expect(screen.queryByRole('button', { name })).not.toBeInTheDocument()
+    }
+  })
+
+  it('新課程還是會拿到預設色相，欄位不會缺', () => {
+    gotoEditor()
+    fireEvent.click(screen.getByRole('button', { name: '＋ 新增課程' }))
+    fireEvent.change(screen.getByLabelText('課名'), { target: { value: '新課' } })
+    fireEvent.change(screen.getByLabelText('教室'), { target: { value: 'X101' } })
+    fireEvent.change(screen.getByLabelText('星期'), { target: { value: '2' } })
+    fireEvent.click(within(sessionBox()).getByRole('button', { name: '1' }))
+    fireEvent.click(screen.getByRole('button', { name: '新增課程' }))
+
+    const saved = loadState().state.courses.find((c) => c.name === '新課')!
+    expect(saved.hue).toBe(214)
+    expect(saved.sat).toBe(42)
+  })
+
+  it('編輯既有課程不會把原本的色相洗掉', () => {
+    gotoEditor()
+    // 體育（壹）的種子資料是 hue 100 / sat 34
+    const row = screen.getByText('體育（壹）').closest('.editor-row') as HTMLElement
+    fireEvent.click(within(row).getByRole('button', { name: '編輯' }))
+    fireEvent.change(within(row).getByLabelText('教室'), { target: { value: '新體育館' } })
+    fireEvent.click(within(row).getByRole('button', { name: '儲存修改' }))
+
+    const saved = loadState().state.courses.find((c) => c.id === 'pe')!
+    expect(saved.sessions[0].room).toBe('新體育館')
+    expect({ hue: saved.hue, sat: saved.sat }).toEqual({ hue: 100, sat: 34 })
+  })
+})

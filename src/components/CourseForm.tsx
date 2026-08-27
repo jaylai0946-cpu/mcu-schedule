@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HUE_PRESETS, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
+import { DEFAULT_COURSE_COLOR, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
 import { describeConflict, detectConflicts } from '../lib/conflicts'
 import { sortPeriods } from '../lib/dates'
 import type { Course, Period, Session, Weekday } from '../types'
@@ -27,10 +27,6 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
   const [code, setCode] = useState(course?.code ?? '')
   const [teacher, setTeacher] = useState(course?.teacher ?? '')
   const [credits, setCredits] = useState(String(course?.credits ?? 2))
-  const [hueIndex, setHueIndex] = useState(() => {
-    const i = HUE_PRESETS.findIndex((p) => p.hue === course?.hue && p.sat === course?.sat)
-    return i >= 0 ? i : 0
-  })
   const [note, setNote] = useState(course?.note ?? '')
   const [sessions, setSessions] = useState<Session[]>(
     course ? structuredClone(course.sessions) : [emptySession()],
@@ -68,15 +64,16 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
       return
     }
 
-    const preset = HUE_PRESETS[hueIndex]
     const draft: Course = {
       id: course?.id ?? newCourseId(courses),
       name: trimmedName,
       code: code.trim(),
       teacher: teacher.trim(),
       credits: Number(credits) || 0,
-      hue: preset.hue,
-      sat: preset.sat,
+      // 編輯既有課程時沿用原本的值，新課程給預設值。
+      // 目前的主題不會畫出來，但欄位是必填，而且要保住使用者原本的資料。
+      hue: course?.hue ?? DEFAULT_COURSE_COLOR.hue,
+      sat: course?.sat ?? DEFAULT_COURSE_COLOR.sat,
       note: note.trim() || undefined,
       sessions: sessions.map((s) => ({
         d: s.d,
@@ -128,28 +125,6 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
       <div className="field">
         <label htmlFor="course-note">備註</label>
         <input id="course-note" value={note} onChange={(e) => setNote(e.target.value)} />
-      </div>
-
-      <div className="field field-wide">
-        <span className="field-legend">顏色</span>
-        <div className="chip-row">
-          {HUE_PRESETS.map((preset, i) => (
-            <button
-              key={`${preset.hue}-${preset.sat}`}
-              type="button"
-              className="hue-chip"
-              aria-pressed={i === hueIndex}
-              aria-label={preset.name}
-              onClick={() => setHueIndex(i)}
-              style={{
-                '--c-bg': `hsl(${preset.hue} ${preset.sat}% 94%)`,
-                '--c-bar': `hsl(${preset.hue} ${Math.min(100, preset.sat + 14)}% 52%)`,
-              } as React.CSSProperties}
-            >
-              {preset.name}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="field-wide">
