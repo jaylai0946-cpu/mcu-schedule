@@ -22,6 +22,8 @@ export interface LoadResult {
 const migrations: Record<number, (raw: Record<string, unknown>) => Record<string, unknown>> = {
   // 0 -> 1：最初的版本，只補上缺漏的欄位，不丟資料。
   0: (raw) => ({ ...raw, version: 1 }),
+  // 1 -> 2：加入學校行事曆。舊資料沒有這個欄位，補一個空陣列就好。
+  1: (raw) => ({ ...raw, schoolEvents: raw.schoolEvents ?? [], version: 2 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

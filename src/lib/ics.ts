@@ -1,5 +1,5 @@
-import { KIND_NAMES, LUNCH_PERIOD } from '../constants'
-import type { AppState, Course, TodoItem, Weekday } from '../types'
+import { KIND_NAMES, LUNCH_PERIOD, SCHOOL_EVENT_KIND_NAMES } from '../constants'
+import type { AppState, Course, SchoolEvent, TodoItem, Weekday } from '../types'
 import { addDays, periodSpanTime, weekdayIndex } from './dates'
 import { splitContiguous } from './schedule'
 
@@ -191,15 +191,61 @@ function itemEvents(items: TodoItem[], courses: Course[], state: AppState, stamp
   return lines
 }
 
+/**
+ * 學校行事曆一律是全天事件。區間的 DTEND 要是最後一天的隔天
+ * （iCalendar 的 DTEND 不含結束當天），少加一天會整段短一天。
+ */
+function schoolEvents(events: SchoolEvent[], stamp: string): string[] {
+  const lines: string[] = []
+
+  for (const event of events) {
+    const description = [`類型：${SCHOOL_EVENT_KIND_NAMES[event.kind]}`, event.note]
+      .filter(Boolean)
+      .join('\n')
+
+    lines.push(
+      'BEGIN:VEVENT',
+      `UID:school-${event.id}@${DOMAIN}`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${dateValue(event.start)}`,
+      `DTEND;VALUE=DATE:${dateValue(addDays(event.end ?? event.start, 1))}`,
+      `SUMMARY:${escapeText(event.title)}`,
+      `DESCRIPTION:${escapeText(description)}`,
+      'TRANSP:TRANSPARENT',
+    )
+
+    // 只有考試提前提醒，放假和其他類型加提醒只會變成噪音
+    if (event.kind === 'exam') {
+      lines.push(
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        'TRIGGER:-P1D',
+        `DESCRIPTION:${escapeText(event.title)}`,
+        'END:VALARM',
+      )
+    }
+
+    lines.push('END:VEVENT')
+  }
+
+  return lines
+}
+
 export interface ICSOptions {
   includeCourses?: boolean
   includeItems?: boolean
+  includeSchoolEvents?: boolean
   /** 只給測試用，讓 DTSTAMP 可預測 */
   now?: Date
 }
 
 export function buildICS(state: AppState, options: ICSOptions = {}): string {
-  const { includeCourses = true, includeItems = true, now = new Date() } = options
+  const {
+    includeCourses = true,
+    includeItems = true,
+    includeSchoolEvents = true,
+    now = new Date(),
+  } = options
   const stamp = utcStamp(now)
 
   const lines = [
@@ -213,6 +259,7 @@ export function buildICS(state: AppState, options: ICSOptions = {}): string {
     ...vtimezone(),
     ...(includeCourses ? courseEvents(state.courses, state.semester, stamp) : []),
     ...(includeItems ? itemEvents(state.items, state.courses, state, stamp) : []),
+    ...(includeSchoolEvents ? schoolEvents(state.schoolEvents, stamp) : []),
     'END:VCALENDAR',
   ]
 

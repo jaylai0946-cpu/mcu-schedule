@@ -3,6 +3,7 @@ import { SEMESTER_PLACEHOLDER } from './constants'
 import { CourseEditor } from './components/CourseEditor'
 import { CourseTable } from './components/CourseTable'
 import { Masthead } from './components/Masthead'
+import { SchoolCalendar } from './components/SchoolCalendar'
 import { Settings } from './components/Settings'
 import { TodayClasses } from './components/TodayClasses'
 import { UpNext } from './components/UpNext'
@@ -13,10 +14,11 @@ import { useAppState } from './state'
 import { useReminders } from './useReminders'
 import { useTheme } from './useTheme'
 
-type View = 'home' | 'courses' | 'settings'
+type View = 'home' | 'calendar' | 'courses' | 'settings'
 
 const TABS: { value: View; label: string }[] = [
   { value: 'home', label: '首頁' },
+  { value: 'calendar', label: '學校行事曆' },
   { value: 'courses', label: '編輯課表' },
   { value: 'settings', label: '設定' },
 ]
@@ -68,7 +70,7 @@ export default function App() {
           {semesterUnconfirmed && (
             <p className="notice">
               學期起訖目前是暫定值（{state.semester.start} 到 {state.semester.end}），
-              <strong>尚未對過銘傳行事曆</strong>。匯出行事曆前記得到設定頁改成正確日期，
+              <strong>尚未對過銘傳行事曆</strong>。匯出行事曆前記得到「學校行事曆」分頁改成正確日期，
               否則課程會重複到錯的週次。
             </p>
           )}
@@ -76,11 +78,13 @@ export default function App() {
           <UpNext
             items={state.items}
             courses={state.courses}
+            schoolEvents={state.schoolEvents}
             today={today}
             defaultRemindDaysBefore={state.settings.defaultRemindDaysBefore}
             onAdd={actions.addItem}
             onToggle={actions.toggleItem}
             onDelete={actions.deleteItem}
+            onOpenCalendar={() => setView('calendar')}
           />
 
           <div className="export-cta">
@@ -103,6 +107,17 @@ export default function App() {
           <WeekSchedule courses={state.courses} today={today} />
           <CourseTable courses={state.courses} />
         </>
+      )}
+
+      {view === 'calendar' && (
+        <SchoolCalendar
+          schoolEvents={state.schoolEvents}
+          semester={state.semester}
+          today={today}
+          onSave={actions.upsertSchoolEvent}
+          onDelete={actions.deleteSchoolEvent}
+          onSemesterChange={actions.setSemester}
+        />
       )}
 
       {view === 'courses' && (

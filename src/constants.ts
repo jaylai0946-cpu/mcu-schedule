@@ -1,7 +1,7 @@
-import type { ItemKind, Period, Weekday } from './types'
+import type { ItemKind, Period, SchoolEventKind, Weekday } from './types'
 
 /** 目前的 schema 版本。改動 AppState 結構時 +1，並在 migrations 補上升級函式。 */
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export const STORAGE_KEY = 'mcu-schedule.state.v1'
 
@@ -42,6 +42,16 @@ export const KIND_NAMES: Record<ItemKind, string> = {
   event: '活動',
   other: '其他',
 }
+
+export const SCHOOL_EVENT_KIND_NAMES: Record<SchoolEventKind, string> = {
+  term: '學期',
+  exam: '考試',
+  holiday: '放假',
+  other: '其他',
+}
+
+/** 「接下來」要往後看幾天的學校行事曆。再遠的只在行事曆分頁看得到。 */
+export const SCHOOL_EVENT_LOOKAHEAD_DAYS = 30
 
 /** 課程可選色相，不開自由色票。 */
 export const HUE_PRESETS: { hue: number; sat: number; name: string }[] = [

@@ -240,3 +240,79 @@ describe('跳脫與折行', () => {
     expect(unfold(ics)).toContain('SUMMARY:報告\\;含分號\\,含逗號')
   })
 })
+
+describe('學校行事曆是全天事件', () => {
+  const state = (): AppState => ({
+    ...createSeedState(),
+    schoolEvents: [
+      { id: 's1', kind: 'exam', title: '期中考週', start: '2026-11-09', end: '2026-11-13' },
+      { id: 's2', kind: 'term', title: '開學日', start: '2026-09-14' },
+      { id: 's3', kind: 'holiday', title: '國慶日', start: '2026-10-10', note: '不上課' },
+    ],
+  })
+  const ics = buildICS(state(), { includeCourses: false, includeItems: false, now: NOW })
+
+  it('區間的 DTEND 是最後一天的隔天，不會少一天', () => {
+    const event = eventFor(ics, 'school-s1')
+    expect(event).toContain('DTSTART;VALUE=DATE:20261109')
+    expect(event).toContain('DTEND;VALUE=DATE:20261114')
+    expect(event).toContain('SUMMARY:期中考週')
+  })
+
+  it('單日事件的 DTEND 是隔天', () => {
+    const event = eventFor(ics, 'school-s2')
+    expect(event).toContain('DTSTART;VALUE=DATE:20260914')
+    expect(event).toContain('DTEND;VALUE=DATE:20260915')
+  })
+
+  it('不是週期性事件', () => {
+    expect(ics).not.toContain('RRULE')
+  })
+
+  it('標成 TRANSPARENT，不會讓行事曆把整天算成忙碌', () => {
+    expect(eventFor(ics, 'school-s3')).toContain('TRANSP:TRANSPARENT')
+  })
+
+  it('只有考試會提前一天提醒，放假不會', () => {
+    expect(eventFor(ics, 'school-s1')).toContain('TRIGGER:-P1D')
+    expect(eventFor(ics, 'school-s3')).not.toContain('BEGIN:VALARM')
+    expect(eventFor(ics, 'school-s2')).not.toContain('BEGIN:VALARM')
+  })
+
+  it('描述裡有類型和備註', () => {
+    const line = eventFor(ics, 'school-s3').find((l) => l.startsWith('DESCRIPTION:'))!
+    expect(line).toContain('放假')
+    expect(line).toContain('不上課')
+  })
+
+  it('可以整組排除', () => {
+    const without = buildICS(state(), {
+      includeCourses: false,
+      includeItems: false,
+      includeSchoolEvents: false,
+      now: NOW,
+    })
+    expect(without).not.toContain('期中考週')
+    expect(unfold(without).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(0)
+  })
+
+  it('匯出全部時三種事件都在（9 課程 + 1 待辦 + 3 學校）', () => {
+    const full = buildICS(
+      {
+        ...state(),
+        items: [
+          {
+            id: 'i1',
+            kind: 'hw',
+            title: '作業',
+            date: '2026-10-05',
+            done: false,
+            createdAt: '2026-08-27T00:00:00.000Z',
+          },
+        ],
+      },
+      { now: NOW },
+    )
+    expect(unfold(full).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(13)
+  })
+})

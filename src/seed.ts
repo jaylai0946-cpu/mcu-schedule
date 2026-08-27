@@ -101,6 +101,8 @@ export function createSeedState(): AppState {
     semester: { ...SEMESTER_PLACEHOLDER },
     courses: structuredClone(SEED_COURSES),
     items: [],
+    // 銘傳 115 學年度的行事曆日期由使用者自己輸入，這裡不預填任何猜測的日期
+    schoolEvents: [],
     settings: {
       notificationsEnabled: false,
       defaultRemindDaysBefore: DEFAULT_REMIND_DAYS_BEFORE,

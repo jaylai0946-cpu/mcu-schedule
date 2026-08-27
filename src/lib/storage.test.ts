@@ -134,3 +134,65 @@ describe('JSON 備份匯出匯入', () => {
     expect(bad.ok).toBe(false)
   })
 })
+
+describe('schema v1 -> v2 升級', () => {
+  it('沒有 schoolEvents 的舊資料會補成空陣列，其他資料不動', () => {
+    const old = createSeedState() as unknown as Record<string, unknown>
+    delete old.schoolEvents
+    old.version = 1
+    old.items = [
+      {
+        id: 'keep',
+        kind: 'hw',
+        title: '舊的作業',
+        date: '2026-12-01',
+        done: false,
+        createdAt: '2026-08-27T00:00:00.000Z',
+      },
+    ]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(old))
+
+    const result = loadState()
+    expect(result.source).toBe('stored')
+    expect(result.state.version).toBe(SCHEMA_VERSION)
+    expect(result.state.schoolEvents).toEqual([])
+    expect(result.state.items[0].title).toBe('舊的作業')
+    expect(result.state.courses).toHaveLength(8)
+  })
+
+  it('匯入 v1 時代的舊備份也吃得下', () => {
+    const old = createSeedState() as unknown as Record<string, unknown>
+    delete old.schoolEvents
+    old.version = 1
+    const result = importJSON(JSON.stringify(old))
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.state.schoolEvents).toEqual([])
+  })
+
+  it('結束日早於開始日的行事曆會被擋下', () => {
+    const state = createSeedState()
+    state.schoolEvents.push({
+      id: 'bad',
+      kind: 'exam',
+      title: '亂填的',
+      start: '2026-11-13',
+      end: '2026-11-09',
+    })
+    const result = saveState(state)
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error).toContain('結束日期早於開始日期')
+  })
+
+  it('結束日等於開始日會被正規化成單日', () => {
+    const state = createSeedState()
+    state.schoolEvents.push({
+      id: 'same',
+      kind: 'term',
+      title: '開學日',
+      start: '2026-09-14',
+      end: '2026-09-14',
+    })
+    saveState(state)
+    expect(loadState().state.schoolEvents[0].end).toBeUndefined()
+  })
+})

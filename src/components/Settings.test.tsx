@@ -98,8 +98,8 @@ describe('行事曆匯出按鈕', () => {
 
     try {
       gotoSettings()
-      fireEvent.click(screen.getByRole('button', { name: '匯出全部（課程＋待辦）' }))
-      fireEvent.click(screen.getByRole('button', { name: '只匯出待辦' }))
+      fireEvent.click(screen.getByRole('button', { name: '匯出全部（課程＋待辦＋學校日期）' }))
+      fireEvent.click(screen.getByRole('button', { name: '只匯出待辦與學校日期' }))
       expect(clicks).toEqual(['mcu-schedule.ics', 'mcu-todo.ics'])
     } finally {
       HTMLAnchorElement.prototype.click = originalClick

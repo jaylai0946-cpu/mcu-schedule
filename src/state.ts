@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { loadState, saveState } from './lib/storage'
-import type { AppState, Course, TodoItem } from './types'
+import type { AppState, Course, SchoolEvent, TodoItem } from './types'
 
 export type NewTodoInput = Omit<TodoItem, 'id' | 'done' | 'createdAt'>
+export type NewSchoolEventInput = Omit<SchoolEvent, 'id'>
 
 function newId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
@@ -61,9 +62,51 @@ export function useAppState() {
     }))
   }, [])
 
+  /** 新增或更新一筆學校行事曆。沒有 id 就是新增。 */
+  const upsertSchoolEvent = useCallback((event: SchoolEvent | (NewSchoolEventInput & { id?: string })) => {
+    setState((prev) => {
+      const id = event.id ?? newId()
+      const next: SchoolEvent = { ...event, id }
+      const exists = prev.schoolEvents.some((e) => e.id === id)
+      return {
+        ...prev,
+        schoolEvents: exists
+          ? prev.schoolEvents.map((e) => (e.id === id ? next : e))
+          : [...prev.schoolEvents, next],
+      }
+    })
+  }, [])
+
+  const deleteSchoolEvent = useCallback((id: string) => {
+    setState((prev) => ({ ...prev, schoolEvents: prev.schoolEvents.filter((e) => e.id !== id) }))
+  }, [])
+
+  const setSemester = useCallback((patch: Partial<AppState['semester']>) => {
+    setState((prev) => ({ ...prev, semester: { ...prev.semester, ...patch } }))
+  }, [])
+
   const actions = useMemo(
-    () => ({ addItem, toggleItem, deleteItem, upsertCourse, deleteCourse, setState }),
-    [addItem, toggleItem, deleteItem, upsertCourse, deleteCourse],
+    () => ({
+      addItem,
+      toggleItem,
+      deleteItem,
+      upsertCourse,
+      deleteCourse,
+      upsertSchoolEvent,
+      deleteSchoolEvent,
+      setSemester,
+      setState,
+    }),
+    [
+      addItem,
+      toggleItem,
+      deleteItem,
+      upsertCourse,
+      deleteCourse,
+      upsertSchoolEvent,
+      deleteSchoolEvent,
+      setSemester,
+    ],
   )
 
   return { state, actions, saveError, loadSource: initial.source, loadError: initial.error }

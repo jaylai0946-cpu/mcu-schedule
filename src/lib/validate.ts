@@ -1,5 +1,15 @@
 import { PERIOD_ORDER } from '../constants'
-import type { AppState, Course, ItemKind, Period, Session, TodoItem, Weekday } from '../types'
+import type {
+  AppState,
+  Course,
+  ItemKind,
+  Period,
+  SchoolEvent,
+  SchoolEventKind,
+  Session,
+  TodoItem,
+  Weekday,
+} from '../types'
 import { isValidDateString, isValidTimeString, sortPeriods } from './dates'
 
 export type ValidationResult =
@@ -7,6 +17,7 @@ export type ValidationResult =
   | { ok: false; error: string }
 
 const KINDS: ItemKind[] = ['exam', 'hw', 'event', 'other']
+const SCHOOL_KINDS: SchoolEventKind[] = ['term', 'exam', 'holiday', 'other']
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -85,6 +96,26 @@ function parseItem(raw: unknown, index: number): TodoItem {
   }
 }
 
+function parseSchoolEvent(raw: unknown, index: number): SchoolEvent {
+  if (!isRecord(raw)) throw new Error(`第 ${index + 1} 筆學校行事曆不是物件`)
+  const id = str(raw.id)
+  if (!id) throw new Error(`第 ${index + 1} 筆學校行事曆缺少 id`)
+  if (!isValidDateString(raw.start)) throw new Error(`學校行事曆 ${id} 的開始日期 ${raw.start} 不合法`)
+  if (raw.end !== undefined && raw.end !== null && raw.end !== '') {
+    if (!isValidDateString(raw.end)) throw new Error(`學校行事曆 ${id} 的結束日期 ${raw.end} 不合法`)
+    if (raw.end < raw.start) throw new Error(`學校行事曆 ${id} 的結束日期早於開始日期`)
+  }
+  return {
+    id,
+    kind: SCHOOL_KINDS.includes(raw.kind as SchoolEventKind) ? (raw.kind as SchoolEventKind) : 'other',
+    title: str(raw.title),
+    // 結束日等於開始日的話當成單日，不留多餘欄位
+    start: raw.start,
+    end: typeof raw.end === 'string' && raw.end > raw.start ? raw.end : undefined,
+    note: optionalStr(raw.note),
+  }
+}
+
 /**
  * 驗證並正規化任意輸入。寫進 localStorage 前一定要先過這關，
  * 驗不過就保留舊資料，不要蓋掉。
@@ -98,6 +129,10 @@ export function validateAppState(raw: unknown): ValidationResult {
     if (!isValidDateString(raw.semester.end)) throw new Error('學期結束日期不合法')
     if (!Array.isArray(raw.courses)) throw new Error('courses 不是陣列')
     if (!Array.isArray(raw.items)) throw new Error('items 不是陣列')
+    // schoolEvents 是 v2 才有的欄位，舊備份沒有就當成空陣列，不要因此整份拒收
+    if (raw.schoolEvents !== undefined && !Array.isArray(raw.schoolEvents)) {
+      throw new Error('schoolEvents 不是陣列')
+    }
 
     const courses = raw.courses.map(parseCourse)
     const ids = new Set<string>()
@@ -121,6 +156,9 @@ export function validateAppState(raw: unknown): ValidationResult {
         semester: { start: raw.semester.start, end: raw.semester.end },
         courses,
         items: raw.items.map(parseItem),
+        schoolEvents: Array.isArray(raw.schoolEvents)
+          ? raw.schoolEvents.map(parseSchoolEvent)
+          : [],
         settings: {
           notificationsEnabled: settings.notificationsEnabled === true,
           defaultRemindDaysBefore: Math.max(0, Math.floor(num(settings.defaultRemindDaysBefore, 1))),
