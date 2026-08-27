@@ -100,7 +100,7 @@ export function UpNext({
         <p className="empty">
           目前沒有待辦。考試和作業排定了就按「＋ 新增」記下來，
           <br />
-          學校的開學日、考試週、放假日則到「學校行事曆」分頁登記。
+          學校的開學日、考試週、放假日則到「重要日期」分頁登記。
         </p>
       ) : (
         <ul className="todo-list panel">

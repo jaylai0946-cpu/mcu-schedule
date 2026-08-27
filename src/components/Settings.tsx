@@ -85,7 +85,7 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
         <p className="setting-desc">
           瀏覽器通知本來就不可靠（關掉分頁、手機休眠都可能不會響）。
           <strong>把行事曆匯出到手機的系統行事曆，提醒才會準。</strong>
-          下載後在手機上點開檔案，選「加入行事曆」就好。學校行事曆的日期會以全天事件一起匯出。
+          下載後在手機上點開檔案，選「加入行事曆」就好。「重要日期」登記的日期會以全天事件一起匯出。
         </p>
         <p className="notice">
           課程會每週重複到 <strong>{state.semester.end}</strong> 為止

@@ -52,7 +52,7 @@ export function SchoolCalendar({
   return (
     <section className="section">
       <div className="section-head">
-        <h2>學校行事曆</h2>
+        <h2>重要日期</h2>
         <span className="section-note">{schoolEvents.length} 筆</span>
       </div>
 
@@ -150,7 +150,7 @@ export function SchoolCalendar({
         <p className="empty">
           還沒登記任何學校日期。開學日、期中考週、期末考週、國定假日、補課日都可以記在這裡，
           <br />
-          登記後會出現在首頁的「接下來」，也會一起匯出到行事曆。
+          登記後會出現在首頁的「接下來」，也會一起匯出到系統行事曆。到「行事曆」分頁可以從官方行事曆一鍵加入。
         </p>
       )}
 
