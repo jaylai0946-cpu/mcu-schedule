@@ -1498,3 +1498,16 @@ table.almanac thead th {
   text-align: right;
   min-width: 0;
 }
+
+/* ── 同步 ──────────────────────────────────────────────── */
+.sync-key {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  word-break: break-all;
+  user-select: all;
+}

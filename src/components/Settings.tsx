@@ -7,8 +7,11 @@ import { BUILD_ID, BUILD_TIME, checkForUpdate } from '../lib/updates'
 import type { UpdateCheck } from '../lib/updates'
 import type { ThemeChoice } from '../useTheme'
 import type { AppState } from '../types'
+import type { useSync } from '../useSync'
+import { SyncPanel } from './SyncPanel'
 
 interface Props {
+  sync: ReturnType<typeof useSync>
   state: AppState
   onChange: (updater: (prev: AppState) => AppState) => void
   theme: ThemeChoice
@@ -21,7 +24,7 @@ const THEMES: { value: ThemeChoice; label: string }[] = [
   { value: 'dark', label: '深色' },
 ]
 
-export function Settings({ state, onChange, theme, onThemeChange }: Props) {
+export function Settings({ sync, state, onChange, theme, onThemeChange }: Props) {
   const [capability, setCapability] = useState(detectCapability)
   const [importMessage, setImportMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const [update, setUpdate] = useState<UpdateCheck | null>(null)
@@ -203,6 +206,8 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
           ))}
         </div>
       </div>
+
+      <SyncPanel sync={sync} state={state} />
 
       <div className="setting-block panel">
         <h3>資料備份</h3>

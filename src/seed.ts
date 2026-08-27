@@ -110,3 +110,12 @@ export function createSeedState(): AppState {
     version: SCHEMA_VERSION,
   }
 }
+
+/**
+ * 這台裝置的資料還是原封不動的預設值嗎？
+ * 用在第二台裝置啟用同步時：全新的裝置直接吃雲端的就好，
+ * 沒必要跳衝突讓使用者在「空的」和「有資料的」之間選。
+ */
+export function isPristine(state: AppState): boolean {
+  return JSON.stringify(state) === JSON.stringify(createSeedState())
+}

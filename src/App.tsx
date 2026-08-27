@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { CourseEditor } from './components/CourseEditor'
 import { CourseTable } from './components/CourseTable'
 import { Masthead } from './components/Masthead'
@@ -12,6 +12,7 @@ import { todayISO } from './lib/dates'
 import { buildICS, downloadICS } from './lib/ics'
 import { useAppState } from './state'
 import { useReminders } from './useReminders'
+import { useSync } from './useSync'
 import { useTheme } from './useTheme'
 
 type View = 'home' | 'almanac' | 'dates' | 'courses' | 'settings'
@@ -31,6 +32,12 @@ export default function App() {
   const today = todayISO()
 
   useReminders(state)
+
+  const applyRemote = useCallback(
+    (next: typeof state) => actions.setState(() => next),
+    [actions],
+  )
+  const sync = useSync(state, applyRemote)
 
   return (
     <div className="app">
@@ -129,6 +136,7 @@ export default function App() {
 
       {view === 'settings' && (
         <Settings
+          sync={sync}
           state={state}
           onChange={actions.setState}
           theme={theme}

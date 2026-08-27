@@ -1,0 +1,8 @@
+name = "mcu-schedule-sync"
+main = "worker.js"
+compatibility_date = "2026-08-27"
+
+# npx wrangler kv namespace create SYNC 之後，把印出來的 id 填到這裡
+[[kv_namespaces]]
+binding = "SYNC"
+id = "請填入你的 KV namespace id"
