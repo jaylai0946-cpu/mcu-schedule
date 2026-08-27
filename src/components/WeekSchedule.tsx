@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { WEEK_ZOOM_MAX, WEEK_ZOOM_MIN, useWeekView } from '../useWeekView'
 import { LUNCH_PERIOD, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
 import { weekdayOf } from '../lib/dates'
 import { buildWeekLayout, classesOnWeekday, courseColorStyle } from '../lib/schedule'
@@ -16,6 +17,8 @@ export function WeekSchedule({
   const { blocks, occupied, emptyDays } = buildWeekLayout(courses)
   const todayWeekday = weekdayOf(today)
 
+  const { mode, zoom, setMode, zoomIn, zoomOut, resetZoom } = useWeekView()
+
   // 一門課有兩個以上時段（例如會計學的正課與實習）容易看錯，在表格下面講清楚
   const multiSessionNotes = courses
     .filter((c) => c.sessions.length > 1)
@@ -32,15 +35,63 @@ export function WeekSchedule({
     )
 
   return (
-    <section className="section">
+    <section className="section" data-week-view={mode}>
       <div className="section-head">
         <h2>週課表</h2>
         <span className="section-note">節次 1-8，午休（午）夾在第 4、5 節之間</span>
       </div>
 
-      {/* 桌機：格狀表格 */}
-      <div className="scroll-x only-desktop">
-        <div className="week-grid">
+      {/* 手機才需要選：桌機一律格子 */}
+      <div className="week-view-bar">
+        <div className="chip-row">
+          <button
+            type="button"
+            className="period-chip almanac-tab"
+            aria-pressed={mode === 'grid'}
+            onClick={() => setMode('grid')}
+          >
+            格子
+          </button>
+          <button
+            type="button"
+            className="period-chip almanac-tab"
+            aria-pressed={mode === 'list'}
+            onClick={() => setMode('list')}
+          >
+            清單
+          </button>
+        </div>
+
+        {mode === 'grid' && (
+          <div className="zoom-controls" role="group" aria-label="課表縮放">
+            <button
+              type="button"
+              className="btn"
+              onClick={zoomOut}
+              disabled={zoom <= WEEK_ZOOM_MIN}
+              aria-label="課表縮小"
+            >
+              －
+            </button>
+            <span className="zoom-value mono">{Math.round(zoom * 100)}%</span>
+            <button
+              type="button"
+              className="btn"
+              onClick={zoomIn}
+              disabled={zoom >= WEEK_ZOOM_MAX}
+              aria-label="課表放大"
+            >
+              ＋
+            </button>
+            <button type="button" className="btn" onClick={resetZoom}>
+              重設
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="scroll-x week-grid-wrap">
+        <div style={{ zoom }} className="week-grid">
           <div className="week-head" style={{ gridColumn: 1, gridRow: 1 }} aria-hidden="true" />
           {WEEKDAYS.map((d) => (
             <div
@@ -115,8 +166,8 @@ export function WeekSchedule({
         </div>
       </div>
 
-      {/* 手機：一天一段的清單 */}
-      <div className="week-days only-mobile">
+      {/* 一天一段的清單 */}
+      <div className="week-days week-list-wrap">
         {WEEKDAYS.map((d) => {
           const classes = classesOnWeekday(courses, d)
           return (

@@ -1511,3 +1511,51 @@ table.almanac thead th {
   word-break: break-all;
   user-select: all;
 }
+
+/* ── 週課表：手機上的清單／格子切換 ────────────────────── */
+.week-view-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* 桌機空間夠，一律格子，不給選也不用縮放 */
+@media (min-width: 721px) {
+  .week-view-bar {
+    display: none;
+  }
+
+  .week-grid-wrap {
+    display: block;
+  }
+
+  .week-list-wrap {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .section[data-week-view='grid'] .week-grid-wrap {
+    display: block;
+  }
+
+  .section[data-week-view='grid'] .week-list-wrap {
+    display: none;
+  }
+
+  .section[data-week-view='list'] .week-grid-wrap {
+    display: none;
+  }
+
+  .section[data-week-view='list'] .week-list-wrap {
+    display: grid;
+  }
+
+  /* 縮小之後格子會變得很擠，字距放寬一點比較好認 */
+  .week-grid-wrap .week-block-name {
+    font-size: 13px;
+  }
+}
