@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -6,8 +7,24 @@ import { VitePWA } from 'vite-plugin-pwa'
 // repo 改名的話這裡要跟著改，否則上線會是白畫面。
 const BASE = '/mcu-schedule/'
 
+// 版本資訊做進畫面裡，才能一眼看出手機上跑的是哪一版
+function buildId(): string {
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7)
+  try {
+    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim()
+  } catch {
+    return 'dev'
+  }
+}
+
 export default defineConfig({
   base: BASE,
+  define: {
+    __BUILD_ID__: JSON.stringify(buildId()),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     VitePWA({

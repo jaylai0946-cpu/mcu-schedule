@@ -3,6 +3,8 @@ import { SEMESTER_DEFAULT } from '../constants'
 import { buildICS, downloadICS } from '../lib/ics'
 import { detectCapability, requestPermission } from '../lib/notifications'
 import { exportJSON, importJSON } from '../lib/storage'
+import { BUILD_ID, BUILD_TIME, checkForUpdate } from '../lib/updates'
+import type { UpdateCheck } from '../lib/updates'
 import type { ThemeChoice } from '../useTheme'
 import type { AppState } from '../types'
 
@@ -22,6 +24,8 @@ const THEMES: { value: ThemeChoice; label: string }[] = [
 export function Settings({ state, onChange, theme, onThemeChange }: Props) {
   const [capability, setCapability] = useState(detectCapability)
   const [importMessage, setImportMessage] = useState<{ ok: boolean; text: string } | null>(null)
+  const [update, setUpdate] = useState<UpdateCheck | null>(null)
+  const [checking, setChecking] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const usingOfficialSemester =
@@ -161,6 +165,28 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
       </div>
 
       <div className="setting-block panel">
+        <h3>版本</h3>
+        <p className="setting-desc">
+          目前這台裝置跑的是 <code>{BUILD_ID}</code>，建置於{' '}
+          <span className="mono">{BUILD_TIME.slice(0, 16).replace('T', ' ')} UTC</span>。
+          手機和電腦看到的版本號不一樣，就是有一邊還沒更新。
+        </p>
+        <button
+          type="button"
+          className="btn"
+          disabled={checking}
+          onClick={async () => {
+            setChecking(true)
+            setUpdate(await checkForUpdate())
+            setChecking(false)
+          }}
+        >
+          {checking ? '檢查中…' : '檢查更新'}
+        </button>
+        {update && <p className="notice">{updateMessage(update)}</p>}
+      </div>
+
+      <div className="setting-block panel">
         <h3>外觀</h3>
         <div className="chip-row">
           {THEMES.map((t) => (
@@ -211,4 +237,19 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
       </div>
     </section>
   )
+}
+
+function updateMessage(result: UpdateCheck): string {
+  switch (result.state) {
+    case 'updating':
+      return '找到新版，正在套用。畫面會自己重新載入。'
+    case 'current':
+      return '已經是最新版。'
+    case 'not-installed':
+      return '這個頁面沒有註冊 service worker，所以不會有離線快取，也不需要更新——重新整理就是最新的。'
+    case 'unsupported':
+      return '這個瀏覽器不支援 service worker。'
+    case 'error':
+      return `檢查失敗：${result.message}`
+  }
 }
