@@ -1732,7 +1732,8 @@ table.almanac thead th {
   border: 0;
   border-top: 1px solid var(--ink);
   grid-template-columns: 74px repeat(5, minmax(112px, 1fr));
-  grid-template-rows: 34px repeat(9, minmax(58px, auto));
+  /* 表頭 16px 字配上下各 9px padding 需要 35px，34px 會讓文字壓到框線 */
+  grid-template-rows: 38px repeat(9, minmax(58px, auto));
 }
 
 .week-head {
@@ -2014,7 +2015,12 @@ table.almanac td {
   .week-grid-wrap .week-grid {
     min-width: 600px;
     grid-template-columns: 54px repeat(5, minmax(0, 1fr));
-    grid-template-rows: 30px repeat(9, minmax(52px, auto));
+    grid-template-rows: 34px repeat(9, minmax(52px, auto));
+  }
+
+  .week-grid-wrap .week-head {
+    font-size: 14px;
+    padding: 5px 3px;
   }
 
   .masthead h1 {
@@ -2049,4 +2055,27 @@ table.almanac td {
 .todo-list.panel:not(.done-list) .todo-row:first-child .todo-countdown,
 .todo-row[data-tone='ongoing'] .todo-countdown {
   color: var(--band-ink-2) !important;
+}
+
+/*
+  放大之後格子會超出螢幕要左右捲，這時左邊的節次時間欄必須釘住，
+  不然捲到星期四、五就不知道自己在看第幾節。
+  釘住的欄位不能是透明的，否則課塊會從底下透出來。
+*/
+.week-grid-wrap .week-time,
+.week-grid-wrap .week-head:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--ground);
+}
+
+.week-grid-wrap .week-time[data-lunch='true'] {
+  background: var(--panel-2);
+}
+
+/* 釘住的那一欄要有右邊界，跟被它蓋過去的內容分開 */
+.week-grid-wrap .week-time,
+.week-grid-wrap .week-head:first-child {
+  border-right: 1px solid var(--rule);
 }
