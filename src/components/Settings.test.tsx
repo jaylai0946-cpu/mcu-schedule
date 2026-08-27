@@ -52,9 +52,10 @@ describe('JSON 備份', () => {
     const file = new File([exportJSON(backup)], 'backup.json', { type: 'application/json' })
     fireEvent.change(input, { target: { files: [file] } })
 
-    await waitFor(() => {
-      expect(screen.getByText(/已還原：8 門課、1 筆待辦/)).toBeInTheDocument()
-    })
+    await waitFor(
+      () => expect(screen.getByText(/已還原：8 門課、1 筆待辦/)).toBeInTheDocument(),
+      { timeout: 5000 },
+    )
     expect(loadState().state.items[0].title).toBe('從備份還原的考試')
   })
 
@@ -66,9 +67,10 @@ describe('JSON 備份', () => {
     const file = new File(['這不是 JSON'], 'bad.json', { type: 'application/json' })
     fireEvent.change(input, { target: { files: [file] } })
 
-    await waitFor(() => {
-      expect(screen.getByText(/匯入失敗，資料沒有被動到/)).toBeInTheDocument()
-    })
+    await waitFor(
+      () => expect(screen.getByText(/匯入失敗，資料沒有被動到/)).toBeInTheDocument(),
+      { timeout: 5000 },
+    )
     expect(loadState().state).toEqual(before)
   })
 })

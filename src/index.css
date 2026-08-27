@@ -1,71 +1,138 @@
-/* ── 主題變數 ────────────────────────────────────────────────
-   淺色是唯一完整的定義來源。深色只覆寫同一組變數，
-   任何顏色都不會只存在於 media query 裡面。 */
+/* ══════════════════════════════════════════════════════════════
+   Industry 主題 — 鋼藍單色、方角、髮絲線框。
+   來自設計交接稿 design_handoff_mcu_ui/industry-theme.css。
+   字體用 index.html 的 <link> 載入，不用 @import（@import 會擋住渲染，
+   而且必須放在檔案最前面，之後要加規則很容易踩到）。
+   ══════════════════════════════════════════════════════════════ */
+
 :root {
-  --ground: #f6f5f1;
-  --panel: #fffefb;
-  --panel-2: #eceae3;
-  --slot: #f7f6f2;
+  --ground: #f2f2f3;
+  --panel: #f2f2f3; /* 卡片不填色，是線圖 */
+  --panel-2: #e7e7ea;
+  --slot: transparent; /* 空堂不填色 */
 
-  --ink: #24282e;
-  --ink-2: #565d67;
-  --ink-3: #8a919b;
+  --ink: #1d1f20;
+  --ink-2: #5d5d60;
+  /* 交接稿是 #7a7a7d，壓在 #f2f2f3 上只有 3.82:1；而且它也會壓在
+     午休列的 --panel-2 上，那裡更嚴苛。調到兩種底色都過 4.5。 */
+  --ink-3: #666669;
 
-  --rule: #dedbd2;
-  --rule-strong: #c7c3b7;
-  --accent: #7a3226;
+  --rule: rgb(29 31 32 / 0.16);
+  --rule-strong: #1d1f20;
+
+  --accent: #5980a6;
+  --accent-100: #eef6ff;
+  --accent-200: #d6ebff;
+  --accent-300: #b5d9fd;
+  --accent-600: #597ea3;
+  --accent-700: #416180;
+  --accent-800: #2c455d;
+  --accent-900: #1d2d3d;
 
   --danger: #a3342a;
-  --shadow: 0 1px 2px rgb(36 40 46 / 0.05);
+  --shadow: none; /* 這一版靠線條，不靠陰影 */
 
-  --font-serif: 'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', 'PingFang TC', serif;
-  --font-sans: 'Noto Sans TC', 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  /*
+    交接稿把實色物件上的文字寫死成 #fff。淺色模式沒問題，但深色模式的
+    --accent 會變成亮藍（#94bce3），白字壓上去就看不清楚了，所以拆成 token。
+  */
+  --on-accent: #ffffff;
+
+  /*
+    #5980a6 配白字只有 4.14:1，16px 的內文需要 4.5。
+    強調色本身不動（線框、色條都還是 #5980a6），只有「白字壓上去」的
+    實色物件改用這個深一階的值，量到 4.68:1。
+  */
+  --accent-solid: #52789c;
+
+  /* 「接下來」第一列的實色欄。深色模式不能直接用 --accent-900，
+     那個值在深色是亮藍色，會變成淺底配淺字。 */
+  --band-bg: #1d2d3d;
+  --band-ink: #eef6ff;
+  --band-ink-2: #b5d9fd;
+  --band-tag: #d6ebff;
+
+  --font-serif: 'Barlow Condensed', 'Noto Sans TC', 'PingFang TC', sans-serif;
+  --font-sans: 'Barlow', 'Noto Sans TC', 'PingFang TC', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
-  --max-width: 1120px;
+  --max-width: 1180px;
   --tap: 44px;
 
   color-scheme: light;
 }
 
+/*
+  深色：鋼藍色階整個反過來——數字小的變成深底，數字大的變成亮字。
+  交接稿只給了 100/200/300/900，600/700/800 沒給；沿用淺色那組的話
+  會變成深藍字配近黑底（例如 .masthead-today 用 --accent-700 #416180），
+  對比不足，所以這裡一併補上反轉後的值。
+*/
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --ground: #16181c;
-    --panel: #1e2126;
-    --panel-2: #24272d;
-    --slot: #1b1e23;
+    --ground: #16191c;
+    --panel: #16191c;
+    --panel-2: #22262b;
 
     --ink: #eceae4;
     --ink-2: #a8aeb8;
-    --ink-3: #767d88;
+    --ink-3: #8d949e;
 
-    --rule: #32363d;
-    --rule-strong: #444a53;
-    --accent: #d98a72;
+    --rule: rgb(236 234 228 / 0.18);
+    --rule-strong: #eceae4;
+
+    --accent: #94bce3;
+    --accent-100: #22303c;
+    --accent-200: #2c4457;
+    --accent-300: #416180;
+    --accent-600: #7ea9d0;
+    --accent-700: #a8cbe8;
+    --accent-800: #c4dcf0;
+    --accent-900: #d6ebff;
 
     --danger: #e08a7f;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+
+    --on-accent: #16191c;
+    /* 深色的 --accent 是亮藍，配深字有 9:1，不用另外調 */
+    --accent-solid: #94bce3;
+    --band-bg: #24384a;
+    --band-ink: #eef6ff;
+    --band-ink-2: #94bce3;
+    --band-tag: #b5d9fd;
 
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --ground: #16181c;
-  --panel: #1e2126;
-  --panel-2: #24272d;
-  --slot: #1b1e23;
+  --ground: #16191c;
+  --panel: #16191c;
+  --panel-2: #22262b;
 
   --ink: #eceae4;
   --ink-2: #a8aeb8;
-  --ink-3: #767d88;
+  --ink-3: #8d949e;
 
-  --rule: #32363d;
-  --rule-strong: #444a53;
-  --accent: #d98a72;
+  --rule: rgb(236 234 228 / 0.18);
+  --rule-strong: #eceae4;
+
+  --accent: #94bce3;
+  --accent-100: #22303c;
+  --accent-200: #2c4457;
+  --accent-300: #416180;
+  --accent-600: #7ea9d0;
+  --accent-700: #a8cbe8;
+  --accent-800: #c4dcf0;
+  --accent-900: #d6ebff;
 
   --danger: #e08a7f;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+
+  --on-accent: #16191c;
+  --accent-solid: #94bce3;
+  --band-bg: #24384a;
+  --band-ink: #eef6ff;
+  --band-ink-2: #94bce3;
+  --band-tag: #b5d9fd;
 
   color-scheme: dark;
 }
@@ -688,8 +755,8 @@ time {
 }
 
 .btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-solid);
+  border-color: var(--accent-solid);
   color: var(--panel);
   font-weight: 600;
 }
@@ -897,8 +964,8 @@ time {
 }
 
 .period-chip[aria-pressed='true'] {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-solid);
+  border-color: var(--accent-solid);
   color: var(--panel);
   font-weight: 600;
 }
@@ -1590,4 +1657,413 @@ table.almanac thead th {
     min-width: 600px;
     grid-template-columns: 54px repeat(5, minmax(0, 1fr));
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Industry 覆寫層 — 來自設計交接稿。class 名稱全部沿用現有的。
+   ══════════════════════════════════════════════════════════════ */
+
+/* 2.1 全部方角、無陰影：這一版是工程圖，不是圓角卡片 */
+.panel, .btn, .tag, .field input, .field select, .period-chip, .hue-chip,
+.notice, .confirm-box, .session-box, .empty, .day-empty, .today-card,
+.week-grid, .week-block, .day-row, .week-empty-day, .almanac-viewport,
+.sync-key, table.almanac th, table.almanac td, .legend i, .export-cta {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 2.2 標頭 */
+.masthead {
+  border-bottom: 1px solid var(--ink);
+}
+
+.masthead h1 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  letter-spacing: -0.015em;
+}
+
+.masthead-today {
+  color: var(--accent-700);
+  font-weight: 500;
+}
+
+/* 2.3 區段標題 */
+.section-head {
+  border-bottom: 1px solid var(--ink);
+}
+
+.section-head h2 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  letter-spacing: -0.015em;
+}
+
+.section-note {
+  font-size: 12px;
+}
+
+/*
+  2.4 藍圖角標。
+  交接稿是套在所有 .panel 上，但 .scroll-x.panel（修課清單、行事曆）是
+  overflow: auto 容器，負偏移的絕對定位子元素會被裁掉、還會撐出捲動範圍，
+  所以那兩個排除掉。
+*/
+.panel:not(.scroll-x),
+.setting-block {
+  position: relative;
+}
+
+.panel:not(.scroll-x)::before,
+.panel:not(.scroll-x)::after,
+.setting-block::before,
+.setting-block::after {
+  content: '';
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background:
+    linear-gradient(var(--ink-3), var(--ink-3)) 5px 0 / 1px 100% no-repeat,
+    linear-gradient(var(--ink-3), var(--ink-3)) 0 5px / 100% 1px no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.panel:not(.scroll-x)::before,
+.setting-block::before {
+  top: -6px;
+  left: -6px;
+}
+
+.panel:not(.scroll-x)::after,
+.setting-block::after {
+  bottom: -6px;
+  right: -6px;
+}
+
+/* 2.5 週課表：格線是線，不是縫隙 */
+.week-grid {
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--ink);
+  grid-template-columns: 74px repeat(5, minmax(112px, 1fr));
+  grid-template-rows: 34px repeat(9, minmax(58px, auto));
+}
+
+.week-head {
+  background: transparent;
+  border-bottom: 1px solid var(--ink);
+  border-left: 1px solid var(--rule);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.week-head[data-today='true'] {
+  color: var(--accent-700);
+}
+
+.week-time {
+  background: transparent;
+  border-bottom: 1px solid var(--rule);
+  justify-content: flex-start;
+  align-items: flex-end;
+  padding-top: 5px;
+  padding-right: 8px;
+  text-align: right;
+}
+
+.week-time b {
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.week-slot {
+  background: transparent;
+  border-bottom: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+
+.week-slot[data-lunch='true'],
+.week-time[data-lunch='true'] {
+  background: var(--panel-2);
+}
+
+/* 課塊一律鋼藍線框，不再用每門課的色相 */
+.week-block,
+.day-row,
+.today-card {
+  background: var(--accent-100) !important;
+  border: 1px solid var(--accent-600) !important;
+  border-left: 3px solid var(--accent-700) !important;
+  margin: 2px;
+}
+
+.week-block-name,
+.day-row-name,
+.today-name {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-900) !important;
+}
+
+.week-block-meta,
+.day-row-meta,
+.today-where,
+.day-row-time,
+.today-time {
+  color: var(--accent-700) !important;
+}
+
+.course-bar,
+.event-bar {
+  background: var(--accent) !important;
+}
+
+.week-empty-day {
+  background: transparent;
+  border: 1px dashed var(--ink-3);
+}
+
+.week-empty-main {
+  font-family: var(--font-serif);
+}
+
+/* 2.6 按鈕：主按鈕是唯一的實色物件 */
+.btn {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.btn:hover {
+  background: var(--accent-100);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.btn-primary {
+  background: var(--accent-solid);
+  border-color: var(--accent-solid);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background: var(--accent-600);
+  border-color: var(--accent-600);
+  color: var(--on-accent);
+  filter: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 2.7 分頁：檔案夾頁籤 */
+.nav {
+  border-bottom: 1px solid var(--ink);
+  gap: 0;
+}
+
+.nav button {
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  border-radius: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  /* --ink-3 在這個底色上只有 3.82:1，未選中的頁籤還是要讀得清楚 */
+  color: var(--ink-2);
+}
+
+.nav button[aria-current='true'] {
+  background: var(--accent-solid);
+  border-color: var(--accent-solid);
+  color: var(--on-accent);
+  font-weight: 400;
+}
+
+/* 2.8 chip / tag */
+.period-chip {
+  background: transparent;
+  border-color: var(--rule);
+}
+
+.period-chip[aria-pressed='true'] {
+  background: var(--accent-solid);
+  border-color: var(--accent-solid);
+  color: var(--on-accent);
+}
+
+.tag {
+  border-color: var(--rule);
+  color: var(--ink-2);
+  font-size: 11px;
+}
+
+.tag-school {
+  border-color: var(--accent);
+  color: var(--accent-700);
+}
+
+/* 2.9 表單 */
+.field label,
+.field-legend {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.field input,
+.field select {
+  background: transparent;
+  border-color: var(--rule);
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+/* 2.10 提示條 */
+.notice,
+.export-cta {
+  background: var(--accent-100);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  color: var(--accent-900);
+}
+
+.notice[data-tone='warn'] {
+  background: transparent;
+  border-left-color: var(--danger);
+  color: var(--danger);
+}
+
+/* 2.11 官方行事曆表格 */
+.almanac-viewport {
+  border: 1px solid var(--rule);
+  background: transparent;
+}
+
+table.almanac thead th {
+  background: var(--ground);
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--font-serif);
+  font-size: 13px;
+}
+
+table.almanac th,
+table.almanac td {
+  border-color: var(--rule);
+}
+
+.almanac-day[data-weekend='true'] {
+  background: var(--panel-2);
+}
+
+.almanac-day[data-today='true'] {
+  background: var(--accent-900);
+  color: var(--ground);
+}
+
+/*
+  2.12 「接下來」最上面一筆做成鋼藍實色欄。
+  交接稿寫 .todo-list.panel .todo-row:first-child，但那會連「已完成」那一區的
+  第一列也一起吃到，所以這裡把已完成排除掉。
+*/
+.todo-list.panel:not(.done-list) .todo-row:first-child,
+.todo-row[data-tone='ongoing'] {
+  background: var(--band-bg);
+  color: var(--band-ink);
+  border-color: var(--band-bg);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .todo-title,
+.todo-row[data-tone='ongoing'] .todo-title {
+  color: var(--band-ink);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .todo-sub,
+.todo-list.panel:not(.done-list) .todo-row:first-child .todo-countdown,
+.todo-row[data-tone='ongoing'] .todo-sub,
+.todo-row[data-tone='ongoing'] .todo-countdown {
+  color: var(--band-ink-2) !important;
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .event-status,
+.todo-row[data-tone='ongoing'] .event-status {
+  color: var(--band-ink-2) !important;
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .tag,
+.todo-row[data-tone='ongoing'] .tag {
+  border-color: rgb(255 255 255 / 0.35);
+  color: var(--band-tag);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .btn,
+.todo-row[data-tone='ongoing'] .btn {
+  border-color: rgb(255 255 255 / 0.35);
+  color: var(--band-tag);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .btn:hover,
+.todo-row[data-tone='ongoing'] .btn:hover {
+  background: var(--accent-800);
+  color: var(--band-ink);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .link-btn,
+.todo-row[data-tone='ongoing'] .link-btn {
+  color: var(--band-ink-2);
+}
+
+/* ── 手機微調：覆寫層改過格線設定，這裡再套回窄螢幕的尺寸 ──── */
+@media (max-width: 720px) {
+  .week-grid-wrap .week-grid {
+    min-width: 600px;
+    grid-template-columns: 54px repeat(5, minmax(0, 1fr));
+    grid-template-rows: 30px repeat(9, minmax(52px, auto));
+  }
+
+  .masthead h1 {
+    font-size: 27px;
+  }
+
+  .section-head h2 {
+    font-size: 20px;
+  }
+}
+
+/*
+  強調色當「文字」用的時候要更深。
+  --accent (#5980a6) 壓在底色上只有 3.71:1；--accent-700 有 5.98:1。
+  線框與色條維持 --accent 不變，只有文字改。
+  深色模式的 --accent-700 是亮藍，壓在深底上一樣過關。
+*/
+.todo-countdown[data-tone='soon'],
+.event-status[data-tone='soon'],
+.event-status[data-tone='ongoing'],
+.editor-row[data-tone='ongoing'] .event-status,
+.week-head[data-today='true'],
+.day-head[data-today='true'] h3 {
+  color: var(--accent-700);
+}
+
+.todo-countdown[data-tone='ongoing'] {
+  color: var(--accent-700);
+}
+
+/* 實色欄裡面的還是要走反白那組，不能被上面這條蓋掉 */
+.todo-list.panel:not(.done-list) .todo-row:first-child .todo-countdown,
+.todo-row[data-tone='ongoing'] .todo-countdown {
+  color: var(--band-ink-2) !important;
 }

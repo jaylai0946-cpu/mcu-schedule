@@ -129,7 +129,7 @@ export function UpNext({
       {done.length > 0 && (
         <details className="done-block">
           <summary>已完成（{done.length}）</summary>
-          <ul className="todo-list panel">
+          <ul className="todo-list panel done-list">
             {done.map((it) => (
               <TodoRow
                 key={it.id}
@@ -201,7 +201,7 @@ function SchoolRow({
   const status = schoolEventStatus(event, today)
 
   return (
-    <li className="todo-row" data-school="true">
+    <li className="todo-row" data-school="true" data-tone={status.tone}>
       <span className="todo-countdown" data-tone={status.tone}>
         {status.label}
       </span>
