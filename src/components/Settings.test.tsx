@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import App from '../App'
-import { buildICS } from '../lib/ics'
 import { exportJSON, loadState } from '../lib/storage'
 import { createSeedState } from '../seed'
 
@@ -14,22 +13,11 @@ function gotoSettings() {
   fireEvent.click(screen.getByRole('button', { name: '設定' }))
 }
 
-describe('學期起訖', () => {
-  it('改過之後 .ics 的 UNTIL 會跟著變，首頁的待確認提示也消失', () => {
+describe('匯出說明', () => {
+  it('說明課程會重複到哪一天，以及日期是官方的還是自己改的', () => {
     gotoSettings()
-    fireEvent.change(screen.getByLabelText('最後上課日'), { target: { value: '2027-01-08' } })
-
-    const state = loadState().state
-    expect(state.semester.end).toBe('2027-01-08')
-    expect(buildICS(state)).toContain('UNTIL=20270108T155959Z')
-
-    fireEvent.click(screen.getByRole('button', { name: '首頁' }))
-    expect(screen.queryByText(/尚未對過銘傳行事曆/)).not.toBeInTheDocument()
-  })
-
-  it('學期還沒確認時，設定頁會提醒匯出前先改', () => {
-    gotoSettings()
-    expect(screen.getByText(/先在下面把日期改成銘傳行事曆上的正確日期再匯出/)).toBeInTheDocument()
+    expect(screen.getByText(/2027-01-08/)).toBeInTheDocument()
+    expect(screen.getByText(/取自官方行事曆/)).toBeInTheDocument()
   })
 })
 

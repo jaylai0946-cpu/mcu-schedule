@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HUE_PRESETS, LUNCH_PERIOD, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
+import { HUE_PRESETS, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
 import { describeConflict, detectConflicts } from '../lib/conflicts'
 import { sortPeriods } from '../lib/dates'
 import type { Course, Period, Session, Weekday } from '../types'
@@ -214,7 +214,7 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
               </div>
             </div>
 
-            <span className="field-legend">節次</span>
+            <span className="field-legend">節次（20 = 午休／班會，排在第 4、5 節中間）</span>
             <div className="chip-row">
               {PERIOD_ORDER.map((p) => (
                 <button
@@ -225,7 +225,7 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
                   onClick={() => togglePeriod(i, p)}
                   title={`${PERIOD_TIMES[p].start}–${PERIOD_TIMES[p].end}`}
                 >
-                  {p === LUNCH_PERIOD ? '午' : p}
+                  {p}
                 </button>
               ))}
             </div>

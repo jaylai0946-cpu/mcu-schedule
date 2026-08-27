@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
-import { SEMESTER_PLACEHOLDER } from '../constants'
-import { isValidDateString } from '../lib/dates'
+import { SEMESTER_DEFAULT } from '../constants'
 import { buildICS, downloadICS } from '../lib/ics'
 import { detectCapability, requestPermission } from '../lib/notifications'
 import { exportJSON, importJSON } from '../lib/storage'
@@ -25,9 +24,9 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
   const [importMessage, setImportMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const semesterUnconfirmed =
-    state.semester.start === SEMESTER_PLACEHOLDER.start &&
-    state.semester.end === SEMESTER_PLACEHOLDER.end
+  const usingOfficialSemester =
+    state.semester.start === SEMESTER_DEFAULT.start &&
+    state.semester.end === SEMESTER_DEFAULT.end
 
   async function toggleNotifications(enabled: boolean) {
     if (!enabled) {
@@ -88,12 +87,10 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
           <strong>把行事曆匯出到手機的系統行事曆，提醒才會準。</strong>
           下載後在手機上點開檔案，選「加入行事曆」就好。學校行事曆的日期會以全天事件一起匯出。
         </p>
-        {semesterUnconfirmed && (
-          <p className="notice">
-            學期起訖還是暫定值。現在匯出的話，課程會重複到 {state.semester.end} 為止——
-            先在下面把日期改成銘傳行事曆上的正確日期再匯出。
-          </p>
-        )}
+        <p className="notice">
+          課程會每週重複到 <strong>{state.semester.end}</strong> 為止
+          {usingOfficialSemester ? '（取自官方行事曆）' : '（你自己改過的日期）'}。
+        </p>
         <div className="form-actions">
           <button type="button" className="btn btn-primary" onClick={() => download('all')}>
             匯出全部（課程＋待辦＋學校日期）
@@ -101,41 +98,6 @@ export function Settings({ state, onChange, theme, onThemeChange }: Props) {
           <button type="button" className="btn" onClick={() => download('items')}>
             只匯出待辦與學校日期
           </button>
-        </div>
-      </div>
-
-      <div className="setting-block panel">
-        <h3>學期起訖</h3>
-        <p className="setting-desc">
-          決定匯出的課程要每週重複到哪一天。查銘傳行事曆的開學日與期末最後上課日填進來。
-        </p>
-        <div className="form">
-          <div className="field">
-            <label htmlFor="semester-start">開學日</label>
-            <input
-              id="semester-start"
-              type="date"
-              value={state.semester.start}
-              onChange={(e) => {
-                const value = e.target.value
-                if (!isValidDateString(value)) return
-                onChange((prev) => ({ ...prev, semester: { ...prev.semester, start: value } }))
-              }}
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="semester-end">最後上課日</label>
-            <input
-              id="semester-end"
-              type="date"
-              value={state.semester.end}
-              onChange={(e) => {
-                const value = e.target.value
-                if (!isValidDateString(value)) return
-                onChange((prev) => ({ ...prev, semester: { ...prev.semester, end: value } }))
-              }}
-            />
-          </div>
         </div>
       </div>
 

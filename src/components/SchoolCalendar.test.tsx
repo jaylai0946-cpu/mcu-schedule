@@ -11,7 +11,7 @@ beforeEach(() => {
 
 function gotoCalendar() {
   render(<App />)
-  fireEvent.click(screen.getByRole('button', { name: '學校行事曆' }))
+  fireEvent.click(screen.getByRole('button', { name: '重要日期' }))
 }
 
 function addEvent(title: string, start: string, end?: string, kind?: string) {
@@ -97,7 +97,7 @@ describe('併入首頁的「接下來」', () => {
     fireEvent.change(screen.getByLabelText('日期'), { target: { value: addDays(todayISO(), 3) } })
     fireEvent.click(screen.getByRole('button', { name: '存檔' }))
 
-    fireEvent.click(screen.getByRole('button', { name: '學校行事曆' }))
+    fireEvent.click(screen.getByRole('button', { name: '重要日期' }))
     addEvent('期中考週', addDays(todayISO(), 1))
     fireEvent.click(screen.getByRole('button', { name: '首頁' }))
 
@@ -105,14 +105,14 @@ describe('併入首頁的「接下來」', () => {
     expect(titles).toEqual(['期中考週', '會計學作業'])
   })
 
-  it('已經過去的不會出現在接下來，而是收在行事曆分頁的摺疊區', () => {
+  it('已經過去的不會出現在接下來，而是收在重要日期分頁的摺疊區', () => {
     gotoCalendar()
     addEvent('上週的活動', addDays(todayISO(), -10))
 
     fireEvent.click(screen.getByRole('button', { name: '首頁' }))
     expect(screen.queryByText('上週的活動')).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: '學校行事曆' }))
+    fireEvent.click(screen.getByRole('button', { name: '重要日期' }))
     expect(screen.getByText('已經過去的（1）')).toBeInTheDocument()
   })
 })
@@ -135,11 +135,17 @@ describe('學期起訖帶入與匯出', () => {
     expect(buildICS(loadState().state)).toContain('UNTIL=20270108T155959Z')
   })
 
-  it('改完之後首頁不再顯示待確認', () => {
+  it('直接改日期也會存起來，並反映在 .ics', () => {
     gotoCalendar()
-    fireEvent.change(screen.getByLabelText('最後上課日'), { target: { value: '2027-01-08' } })
-    fireEvent.click(screen.getByRole('button', { name: '首頁' }))
-    expect(screen.queryByText(/尚未對過銘傳行事曆/)).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('最後上課日'), { target: { value: '2026-12-25' } })
+    expect(loadState().state.semester.end).toBe('2026-12-25')
+    expect(buildICS(loadState().state)).toContain('UNTIL=20261225T155959Z')
+  })
+
+  it('改成和官方不同的日期時會提示是自己改過的', () => {
+    gotoCalendar()
+    fireEvent.change(screen.getByLabelText('最後上課日'), { target: { value: '2026-12-25' } })
+    expect(screen.getByText(/是你自己改過的/)).toBeInTheDocument()
   })
 
   it('新增的日期會一起匯出到 .ics', () => {

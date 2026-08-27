@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION, STORAGE_KEY } from '../constants'
+import { LEGACY_SEMESTER_PLACEHOLDER, SCHEMA_VERSION, SEMESTER_DEFAULT, STORAGE_KEY } from '../constants'
 import { createSeedState } from '../seed'
 import type { AppState } from '../types'
 import { validateAppState } from './validate'
@@ -24,6 +24,19 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   0: (raw) => ({ ...raw, version: 1 }),
   // 1 -> 2：加入學校行事曆。舊資料沒有這個欄位，補一個空陣列就好。
   1: (raw) => ({ ...raw, schoolEvents: raw.schoolEvents ?? [], version: 2 }),
+  // 2 -> 3：拿到官方行事曆了。只換掉「還停在暫定值」的，
+  //         使用者自己改過的日期不能動。
+  2: (raw) => {
+    const semester = raw.semester as { start?: string; end?: string } | undefined
+    const untouched =
+      semester?.start === LEGACY_SEMESTER_PLACEHOLDER.start &&
+      semester?.end === LEGACY_SEMESTER_PLACEHOLDER.end
+    return {
+      ...raw,
+      semester: untouched ? { ...SEMESTER_DEFAULT } : raw.semester,
+      version: 3,
+    }
+  },
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

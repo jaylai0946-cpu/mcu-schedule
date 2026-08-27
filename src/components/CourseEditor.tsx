@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LUNCH_PERIOD, WEEKDAY_NAMES } from '../constants'
+import { WEEKDAY_NAMES } from '../constants'
 import { courseColorStyle, splitContiguous, totalCredits } from '../lib/schedule'
 import { periodSpanTime } from '../lib/dates'
 import type { Course, Session, TodoItem } from '../types'
@@ -9,7 +9,7 @@ function sessionSummary(s: Session): string {
   return splitContiguous(s.ps)
     .map((run) => {
       const { start, end } = periodSpanTime(run)
-      const names = run.map((p) => (p === LUNCH_PERIOD ? '午' : p)).join(',')
+      const names = run.join(',')
       return `星期${WEEKDAY_NAMES[s.d]} ${names} 節　${start}–${end}　${s.room}`
     })
     .join(' ／ ')

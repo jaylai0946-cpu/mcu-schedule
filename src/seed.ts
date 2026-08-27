@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION, SEMESTER_PLACEHOLDER, DEFAULT_REMIND_DAYS_BEFORE } from './constants'
+import { SCHEMA_VERSION, SEMESTER_DEFAULT, DEFAULT_REMIND_DAYS_BEFORE } from './constants'
 import type { AppState, Course } from './types'
 
 /** 真實課表資料。課名、課號、教師、教室一律照原樣，不要「順手修正」。 */
@@ -98,7 +98,7 @@ export function createSeedState(): AppState {
       campus: '台北校區',
       code: '57101',
     },
-    semester: { ...SEMESTER_PLACEHOLDER },
+    semester: { ...SEMESTER_DEFAULT },
     courses: structuredClone(SEED_COURSES),
     items: [],
     // 銘傳 115 學年度的行事曆日期由使用者自己輸入，這裡不預填任何猜測的日期

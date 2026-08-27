@@ -1,4 +1,4 @@
-import { LUNCH_PERIOD, WEEKDAY_NAMES } from '../constants'
+import { WEEKDAY_NAMES } from '../constants'
 import { periodSpanTime } from '../lib/dates'
 import { courseColorStyle, splitContiguous, totalCredits } from '../lib/schedule'
 import type { Course, Session } from '../types'
@@ -7,7 +7,7 @@ function sessionWhen(s: Session): string {
   return splitContiguous(s.ps)
     .map((run) => {
       const { start, end } = periodSpanTime(run)
-      const names = run.map((p) => (p === LUNCH_PERIOD ? '午' : p)).join(',')
+      const names = run.join(',')
       return `${WEEKDAY_NAMES[s.d]} ${names} 節　${start}–${end}`
     })
     .join('\n')

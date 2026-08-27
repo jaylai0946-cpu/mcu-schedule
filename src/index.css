@@ -1229,3 +1229,272 @@ time {
     grid-template-columns: 82px minmax(0, 1fr);
   }
 }
+
+/* ── 官方行事曆檢視 ────────────────────────────────────── */
+.almanac-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.almanac-tab {
+  min-width: auto;
+  padding: 0 12px;
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zoom-controls .btn {
+  padding: 0 10px;
+}
+
+.zoom-controls .btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.zoom-value {
+  min-width: 52px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.almanac-hint {
+  margin: 0 0 8px;
+}
+
+.almanac-viewport {
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--panel);
+  max-height: 72vh;
+  overflow: auto;
+}
+
+table.almanac {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 880px;
+  font-size: 12px;
+}
+
+table.almanac th,
+table.almanac td {
+  border: 1px solid var(--rule);
+  padding: 3px 5px;
+  vertical-align: middle;
+}
+
+table.almanac thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel-2);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: center;
+  border-color: var(--rule-strong);
+}
+
+.almanac-narrow {
+  width: 26px;
+  min-width: 26px;
+  text-align: center;
+  color: var(--ink-3);
+}
+
+.almanac-vertical {
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.almanac-week {
+  width: 46px;
+  min-width: 46px;
+  text-align: center;
+  color: var(--ink-2);
+  font-size: 11px;
+}
+
+.almanac-day {
+  width: 30px;
+  min-width: 30px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.almanac-day[data-weekend='true'] {
+  background: var(--slot);
+  color: var(--ink-3);
+}
+
+.almanac-day[data-today='true'] {
+  background: var(--accent);
+  color: var(--panel);
+  font-weight: 700;
+}
+
+.almanac-events {
+  min-width: 380px;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+.almanac-actions {
+  margin-top: 14px;
+}
+
+.pick-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  max-height: 380px;
+  overflow-y: auto;
+  border-top: 1px solid var(--rule);
+}
+
+.pick-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 8px 2px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pick-date {
+  grid-column: 1 / -1;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.pick-title {
+  font-size: 13.5px;
+  min-width: 0;
+}
+
+.pick-row .btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (min-width: 721px) {
+  .pick-row {
+    grid-template-columns: 240px minmax(0, 1fr) auto;
+  }
+
+  .pick-date {
+    grid-column: auto;
+  }
+}
+
+/* ── 週課表：更接近紙本課表的排版 ──────────────────────── */
+.week-grid {
+  background: var(--rule);
+}
+
+.week-head {
+  border-bottom: 2px solid var(--ink);
+  font-size: 14.5px;
+  letter-spacing: 0.08em;
+  padding: 9px 4px;
+}
+
+.week-time b {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+/* 色塊內容垂直置中，跨節的大色塊才不會全擠在上緣 */
+.week-block {
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 7px;
+}
+
+.week-block-name {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.week-block-meta {
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+
+.week-empty-day {
+  writing-mode: horizontal-tb;
+  flex-direction: column;
+  gap: 10px;
+  letter-spacing: normal;
+}
+
+.week-empty-main {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.42em;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.week-empty-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--ink-3);
+}
+
+.week-footnotes {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-3);
+  font-size: 11.5px;
+  line-height: 1.75;
+}
+
+.week-footnotes p {
+  margin: 0 0 4px;
+}
+
+.week-footnotes b {
+  color: var(--ink-2);
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+.week-footnotes .mono {
+  font-size: 11px;
+}
+
+/* 標題不要被旁邊的說明擠成兩行 */
+.section-head {
+  flex-wrap: wrap;
+}
+
+.section-head h2 {
+  white-space: nowrap;
+}
+
+.section-head .section-note {
+  flex: 1 1 auto;
+  text-align: right;
+  min-width: 0;
+}

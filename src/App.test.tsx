@@ -34,9 +34,10 @@ describe('首頁', () => {
     expect(screen.getAllByText('整天沒課').length).toBeGreaterThan(0)
   })
 
-  it('學期日期還是暫定值時會標示待確認', () => {
+  it('學期起訖預設用官方行事曆的日期', () => {
     render(<App />)
-    expect(screen.getByText(/尚未對過銘傳行事曆/)).toBeInTheDocument()
+    const semester = loadState().state.semester
+    expect(semester).toEqual({ start: '2026-09-07', end: '2027-01-08' })
   })
 })
 

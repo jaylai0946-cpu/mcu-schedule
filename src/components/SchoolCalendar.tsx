@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SCHOOL_EVENT_KIND_NAMES, SEMESTER_PLACEHOLDER } from '../constants'
+import { SCHOOL_EVENT_KIND_NAMES, SEMESTER_DEFAULT } from '../constants'
 import { formatDateWithWeekday, isValidDateString } from '../lib/dates'
 import {
   eventLengthDays,
@@ -36,8 +36,8 @@ export function SchoolCalendar({
   const upcoming = sorted.filter((e) => !schoolEventStatus(e, today).finished)
   const past = sorted.filter((e) => schoolEventStatus(e, today).finished).reverse()
 
-  const semesterUnconfirmed =
-    semester.start === SEMESTER_PLACEHOLDER.start && semester.end === SEMESTER_PLACEHOLDER.end
+  const usingOfficialSemester =
+    semester.start === SEMESTER_DEFAULT.start && semester.end === SEMESTER_DEFAULT.end
 
   // 可以拿來當學期起訖的候選日期：每筆事件的開始日與結束日
   const dateOptions = sorted.flatMap((e) =>
@@ -61,9 +61,10 @@ export function SchoolCalendar({
         <p className="setting-desc">
           決定匯出的課程要每週重複到哪一天。可以直接改日期，或從下面登記過的重要日期挑一個帶入。
         </p>
-        {semesterUnconfirmed && (
+        {!usingOfficialSemester && (
           <p className="notice">
-            目前還是暫定值（{semester.start} 到 {semester.end}），尚未對過銘傳行事曆。
+            這組日期和官方行事曆（{SEMESTER_DEFAULT.start} 到 {SEMESTER_DEFAULT.end}）不一樣，
+            是你自己改過的。
           </p>
         )}
 

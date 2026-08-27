@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { SEMESTER_PLACEHOLDER } from './constants'
 import { CourseEditor } from './components/CourseEditor'
 import { CourseTable } from './components/CourseTable'
 import { Masthead } from './components/Masthead'
+import { AcademicCalendar } from './components/AcademicCalendar'
 import { SchoolCalendar } from './components/SchoolCalendar'
 import { Settings } from './components/Settings'
 import { TodayClasses } from './components/TodayClasses'
@@ -14,11 +14,12 @@ import { useAppState } from './state'
 import { useReminders } from './useReminders'
 import { useTheme } from './useTheme'
 
-type View = 'home' | 'calendar' | 'courses' | 'settings'
+type View = 'home' | 'almanac' | 'dates' | 'courses' | 'settings'
 
 const TABS: { value: View; label: string }[] = [
   { value: 'home', label: '首頁' },
-  { value: 'calendar', label: '學校行事曆' },
+  { value: 'almanac', label: '行事曆' },
+  { value: 'dates', label: '重要日期' },
   { value: 'courses', label: '編輯課表' },
   { value: 'settings', label: '設定' },
 ]
@@ -30,10 +31,6 @@ export default function App() {
   const today = todayISO()
 
   useReminders(state)
-
-  const semesterUnconfirmed =
-    state.semester.start === SEMESTER_PLACEHOLDER.start &&
-    state.semester.end === SEMESTER_PLACEHOLDER.end
 
   return (
     <div className="app">
@@ -67,14 +64,6 @@ export default function App() {
 
       {view === 'home' && (
         <>
-          {semesterUnconfirmed && (
-            <p className="notice">
-              學期起訖目前是暫定值（{state.semester.start} 到 {state.semester.end}），
-              <strong>尚未對過銘傳行事曆</strong>。匯出行事曆前記得到「學校行事曆」分頁改成正確日期，
-              否則課程會重複到錯的週次。
-            </p>
-          )}
-
           <UpNext
             items={state.items}
             courses={state.courses}
@@ -84,7 +73,7 @@ export default function App() {
             onAdd={actions.addItem}
             onToggle={actions.toggleItem}
             onDelete={actions.deleteItem}
-            onOpenCalendar={() => setView('calendar')}
+            onOpenCalendar={() => setView('dates')}
           />
 
           <div className="export-cta">
@@ -104,12 +93,21 @@ export default function App() {
           </div>
 
           <TodayClasses courses={state.courses} today={today} />
-          <WeekSchedule courses={state.courses} today={today} />
+          <WeekSchedule courses={state.courses} today={today} campus={state.profile.campus} />
           <CourseTable courses={state.courses} />
         </>
       )}
 
-      {view === 'calendar' && (
+      {view === 'almanac' && (
+        <AcademicCalendar
+          schoolEvents={state.schoolEvents}
+          onAdd={actions.upsertSchoolEvent}
+          onSemesterChange={actions.setSemester}
+          semester={state.semester}
+        />
+      )}
+
+      {view === 'dates' && (
         <SchoolCalendar
           schoolEvents={state.schoolEvents}
           semester={state.semester}

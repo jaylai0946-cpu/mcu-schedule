@@ -1,7 +1,7 @@
 import type { ItemKind, Period, SchoolEventKind, Weekday } from './types'
 
 /** 目前的 schema 版本。改動 AppState 結構時 +1，並在 migrations 補上升級函式。 */
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export const STORAGE_KEY = 'mcu-schedule.state.v1'
 
@@ -66,9 +66,15 @@ export const HUE_PRESETS: { hue: number; sat: number; name: string }[] = [
 ]
 
 /**
- * 學期起訖的暫定值——銘傳行事曆尚未確認。
- * UI 會比對 state.semester 是否仍等於這組值，相同就顯示「待確認」提示。
+ * 115 學年度第 1 學期的起訖，取自官方行事曆：
+ * 9/7 預定舊生註冊、開學、正式上課；1/4-1/8 期末學習評量週（1/11 寒假開始）。
  */
-export const SEMESTER_PLACEHOLDER = { start: '2026-09-14', end: '2027-01-17' }
+export const SEMESTER_DEFAULT = { start: '2026-09-07', end: '2027-01-08' }
+
+/**
+ * 拿到官方行事曆之前用的暫定值。schema v2 -> v3 的升級會把還停在這組值的
+ * 舊資料換成 SEMESTER_DEFAULT；使用者自己改過的則原封不動。
+ */
+export const LEGACY_SEMESTER_PLACEHOLDER = { start: '2026-09-14', end: '2027-01-17' }
 
 export const DEFAULT_REMIND_DAYS_BEFORE = 1

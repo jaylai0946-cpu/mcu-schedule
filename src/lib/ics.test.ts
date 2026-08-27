@@ -67,8 +67,8 @@ describe('課程是週期性事件', () => {
 
   it('星期一 1-3 節的會計學：一個事件，08:10 到 11:00', () => {
     const event = eventFor(ics, 'course-acc-0-0')
-    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260914T081000')
-    expect(event).toContain('DTEND;TZID=Asia/Taipei:20260914T110000')
+    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260907T081000')
+    expect(event).toContain('DTEND;TZID=Asia/Taipei:20260907T110000')
     expect(event).toContain('SUMMARY:會計學（一）')
     expect(event).toContain('LOCATION:H402')
     expect(event.find((l) => l.startsWith('DESCRIPTION:'))).toContain('許韶纓')
@@ -77,7 +77,7 @@ describe('課程是週期性事件', () => {
   it('每週重複，星期正確，學期結束後停止', () => {
     const event = eventFor(ics, 'course-acc-0-0')
     // 2027-01-17 23:59:59 台北 = 2027-01-17 15:59:59 UTC
-    expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270117T155959Z')
+    expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270108T155959Z')
   })
 
   it('DTSTART 落在學期開始後的第一個該星期', () => {
@@ -89,24 +89,24 @@ describe('課程是週期性事件', () => {
 
   it('星期五的經濟學用 BYDAY=FR，起訖 09:10-12:00', () => {
     const event = eventFor(ics, 'course-eco-0-0')
-    expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20270117T155959Z')
-    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260918T091000')
-    expect(event).toContain('DTEND;TZID=Asia/Taipei:20260918T120000')
+    expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL=20270108T155959Z')
+    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260911T091000')
+    expect(event).toContain('DTEND;TZID=Asia/Taipei:20260911T120000')
   })
 
   it('實習時段是自己的事件，教室和教師都不同', () => {
     const event = eventFor(ics, 'course-acc-1-0')
     expect(event).toContain('SUMMARY:會計學（一）（實習）')
     expect(event).toContain('LOCATION:D105')
-    expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20270117T155959Z')
-    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260917T151000')
+    expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20270108T155959Z')
+    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260910T151000')
     expect(event.find((l) => l.startsWith('DESCRIPTION:'))).toContain('陳映蓉')
   })
 
   it('午休的班會是 12:10-13:00', () => {
     const event = eventFor(ics, 'course-hr-0-0')
-    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260916T121000')
-    expect(event).toContain('DTEND;TZID=Asia/Taipei:20260916T130000')
+    expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260909T121000')
+    expect(event).toContain('DTEND;TZID=Asia/Taipei:20260909T130000')
   })
 
   it('9 個時段就是 9 個事件', () => {

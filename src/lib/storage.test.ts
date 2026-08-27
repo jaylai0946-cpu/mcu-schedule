@@ -196,3 +196,39 @@ describe('schema v1 -> v2 升級', () => {
     expect(loadState().state.schoolEvents[0].end).toBeUndefined()
   })
 })
+
+describe('schema v2 -> v3 換上官方學期日期', () => {
+  function v2StateWith(semester: { start: string; end: string }) {
+    const raw = createSeedState() as unknown as Record<string, unknown>
+    raw.version = 2
+    raw.semester = semester
+    return raw
+  }
+
+  it('還停在暫定值的會被換成官方日期', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(v2StateWith({ start: '2026-09-14', end: '2027-01-17' })),
+    )
+    const result = loadState()
+    expect(result.source).toBe('stored')
+    expect(result.state.semester).toEqual({ start: '2026-09-07', end: '2027-01-08' })
+    expect(result.state.version).toBe(SCHEMA_VERSION)
+  })
+
+  it('自己改過的日期不會被蓋掉', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(v2StateWith({ start: '2026-09-21', end: '2026-12-25' })),
+    )
+    expect(loadState().state.semester).toEqual({ start: '2026-09-21', end: '2026-12-25' })
+  })
+
+  it('只改到半途的也算自己改過，不動它', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(v2StateWith({ start: '2026-09-14', end: '2026-12-25' })),
+    )
+    expect(loadState().state.semester).toEqual({ start: '2026-09-14', end: '2026-12-25' })
+  })
+})

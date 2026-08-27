@@ -4,9 +4,32 @@ import { weekdayOf } from '../lib/dates'
 import { buildWeekLayout, classesOnWeekday, courseColorStyle } from '../lib/schedule'
 import type { Course } from '../types'
 
-export function WeekSchedule({ courses, today }: { courses: Course[]; today: string }) {
+export function WeekSchedule({
+  courses,
+  today,
+  campus = '台北校區',
+}: {
+  courses: Course[]
+  today: string
+  campus?: string
+}) {
   const { blocks, occupied, emptyDays } = buildWeekLayout(courses)
   const todayWeekday = weekdayOf(today)
+
+  // 一門課有兩個以上時段（例如會計學的正課與實習）容易看錯，在表格下面講清楚
+  const multiSessionNotes = courses
+    .filter((c) => c.sessions.length > 1)
+    .map(
+      (c) =>
+        `${c.name}${c.sessions
+          .map(
+            (sess) =>
+              `星期${WEEKDAY_NAMES[sess.d]}為${sess.label ?? '正課'}（${sess.room}${
+                sess.teacher ? `，${sess.teacher}` : ''
+              }）`,
+          )
+          .join('、')}`,
+    )
 
   return (
     <section className="section">
@@ -37,7 +60,7 @@ export function WeekSchedule({ courses, today }: { courses: Course[]; today: str
                 data-lunch={p === LUNCH_PERIOD}
                 style={{ gridColumn: 1, gridRow: i + 2 }}
               >
-                <b>{p === LUNCH_PERIOD ? '午' : p}</b>
+                <b>{p}</b>
                 {PERIOD_TIMES[p].start}
                 <br />
                 {PERIOD_TIMES[p].end}
@@ -62,7 +85,8 @@ export function WeekSchedule({ courses, today }: { courses: Course[]; today: str
               className="week-empty-day"
               style={{ gridColumn: d + 1, gridRow: '2 / -1' }}
             >
-              整天沒課
+              <span className="week-empty-main">整天沒課</span>
+              <span className="week-empty-sub">FREE DAY</span>
             </div>
           ))}
 
@@ -82,8 +106,8 @@ export function WeekSchedule({ courses, today }: { courses: Course[]; today: str
                 {b.session.label ? `（${b.session.label}）` : ''}
               </div>
               <div className="week-block-meta">
-                {b.start}–{b.end}
-                <br />
+                {b.session.teacher ?? b.course.teacher}
+                {'　'}
                 {b.session.room}
               </div>
             </div>
@@ -109,7 +133,7 @@ export function WeekSchedule({ courses, today }: { courses: Course[]; today: str
                     <div className="day-row-time">
                       {c.start}–{c.end}
                       <b>
-                        {c.ps.map((p) => (p === LUNCH_PERIOD ? '午' : p)).join(',')} 節
+                        {c.ps.join(',')} 節
                       </b>
                     </div>
                     <div>
@@ -142,6 +166,28 @@ export function WeekSchedule({ courses, today }: { courses: Course[]; today: str
           <i data-kind="lunch" />
           午休／班會
         </span>
+      </div>
+
+      <div className="week-footnotes">
+        <p>
+          <b>時間（{campus}）</b>
+          <span className="mono">
+            {PERIOD_ORDER.map((p) => `${p === LUNCH_PERIOD ? '20' : p} = ${PERIOD_TIMES[p].start}`)
+              .join('、')}
+          </span>
+          ，每節 50 分鐘。20 為午休／班會時段。
+        </p>
+        {multiSessionNotes.length > 0 && (
+          <p>
+            <b>注意</b>
+            {multiSessionNotes.map((note, i) => (
+              <span key={note}>
+                {i > 0 && '；'}
+                {note}
+              </span>
+            ))}
+          </p>
+        )}
       </div>
     </section>
   )
