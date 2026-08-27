@@ -1559,3 +1559,35 @@ table.almanac thead th {
     font-size: 13px;
   }
 }
+
+/* 手機上工具列會擠爆（body 有 overflow-x: hidden，會直接把「重設」切掉
+   而不是出現捲軸），所以縮小按鈕並允許換行 */
+@media (max-width: 720px) {
+  .week-view-bar {
+    justify-content: flex-start;
+    gap: 6px 10px;
+  }
+
+  .week-view-bar .zoom-controls {
+    flex-wrap: wrap;
+  }
+
+  .week-view-bar .zoom-controls .btn {
+    padding: 0 8px;
+  }
+
+  .week-view-bar .zoom-value {
+    min-width: 44px;
+    font-size: 12px;
+  }
+
+  .week-view-bar .almanac-tab {
+    padding: 0 14px;
+  }
+
+  /* 預設 60% 時整週要塞得進 390px 的螢幕，不然一打開就看不到星期五 */
+  .week-grid-wrap .week-grid {
+    min-width: 600px;
+    grid-template-columns: 54px repeat(5, minmax(0, 1fr));
+  }
+}
