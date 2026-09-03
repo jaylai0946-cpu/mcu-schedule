@@ -2081,8 +2081,8 @@ table.almanac td {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   新生入學輔導流程表（貼在「接下來」那筆學校行事曆底下）
-   預設收起來；展開後是一條左側時間欄的清單，跟課表同一套髮絲線。
+   新生入學輔導的官方表格（貼在「接下來」那筆學校行事曆底下）
+   預設收起來；表格照原表畫，窄螢幕左右捲，樣式跟修課清單同一套。
    ══════════════════════════════════════════════════════════════ */
 .agenda {
   margin-top: 8px;
@@ -2123,76 +2123,52 @@ table.almanac td {
   transform: rotate(90deg);
 }
 
-.agenda-list {
-  list-style: none;
-  margin: 0 0 8px;
-  padding: 0;
+.agenda-scroll {
+  margin-bottom: 10px;
   border-top: 1px solid var(--rule);
 }
 
-.agenda-row {
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--rule);
+.agenda-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
 }
 
-.agenda-row:last-child {
-  border-bottom: 0;
-}
-
-/* 自己班要去的場次：左邊一條實線，不靠顏色，深色模式也看得出來 */
-.agenda-row[data-mine='true'] {
-  border-left: 3px solid var(--accent);
-  padding-left: 8px;
-}
-
-.agenda-time {
-  font-size: 12px;
-  color: var(--ink-2);
-  line-height: 1.5;
-  white-space: nowrap;
-}
-
-.agenda-main {
-  min-width: 0;
-}
-
-.agenda-title {
-  font-size: 13.5px;
-  line-height: 1.45;
-  word-break: break-word;
-}
-
-.agenda-mine {
-  margin-left: 6px;
-  vertical-align: 1px;
-  /* 不加的話「我們班」會在窄螢幕被拆成「我／們班」兩行 */
-  white-space: nowrap;
-  border-color: var(--accent);
-  color: var(--accent-700);
-}
-
-.agenda-meta {
-  margin-top: 2px;
-  color: var(--ink-3);
-  font-size: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 8px;
-}
-
-.agenda-notes {
-  margin: 0 0 6px;
-  padding-left: 18px;
+.agenda-table caption {
+  text-align: left;
+  padding: 8px 0 6px;
   color: var(--ink-2);
   font-size: 12.5px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-.agenda-notes li {
-  margin-bottom: 3px;
+.agenda-table th,
+.agenda-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 6px;
+  border: 1px solid var(--rule);
+  /* 原表的換行要留著，不然「課目／主持人／地點」會黏成一串 */
+  white-space: pre-line;
+}
+
+.agenda-table th {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  border-bottom-color: var(--rule-strong);
+}
+
+/* 時間欄固定寬、不斷行，右邊的內容欄才吃剩下的空間 */
+.agenda-table td[data-col='時間'] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  width: 1%;
 }
 
 .agenda-source {
@@ -2203,49 +2179,32 @@ table.almanac td {
 
 /* 實色欄（第一列／進行中）裡面要走反白那組，不然深底配深字 */
 .todo-list.panel:not(.done-list) .todo-row:first-child .agenda,
-.todo-row[data-tone='ongoing'] .agenda {
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-scroll,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table th,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td,
+.todo-row[data-tone='ongoing'] .agenda,
+.todo-row[data-tone='ongoing'] .agenda-scroll,
+.todo-row[data-tone='ongoing'] .agenda-table th,
+.todo-row[data-tone='ongoing'] .agenda-table td {
   border-color: rgb(255 255 255 / 0.35);
 }
 
 .todo-list.panel:not(.done-list) .todo-row:first-child .agenda > summary,
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-time,
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-meta,
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-notes,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table caption,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table th,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td,
 .todo-list.panel:not(.done-list) .todo-row:first-child .agenda-source,
 .todo-row[data-tone='ongoing'] .agenda > summary,
-.todo-row[data-tone='ongoing'] .agenda-time,
-.todo-row[data-tone='ongoing'] .agenda-meta,
-.todo-row[data-tone='ongoing'] .agenda-notes,
+.todo-row[data-tone='ongoing'] .agenda-table caption,
+.todo-row[data-tone='ongoing'] .agenda-table th,
+.todo-row[data-tone='ongoing'] .agenda-table td,
 .todo-row[data-tone='ongoing'] .agenda-source {
   color: var(--band-ink-2);
 }
 
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-title,
-.todo-row[data-tone='ongoing'] .agenda-title {
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td[data-col='課程配當'],
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td[data-col='院（系）別'],
+.todo-row[data-tone='ongoing'] .agenda-table td[data-col='課程配當'],
+.todo-row[data-tone='ongoing'] .agenda-table td[data-col='院（系）別'] {
   color: var(--band-ink);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-list,
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-row,
-.todo-row[data-tone='ongoing'] .agenda-list,
-.todo-row[data-tone='ongoing'] .agenda-row {
-  border-color: rgb(255 255 255 / 0.35);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-mine,
-.todo-row[data-tone='ongoing'] .agenda-mine {
-  border-color: rgb(255 255 255 / 0.35);
-  color: var(--band-tag);
-}
-
-/* 窄螢幕：時間欄縮短，讓課目有位置 */
-@media (max-width: 420px) {
-  .agenda-row {
-    grid-template-columns: 78px minmax(0, 1fr);
-    gap: 6px;
-  }
-
-  .agenda-time {
-    font-size: 11.5px;
-  }
 }
