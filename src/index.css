@@ -2079,3 +2079,186 @@ table.almanac td {
 .week-grid-wrap .week-head:first-child {
   border-right: 1px solid var(--rule);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   新生入學輔導的官方表格（貼在「接下來」那筆學校行事曆底下）
+   預設收起來；表格照原表畫，窄螢幕左右捲，樣式跟修課清單同一套。
+   ══════════════════════════════════════════════════════════════ */
+.agenda {
+  /* 撐滿整列，不要只佔右邊那欄 */
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  border-top: 1px solid var(--rule);
+}
+
+.agenda > summary {
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  padding: 8px 0;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.agenda[open] > summary {
+  font-weight: 600;
+}
+
+/* iOS Safari 會自己畫一個三角形，把它關掉，只留下面這個 */
+.agenda > summary::-webkit-details-marker {
+  display: none;
+}
+
+.agenda > summary::before {
+  content: '';
+  flex: none;
+  width: 0;
+  height: 0;
+  margin-right: 6px;
+  border-left: 5px solid currentcolor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.agenda[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.agenda-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding-bottom: 8px;
+}
+
+.agenda-bar .zoom-controls .btn {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.agenda-bar .zoom-value {
+  min-width: 44px;
+  font-size: 12px;
+}
+
+.agenda-hint {
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+
+/* 表格比螢幕寬時左右滑；跟官方行事曆同一套 */
+.agenda-viewport {
+  margin-bottom: 10px;
+  border: 1px solid var(--rule);
+  /* 捲動時瀏覽器不要往上找可捲的祖先，不然整頁會跟著晃 */
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
+.agenda-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.agenda-table caption {
+  text-align: left;
+  padding: 8px 0 6px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.agenda-table th,
+.agenda-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 6px;
+  border: 1px solid var(--rule);
+  /* 原表的換行要留著，不然「課目／主持人／地點」會黏成一串 */
+  white-space: pre-line;
+}
+
+.agenda-table th {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  border-bottom-color: var(--rule-strong);
+}
+
+.agenda-table td[data-col='項次'],
+.agenda-table th[data-col='項次'] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  text-align: right;
+  width: 1%;
+}
+
+/* 時間欄不斷行，不然「08：30-09：00」會被拆成兩行 */
+.agenda-table td[data-col='時間'],
+.agenda-table td[data-col='使用時間'] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  width: 1%;
+}
+
+.agenda-table td[data-col='附記'],
+.agenda-table td[data-col='備註'] {
+  color: var(--ink-3);
+}
+
+.agenda-source {
+  margin: 0 0 8px;
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+
+/* 實色欄（第一列／進行中）裡面要走反白那組，不然深底配深字 */
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-viewport,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table th,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td,
+.todo-row[data-tone='ongoing'] .agenda,
+.todo-row[data-tone='ongoing'] .agenda-viewport,
+.todo-row[data-tone='ongoing'] .agenda-table th,
+.todo-row[data-tone='ongoing'] .agenda-table td {
+  border-color: rgb(255 255 255 / 0.35);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda > summary,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table caption,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table th,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-source,
+.todo-row[data-tone='ongoing'] .agenda > summary,
+.todo-row[data-tone='ongoing'] .agenda-table caption,
+.todo-row[data-tone='ongoing'] .agenda-table th,
+.todo-row[data-tone='ongoing'] .agenda-table td,
+.todo-row[data-tone='ongoing'] .agenda-source,
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-hint,
+.todo-list.panel:not(.done-list) .todo-row:first-child .zoom-value,
+.todo-row[data-tone='ongoing'] .agenda-hint,
+.todo-row[data-tone='ongoing'] .zoom-value {
+  color: var(--band-ink-2);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td[data-col='課程配當'],
+.todo-list.panel:not(.done-list) .todo-row:first-child .agenda-table td[data-col='院（系）別'],
+.todo-row[data-tone='ongoing'] .agenda-table td[data-col='課程配當'],
+.todo-row[data-tone='ongoing'] .agenda-table td[data-col='院（系）別'] {
+  color: var(--band-ink);
+}
+
+/* 表格本身有邊框，圓角統一被 Industry 覆寫層抹平，這裡跟著走 */
+.agenda-viewport {
+  border-radius: 0;
+}
