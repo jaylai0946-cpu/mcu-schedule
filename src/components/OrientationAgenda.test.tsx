@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { orientationDaysFor } from '../data/orientation'
 import type { SchoolEvent } from '../types'
 import { UpNext } from './UpNext'
@@ -43,7 +43,7 @@ describe('orientationDaysFor', () => {
     expect(days[0].date).toBe('2026-09-03')
     // 原表 16 個項次，一列都不能少
     expect(days[0].tables[0].rows).toHaveLength(16)
-    expect(days[0].tables[0].rows[0][0]).toBe('08：30 前')
+    expect(days[0].tables[0].columns).toEqual(['項次', '時間', '課程配當', '使用時間', '附記'])
   })
 
   it('9/4 的體檢與心靈檢測配到兩張分配表', () => {
@@ -73,7 +73,7 @@ describe('接下來的表格', () => {
     expect(within(row).getByText('課程配當表（08:30–16:30）')).toBeInTheDocument()
 
     const table = within(row).getByRole('table')
-    expect(within(table).getByText('時間')).toBeInTheDocument()
+    expect(within(table).getByText('項次')).toBeInTheDocument()
     expect(within(table).getByText('08：30 前')).toBeInTheDocument()
     expect(within(table).getByText(/始業式（含院系旗進場）/)).toBeInTheDocument()
     expect(within(table).getAllByText(/國企一甲：D103/)).toHaveLength(3)
@@ -88,6 +88,26 @@ describe('接下來的表格', () => {
     expect(within(tables[0]).getByText(/國企一甲/)).toBeInTheDocument()
     expect(within(tables[0]).getByText('08：10~09：00')).toBeInTheDocument()
     expect(within(tables[1]).getByText('AI 學程、財金系、國企系')).toBeInTheDocument()
+  })
+
+  it('可以縮放，按鈕到底就停住', () => {
+    renderUpNext(ORIENTATION)
+
+    const row = screen.getByText('台北校區新生入學輔導').closest('li')!
+    const zoomIn = within(row).getByRole('button', { name: '放大' })
+    const value = within(row).getByText(/%$/)
+    const before = Number(value.textContent!.replace('%', ''))
+
+    fireEvent.click(zoomIn)
+    expect(Number(value.textContent!.replace('%', ''))).toBe(before + 10)
+
+    // 一路按到上限就停在 200%，而且按鈕會 disabled
+    for (let i = 0; i < 30; i++) fireEvent.click(zoomIn)
+    expect(value).toHaveTextContent('200%')
+    expect(zoomIn).toBeDisabled()
+
+    fireEvent.click(within(row).getByRole('button', { name: '重設' }))
+    expect(value).toHaveTextContent(`${before}%`)
   })
 
   it('一般的學校日期不會多出表格', () => {

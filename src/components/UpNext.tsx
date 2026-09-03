@@ -220,10 +220,11 @@ function SchoolRow({
             編輯
           </button>
         </div>
-        {agendas.map((day) => (
-          <OrientationAgenda key={day.date} day={day} />
-        ))}
       </div>
+      {/* 表格放在 todo-main 外面，才能吃掉倒數欄那 68px，橫向多一點空間 */}
+      {agendas.map((day) => (
+        <OrientationAgenda key={day.date} day={day} />
+      ))}
     </li>
   )
 }
