@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { KIND_NAMES, SCHOOL_EVENT_KIND_NAMES } from '../constants'
+import { orientationDaysFor } from '../data/orientation'
 import { countdownLabel, daysUntil, todayISO } from '../lib/dates'
 import { formatRange, schoolEventStatus, upcomingSchoolEvents } from '../lib/schoolCalendar'
 import type { NewTodoInput } from '../state'
 import type { Course, SchoolEvent, TodoItem } from '../types'
+import { OrientationAgenda } from './OrientationAgenda'
 import { TodoForm } from './TodoForm'
 
 function tone(days: number): 'overdue' | 'soon' | 'normal' {
@@ -199,6 +201,7 @@ function SchoolRow({
   onOpenCalendar: () => void
 }) {
   const status = schoolEventStatus(event, today)
+  const agendas = orientationDaysFor(event)
 
   return (
     <li className="todo-row" data-school="true" data-tone={status.tone}>
@@ -217,6 +220,9 @@ function SchoolRow({
             編輯
           </button>
         </div>
+        {agendas.map((day) => (
+          <OrientationAgenda key={day.date} day={day} />
+        ))}
       </div>
     </li>
   )
