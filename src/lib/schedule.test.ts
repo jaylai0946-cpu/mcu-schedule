@@ -68,7 +68,7 @@ describe('classesOnWeekday', () => {
   it('實習時段用自己的教師覆蓋課程教師', () => {
     const acc = classesOnWeekday(SEED_COURSES, 4).find((c) => c.course.id === 'acc')!
     expect(acc.teacher).toBe('陳映蓉')
-    expect(acc.session.room).toBe('D105')
+    expect(acc.session.room).toBe('B102')
   })
 
   it('星期二沒有任何課', () => {

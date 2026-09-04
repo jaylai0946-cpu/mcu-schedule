@@ -5,6 +5,39 @@ import { validateAppState } from './validate'
 
 export const CORRUPT_KEY = `${STORAGE_KEY}.corrupt`
 
+/**
+ * 115-1 開學前學校換掉的教室。schema v3 -> v4 用它來更新已經存在裝置上的
+ * 課表——種子資料只在全新安裝時才會用到，光改種子資料手機上是不會變的。
+ * 比對課程 id、星期和舊教室三個條件都相同才換，使用者自己改過的不動。
+ */
+const ROOM_MOVES_V4: { courseId: string; d: number; from: string; to: string }[] = [
+  { courseId: 'chi', d: 1, from: 'D206', to: 'B302' }, // 中國文學鑑賞與創作（一）
+  { courseId: 'ai', d: 3, from: 'F610', to: 'D305' }, // 人工智慧概論
+  { courseId: 'hr', d: 3, from: 'D106', to: 'B102' }, // 班會
+  { courseId: 'acc', d: 4, from: 'D105', to: 'B102' }, // 會計學（一）實習
+]
+
+/** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
+function applyRoomMoves(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+  return raw.courses.map((course) => {
+    if (typeof course !== 'object' || course === null) return course
+    const c = course as { id?: unknown; sessions?: unknown }
+    if (!Array.isArray(c.sessions)) return course
+    return {
+      ...c,
+      sessions: c.sessions.map((session) => {
+        if (typeof session !== 'object' || session === null) return session
+        const s = session as { d?: unknown; room?: unknown }
+        const move = ROOM_MOVES_V4.find(
+          (m) => m.courseId === c.id && m.d === s.d && m.from === s.room,
+        )
+        return move ? { ...s, room: move.to } : session
+      }),
+    }
+  })
+}
+
 export type LoadSource = 'stored' | 'seed' | 'recovered'
 
 export interface LoadResult {
@@ -37,6 +70,9 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
       version: 3,
     }
   },
+  // 3 -> 4：學校換教室。只換掉「還停在舊教室」的時段，
+  //         使用者自己改過的不能動。
+  3: (raw) => ({ ...raw, courses: applyRoomMoves(raw), version: 4 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

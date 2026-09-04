@@ -13,7 +13,7 @@ export const SEED_COURSES: Course[] = [
     sat: 42,
     sessions: [
       { d: 1, ps: [1, 2, 3], room: 'H402' },
-      { d: 4, ps: [7, 8], room: 'D105', label: '實習', teacher: '陳映蓉' },
+      { d: 4, ps: [7, 8], room: 'B102', label: '實習', teacher: '陳映蓉' },
     ],
   },
   {
@@ -44,7 +44,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 266,
     sat: 42,
-    sessions: [{ d: 3, ps: [3, 4], room: 'F610' }],
+    sessions: [{ d: 3, ps: [3, 4], room: 'D305' }],
   },
   {
     id: 'chi',
@@ -54,7 +54,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 152,
     sat: 42,
-    sessions: [{ d: 1, ps: [5, 6], room: 'D206' }],
+    sessions: [{ d: 1, ps: [5, 6], room: 'B302' }],
   },
   {
     id: 'eng',
@@ -85,7 +85,7 @@ export const SEED_COURSES: Course[] = [
     hue: 214,
     sat: 10,
     note: '全學年',
-    sessions: [{ d: 3, ps: [20], room: 'D106' }],
+    sessions: [{ d: 3, ps: [20], room: 'B102' }],
   },
 ]
 

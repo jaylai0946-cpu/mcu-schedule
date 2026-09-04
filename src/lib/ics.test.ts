@@ -97,7 +97,7 @@ describe('課程是週期性事件', () => {
   it('實習時段是自己的事件，教室和教師都不同', () => {
     const event = eventFor(ics, 'course-acc-1-0')
     expect(event).toContain('SUMMARY:會計學（一）（實習）')
-    expect(event).toContain('LOCATION:D105')
+    expect(event).toContain('LOCATION:B102')
     expect(event).toContain('RRULE:FREQ=WEEKLY;BYDAY=TH;UNTIL=20270108T155959Z')
     expect(event).toContain('DTSTART;TZID=Asia/Taipei:20260910T151000')
     expect(event.find((l) => l.startsWith('DESCRIPTION:'))).toContain('陳映蓉')
