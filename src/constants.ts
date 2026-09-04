@@ -1,7 +1,7 @@
 import type { ItemKind, Period, SchoolEventKind, Weekday } from './types'
 
 /** 目前的 schema 版本。改動 AppState 結構時 +1，並在 migrations 補上升級函式。 */
-export const SCHEMA_VERSION = 3
+export const SCHEMA_VERSION = 4
 
 export const STORAGE_KEY = 'mcu-schedule.state.v1'
 

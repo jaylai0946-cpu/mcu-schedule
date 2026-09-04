@@ -18,7 +18,7 @@ describe('種子資料', () => {
     const acc = SEED_COURSES.find((c) => c.id === 'acc')!
     expect(acc.sessions).toHaveLength(2)
     expect(acc.sessions[0]).toMatchObject({ d: 1, ps: [1, 2, 3], room: 'H402' })
-    expect(acc.sessions[1]).toMatchObject({ d: 4, room: 'D105', label: '實習', teacher: '陳映蓉' })
+    expect(acc.sessions[1]).toMatchObject({ d: 4, room: 'B102', label: '實習', teacher: '陳映蓉' })
   })
 
   it('星期二整天沒課', () => {
@@ -28,7 +28,7 @@ describe('種子資料', () => {
 
   it('班會在星期三的午休節次', () => {
     const hr = SEED_COURSES.find((c) => c.id === 'hr')!
-    expect(hr.sessions[0]).toMatchObject({ d: 3, ps: [20], room: 'D106' })
+    expect(hr.sessions[0]).toMatchObject({ d: 3, ps: [20], room: 'B102' })
   })
 
   it('種子資料本身通過驗證', () => {
@@ -194,6 +194,65 @@ describe('schema v1 -> v2 升級', () => {
     })
     saveState(state)
     expect(loadState().state.schoolEvents[0].end).toBeUndefined()
+  })
+})
+
+describe('schema v3 -> v4 換教室', () => {
+  /** 拿種子資料倒推回 v3（舊教室）的樣子 */
+  function v3StateWithRoom(courseId: string, room: string) {
+    const raw = createSeedState() as unknown as Record<string, unknown>
+    raw.version = 3
+    const courses = raw.courses as { id: string; sessions: { room: string }[] }[]
+    const course = courses.find((c) => c.id === courseId)!
+    course.sessions[course.sessions.length - 1].room = room
+    return raw
+  }
+
+  function roomOf(state: { courses: { id: string; sessions: { room: string }[] }[] }, id: string) {
+    const sessions = state.courses.find((c) => c.id === id)!.sessions
+    return sessions[sessions.length - 1].room
+  }
+
+  it('還停在舊教室的四堂課會被換成新教室', () => {
+    const raw = createSeedState() as unknown as Record<string, unknown>
+    raw.version = 3
+    const courses = raw.courses as { id: string; sessions: { room: string }[] }[]
+    courses.find((c) => c.id === 'chi')!.sessions[0].room = 'D206'
+    courses.find((c) => c.id === 'ai')!.sessions[0].room = 'F610'
+    courses.find((c) => c.id === 'hr')!.sessions[0].room = 'D106'
+    courses.find((c) => c.id === 'acc')!.sessions[1].room = 'D105'
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(raw))
+
+    const { state, source } = loadState()
+    expect(source).toBe('stored')
+    expect(state.version).toBe(SCHEMA_VERSION)
+    expect(roomOf(state, 'chi')).toBe('B302')
+    expect(roomOf(state, 'ai')).toBe('D305')
+    expect(roomOf(state, 'hr')).toBe('B102')
+    expect(roomOf(state, 'acc')).toBe('B102')
+  })
+
+  it('自己改過教室的不會被蓋掉', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v3StateWithRoom('ai', 'H999')))
+    expect(roomOf(loadState().state, 'ai')).toBe('H999')
+  })
+
+  it('換過一次之後不會再動第二次', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v3StateWithRoom('chi', 'D206')))
+    const once = loadState().state
+    expect(roomOf(once, 'chi')).toBe('B302')
+
+    // 已經是 v4 了，之後每次載入都不會再跑這段
+    saveState(once)
+    expect(roomOf(loadState().state, 'chi')).toBe('B302')
+  })
+
+  it('正課的教室不會被實習那筆的規則波及', () => {
+    // 會計正課在星期一 H402，規則只挑星期四的 D105
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v3StateWithRoom('acc', 'D105')))
+    const acc = loadState().state.courses.find((c) => c.id === 'acc')!
+    expect(acc.sessions[0].room).toBe('H402')
+    expect(acc.sessions[1].room).toBe('B102')
   })
 })
 
