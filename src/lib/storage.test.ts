@@ -26,10 +26,10 @@ describe('種子資料', () => {
     expect(assembly.sessions[0]).toMatchObject({ d: 5, ps: [5], room: '' })
   })
 
-  it('全民國防是夜間時段，1-8 節的格子畫不下，用一行說明代替時段', () => {
+  it('全民國防排在星期一的夜間節次 50、60', () => {
     const defense = SEED_COURSES.find((c) => c.id === 'defense')!
-    expect(defense.sessions).toEqual([])
-    expect(defense.timeNote).toContain('夜間')
+    expect(defense.sessions).toEqual([{ d: 1, ps: [50, 60], room: 'B401' }])
+    expect(defense.timeNote).toBeUndefined()
   })
 
   it('每一門課都有修別', () => {
@@ -225,6 +225,35 @@ describe('schema v1 -> v2 升級', () => {
   })
 })
 
+describe('schema v6 -> v7 全民國防排進夜間節次', () => {
+  function v6StateWithoutSession() {
+    const raw = createSeedState() as unknown as Record<string, unknown>
+    raw.version = 6
+    const defense = (raw.courses as Record<string, unknown>[]).find((c) => c.code === '00934')!
+    defense.sessions = []
+    defense.timeNote = '星期一 夜間（節次代碼 50、60）　B401'
+    return raw
+  }
+
+  it('沒有時段的那筆補成星期一 50、60 節，說明文字撤掉', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v6StateWithoutSession()))
+    const defense = loadState().state.courses.find((c) => c.code === '00934')!
+    expect(defense.sessions).toEqual([{ d: 1, ps: [50, 60], room: 'B401' }])
+    expect(defense.timeNote).toBeUndefined()
+  })
+
+  it('自己已經排過時段的不會被改掉', () => {
+    const raw = v6StateWithoutSession()
+    const defense = (raw.courses as Record<string, unknown>[]).find((c) => c.code === '00934')!
+    defense.sessions = [{ d: 3, ps: [40], room: 'X999' }]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(raw))
+
+    expect(loadState().state.courses.find((c) => c.code === '00934')!.sessions).toEqual([
+      { d: 3, ps: [40], room: 'X999' },
+    ])
+  })
+})
+
 describe('schema v5 -> v6 補上修別', () => {
   function v5State() {
     const raw = createSeedState() as unknown as Record<string, unknown>
@@ -249,10 +278,11 @@ describe('schema v5 -> v6 補上修別', () => {
     expect(courses.every((c) => c.category !== undefined)).toBe(true)
   })
 
-  it('順便補上全民國防的夜間時段說明', () => {
+  it('全民國防最後會排進夜間節次（v6 先補說明，v7 再換成時段）', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(v5State()))
     const defense = loadState().state.courses.find((c) => c.code === '00934')!
-    expect(defense.timeNote).toContain('夜間')
+    expect(defense.sessions).toEqual([{ d: 1, ps: [50, 60], room: 'B401' }])
+    expect(defense.timeNote).toBeUndefined()
   })
 
   it('自己設過的修別不會被蓋掉', () => {

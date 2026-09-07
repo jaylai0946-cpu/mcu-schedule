@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { WEEK_ZOOM_MAX, WEEK_ZOOM_MIN, useWeekView } from '../useWeekView'
-import { LUNCH_PERIOD, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
+import { EVENING_PERIODS, LUNCH_PERIOD, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
 import { weekdayOf } from '../lib/dates'
 import { buildWeekLayout, classesOnWeekday } from '../lib/schedule'
 import type { Course } from '../types'
@@ -14,7 +14,8 @@ export function WeekSchedule({
   today: string
   campus?: string
 }) {
-  const { blocks, occupied, emptyDays } = buildWeekLayout(courses)
+  const { blocks, occupied, emptyDays, rows } = buildWeekLayout(courses)
+  const hasEvening = rows.some((p) => EVENING_PERIODS.includes(p))
   const todayWeekday = weekdayOf(today)
 
   const { mode, zoom, setMode, zoomIn, zoomOut, resetZoom } = useWeekView()
@@ -38,7 +39,9 @@ export function WeekSchedule({
     <section className="section" data-week-view={mode}>
       <div className="section-head">
         <h2>週課表</h2>
-        <span className="section-note">節次 1-8，午休（午）夾在第 4、5 節之間</span>
+        <span className="section-note">
+          節次 1-8，午休（20）夾在第 4、5 節之間{hasEvening && '；40 以上是夜間'}
+        </span>
       </div>
 
       {/* 手機才需要選：桌機一律格子 */}
@@ -91,7 +94,8 @@ export function WeekSchedule({
       </div>
 
       <div className="scroll-x week-grid-wrap">
-        <div style={{ zoom }} className="week-grid">
+        {/* 有夜間課的時候列數會變多，格線跟著長 */}
+        <div style={{ zoom, '--week-rows': rows.length } as React.CSSProperties} className="week-grid">
           <div className="week-head" style={{ gridColumn: 1, gridRow: 1 }} aria-hidden="true" />
           {WEEKDAYS.map((d) => (
             <div
@@ -104,7 +108,7 @@ export function WeekSchedule({
             </div>
           ))}
 
-          {PERIOD_ORDER.map((p, i) => (
+          {rows.map((p, i) => (
             <Fragment key={`row-${p}`}>
               <div
                 className="week-time"
@@ -244,10 +248,10 @@ export function WeekSchedule({
         <p>
           <b>時間（{campus}）</b>
           <span className="mono">
-            {PERIOD_ORDER.map((p) => `${p === LUNCH_PERIOD ? '20' : p} = ${PERIOD_TIMES[p].start}`)
-              .join('、')}
+            {rows.map((p) => `${p} = ${PERIOD_TIMES[p].start}`).join('、')}
           </span>
-          ，每節 50 分鐘。20 為午休／班會時段。
+          ，每節 50 分鐘。20 為午休／班會時段
+          {hasEvening && '，40 以上為夜間課程'}。
         </p>
         {multiSessionNotes.length > 0 && (
           <p>

@@ -1,10 +1,19 @@
-import { PERIOD_ORDER, WEEKDAYS } from '../constants'
+import { BASE_PERIODS, PERIOD_ORDER, WEEKDAYS } from '../constants'
 import type { Course, Period, Session, Weekday } from '../types'
 import { periodSpanTime, timeToMinutes } from './dates'
 
 /** 節次在課表上的列索引（0 起算）。用 PERIOD_ORDER 而不是數字大小。 */
 export function periodIndex(p: Period): number {
   return PERIOD_ORDER.indexOf(p)
+}
+
+/**
+ * 這份課表要畫出哪幾列：固定的 1-8 節加午休，
+ * 再加上真的有課用到的傍晚（第 9 節）和夜間節次。
+ */
+export function periodRows(courses: Course[]): Period[] {
+  const used = new Set<Period>(courses.flatMap((c) => c.sessions.flatMap((s) => s.ps)))
+  return PERIOD_ORDER.filter((p) => BASE_PERIODS.includes(p) || used.has(p))
 }
 
 /**
@@ -37,15 +46,19 @@ export interface GridBlock {
 
 export interface WeekLayout {
   blocks: GridBlock[]
-  /** `${d}-${periodIndex}` 的集合，用來判斷哪些格子是空的 */
+  /** `${d}-${列索引}` 的集合，用來判斷哪些格子是空的 */
   occupied: Set<string>
   /** 整天沒課的星期 */
   emptyDays: Weekday[]
+  /** 這次要畫出來的節次列，索引就是 rowStart 的依據 */
+  rows: Period[]
 }
 
 export function buildWeekLayout(courses: Course[]): WeekLayout {
   const blocks: GridBlock[] = []
   const occupied = new Set<string>()
+  const rows = periodRows(courses)
+  const rowOf = (p: Period) => rows.indexOf(p)
 
   for (const course of courses) {
     for (const [si, session] of course.sessions.entries()) {
@@ -57,18 +70,18 @@ export function buildWeekLayout(courses: Course[]): WeekLayout {
           session,
           d: session.d,
           ps: run,
-          rowStart: periodIndex(run[0]),
+          rowStart: rowOf(run[0]),
           rowSpan: run.length,
           start,
           end,
         })
-        for (const p of run) occupied.add(`${session.d}-${periodIndex(p)}`)
+        for (const p of run) occupied.add(`${session.d}-${rowOf(p)}`)
       }
     }
   }
 
   const emptyDays = WEEKDAYS.filter((d) => !blocks.some((b) => b.d === d))
-  return { blocks, occupied, emptyDays }
+  return { blocks, occupied, emptyDays, rows }
 }
 
 export interface DayClass {

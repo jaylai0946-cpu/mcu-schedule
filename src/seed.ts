@@ -158,13 +158,11 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 214,
     sat: 42,
-    // 節次代碼 50、60 是夜間時段，這份課表只有 1-8 節加午休，格子畫不下，
-    // 所以不給時段——寧可空著，也不要硬塞一個錯的節次進去。
-    note: '課號 00934／00187',
-    timeNote: '星期一 夜間（節次代碼 50、60）　B401',
+    note: '課號 00934／00187・夜間',
     waitlisted: true,
     category: 'elective',
-    sessions: [],
+    // 50、60 是夜間節次（19:25、20:20），有課才會長出夜間那幾列
+    sessions: [{ d: 1, ps: [50, 60], room: 'B401' }],
   },
   {
     id: 'logic',

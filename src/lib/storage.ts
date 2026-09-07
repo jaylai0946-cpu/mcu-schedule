@@ -60,19 +60,40 @@ const CATEGORY_BY_CODE_V6: Record<string, 'required' | 'elective' | 'general'> =
   '00934': 'elective', // 全民國防教育軍事訓練（四）
 }
 
-/** 全民國防的時間查到了：星期一夜間。格子只有 1-8 節，畫不下，改成一行說明。 */
+/** v6 當時只知道是夜間，還沒有節次代碼表，先用一行說明頂著。 */
 const DEFENSE_TIME_NOTE_V6 = '星期一 夜間（節次代碼 50、60）　B401'
+
+/**
+ * v7：拿到台北校區完整的節次代碼表（40 以上是夜間），
+ * 全民國防的「一 50、60」終於排得進格子了。
+ */
+function applyDefenseSession(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+  return raw.courses.map((course) => {
+    if (typeof course !== 'object' || course === null) return course
+    const c = course as { code?: unknown; sessions?: unknown }
+    // 只補「還沒有時段」的那筆，使用者自己排過的不動
+    if (c.code !== '00934' || !Array.isArray(c.sessions) || c.sessions.length > 0) return course
+    const next = { ...c, sessions: [{ d: 1, ps: [50, 60], room: 'B401' }] } as Record<string, unknown>
+    delete next.timeNote
+    return next
+  })
+}
 
 function applyCategories(raw: Record<string, unknown>): unknown {
   if (!Array.isArray(raw.courses)) return raw.courses
   return raw.courses.map((course) => {
     if (typeof course !== 'object' || course === null) return course
-    const c = course as { code?: unknown; category?: unknown; timeNote?: unknown }
+    const c = course as { code?: unknown; category?: unknown; timeNote?: unknown; sessions?: unknown }
     const next: Record<string, unknown> = { ...c }
     if (c.category === undefined && typeof c.code === 'string' && CATEGORY_BY_CODE_V6[c.code]) {
       next.category = CATEGORY_BY_CODE_V6[c.code]
     }
-    if (c.code === '00934' && c.timeNote === undefined) next.timeNote = DEFENSE_TIME_NOTE_V6
+    // 只有還沒排到時段的那筆才需要這行說明；v7 之後就會被真正的時段取代
+    const noSessions = Array.isArray(c.sessions) && c.sessions.length === 0
+    if (c.code === '00934' && c.timeNote === undefined && noSessions) {
+      next.timeNote = DEFENSE_TIME_NOTE_V6
+    }
     return next
   })
 }
@@ -139,6 +160,8 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   // 5 -> 6：課塊照必修／選修／通識上色，依課號補修別；
   //         順便補上全民國防查到的夜間時段說明。
   5: (raw) => ({ ...raw, courses: applyCategories(raw), version: 6 }),
+  // 6 -> 7：節次代碼表到手，全民國防的「一 50、60」排進課表的夜間列。
+  6: (raw) => ({ ...raw, courses: applyDefenseSession(raw), version: 7 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

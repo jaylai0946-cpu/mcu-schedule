@@ -1,11 +1,11 @@
 import type { CourseCategory, ItemKind, Period, SchoolEventKind, Weekday } from './types'
 
 /** 目前的 schema 版本。改動 AppState 結構時 +1，並在 migrations 補上升級函式。 */
-export const SCHEMA_VERSION = 6
+export const SCHEMA_VERSION = 7
 
 export const STORAGE_KEY = 'mcu-schedule.state.v1'
 
-/** 銘傳台北校區節次時間，寫死成常數。 */
+/** 銘傳台北校區節次時間，寫死成常數。每節 50 分鐘。 */
 export const PERIOD_TIMES: Record<Period, { start: string; end: string }> = {
   1: { start: '08:10', end: '09:00' },
   2: { start: '09:10', end: '10:00' },
@@ -16,13 +16,27 @@ export const PERIOD_TIMES: Record<Period, { start: string; end: string }> = {
   6: { start: '14:10', end: '15:00' },
   7: { start: '15:10', end: '16:00' },
   8: { start: '16:10', end: '17:00' },
+  9: { start: '17:10', end: '18:00' },
+  40: { start: '18:30', end: '19:20' },
+  50: { start: '19:25', end: '20:15' },
+  60: { start: '20:20', end: '21:10' },
+  70: { start: '21:15', end: '22:05' },
 }
 
 /**
- * 課表格子的顯示順序。20 夾在 4 和 5 中間，
+ * 課表格子的顯示順序。20 夾在 4 和 5 中間、40 以上排在 9 之後，
  * 所以不能用數字大小排序，一律以這個陣列的索引為準。
  */
-export const PERIOD_ORDER: Period[] = [1, 2, 3, 4, 20, 5, 6, 7, 8]
+export const PERIOD_ORDER: Period[] = [1, 2, 3, 4, 20, 5, 6, 7, 8, 9, 40, 50, 60, 70]
+
+/**
+ * 課表一定會畫出來的列。第 9 節（17:10）和夜間那幾節只有真的有課才長出來，
+ * 不然每個人的課表下面都會拖著五排空格。
+ */
+export const BASE_PERIODS: Period[] = [1, 2, 3, 4, 20, 5, 6, 7, 8]
+
+/** 夜間節次，時間表上會另外註明。 */
+export const EVENING_PERIODS: Period[] = [40, 50, 60, 70]
 
 export const LUNCH_PERIOD: Period = 20
 

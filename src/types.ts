@@ -1,5 +1,9 @@
 export type Weekday = 1 | 2 | 3 | 4 | 5 // 一到五
-export type Period = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 20 // 20 = 午休/班會時段
+/**
+ * 節次代碼，照學校的編法：1-9 是白天到傍晚，雙位數是特殊時段——
+ * 20 是午休／班會，40 以上是夜間課程。
+ */
+export type Period = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 20 | 40 | 50 | 60 | 70
 
 export interface Session {
   d: Weekday
