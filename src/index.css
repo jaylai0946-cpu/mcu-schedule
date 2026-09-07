@@ -2441,3 +2441,55 @@ table.almanac thead th { background: var(--panel); color: var(--ink-2); font-fam
 :root[data-theme='dark'] .today-card {
   border-left-color: hsl(var(--h, 205) var(--s, 34%) 52%);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   斷行與擠壓：中文一個字掉到下一行很難看，長註記也不能貼著標題
+   ══════════════════════════════════════════════════════════════ */
+
+/*
+  區段標題那行：標題在左、註記在右。窄螢幕上註記幾乎和標題一樣長，
+  擠在同一行會疊在一起，所以 720px 以下一律讓註記自己一行。
+*/
+@media (max-width: 720px) {
+  .section-head {
+    flex-wrap: wrap;
+  }
+
+  .section-head .section-note {
+    flex: 1 0 100%;
+  }
+}
+
+/*
+  課名、標題這種短句：balance 會把行長拉平，不會留一個字在最後一行
+  （「職場素養與實　務」那種）。不支援的瀏覽器會直接忽略，沒有副作用。
+  line-break: strict 則是不讓「）」「，」開頭。
+*/
+.week-block-name,
+.day-row-name,
+.today-name,
+.todo-title,
+.section-head h2,
+.course-name {
+  text-wrap: balance;
+  line-break: strict;
+  overflow-wrap: break-word;
+}
+
+/*
+  課塊底下那行是「教室　老師」。整行不斷行會被切掉，所以改成每一項
+  各自不斷行、項目之間才換行——人名不會被拆成「陳」和「連偉」。
+*/
+.week-block-meta,
+.day-row-meta,
+.today-card .today-where {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+
+.week-block-meta > span,
+.day-row-meta > span,
+.today-card .today-where > span {
+  white-space: nowrap;
+}

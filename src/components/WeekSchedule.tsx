@@ -164,12 +164,12 @@ export function WeekSchedule({
                 {b.course.name}
                 {b.session.label ? `（${b.session.label}）` : ''}
               </div>
+              {/* 每一項各自包一層，斷行只會斷在項目之間，不會把人名拆開 */}
               <div className="week-block-meta">
-                {b.course.waitlisted && '待遞補　'}
-                {b.session.room || '教室未定'}
+                {b.course.waitlisted && <span>待遞補</span>}
+                <span>{b.session.room || '教室未定'}</span>
                 {/* 單節格塞不下第三行，老師交給清單 */}
                 <span className="week-block-teacher">
-                  {'　'}
                   {b.session.teacher ?? b.course.teacher}
                 </span>
               </div>
@@ -211,8 +211,9 @@ export function WeekSchedule({
                         {c.session.label ? `（${c.session.label}）` : ''}
                       </div>
                       <div className="day-row-meta">
-                        {c.course.waitlisted && '待遞補　'}
-                        {c.teacher}　{c.session.room}
+                        {c.course.waitlisted && <span>待遞補</span>}
+                        <span>{c.teacher}</span>
+                        <span>{c.session.room || '教室未定'}</span>
                       </div>
                     </div>
                   </div>
