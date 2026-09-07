@@ -2262,3 +2262,45 @@ table.almanac td {
 .agenda-viewport {
   border-radius: 0;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   行事曆標記：放假、期中／期末評量週
+   底色只是輔助，主要靠日期底下那條實線——深淺兩種主題、
+   以及色弱的人都分得出來。今天那格仍然最優先。
+   ══════════════════════════════════════════════════════════════ */
+.almanac-legend {
+  margin: 0 0 8px;
+}
+
+.legend i[data-mark='today'] {
+  background: var(--accent-900);
+  border-color: var(--accent-900);
+}
+
+.legend i[data-mark='exam'] {
+  background: hsl(214 56% 52% / 0.2);
+  border-bottom: 3px solid hsl(214 56% 52%);
+}
+
+.legend i[data-mark='holiday'] {
+  background: hsl(152 56% 46% / 0.2);
+  border-bottom: 3px solid hsl(152 56% 46%);
+}
+
+.almanac-day[data-mark='exam'] {
+  background: hsl(214 56% 52% / 0.16);
+  box-shadow: inset 0 -3px 0 hsl(214 56% 52%);
+}
+
+.almanac-day[data-mark='holiday'] {
+  background: hsl(152 56% 46% / 0.16);
+  box-shadow: inset 0 -3px 0 hsl(152 56% 46%);
+}
+
+/* 今天那格是實色，標記色不能蓋過去 */
+.almanac-day[data-today='true'],
+.almanac-day[data-today='true'][data-mark] {
+  background: var(--accent-900);
+  color: var(--ground);
+  box-shadow: none;
+}
