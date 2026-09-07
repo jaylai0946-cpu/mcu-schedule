@@ -126,12 +126,16 @@ export function AcademicCalendar({ schoolEvents, semester, onAdd, onSemesterChan
           今天
         </span>
         <span>
+          <i data-mark="holiday" />
+          放假（不用上課的平日）
+        </span>
+        <span>
           <i data-mark="exam" />
           期中／期末評量週
         </span>
         <span>
-          <i data-mark="holiday" />
-          放假（含寒暑假、補假）
+          <i data-mark="term" />
+          開學、加退選
         </span>
       </div>
 
