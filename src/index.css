@@ -370,7 +370,7 @@ time {
 .week-grid {
   display: grid;
   grid-template-columns: 62px repeat(5, minmax(112px, 1fr));
-  grid-template-rows: auto repeat(9, minmax(46px, auto));
+  grid-template-rows: auto repeat(var(--week-rows, 9), minmax(46px, auto));
   gap: 3px;
   padding: 3px;
   background: var(--rule);
@@ -1733,7 +1733,7 @@ table.almanac thead th {
   border-top: 1px solid var(--ink);
   grid-template-columns: 74px repeat(5, minmax(112px, 1fr));
   /* 表頭 16px 字配上下各 9px padding 需要 35px，34px 會讓文字壓到框線 */
-  grid-template-rows: 38px repeat(9, minmax(58px, auto));
+  grid-template-rows: 38px repeat(var(--week-rows, 9), minmax(58px, auto));
 }
 
 .week-head {
@@ -2024,7 +2024,7 @@ table.almanac td {
   .week-grid-wrap .week-grid {
     min-width: 600px;
     grid-template-columns: 54px repeat(5, minmax(0, 1fr));
-    grid-template-rows: 34px repeat(9, minmax(52px, auto));
+    grid-template-rows: 34px repeat(var(--week-rows, 9), minmax(52px, auto));
   }
 
   .week-grid-wrap .week-head {

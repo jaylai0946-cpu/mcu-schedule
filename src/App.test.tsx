@@ -48,9 +48,14 @@ describe('首頁', () => {
     expect(legend).toHaveTextContent('通識')
   })
 
-  it('全民國防沒有時段，清單上寫出夜間時間', () => {
-    render(<App />)
-    expect(screen.getByText(/星期一 夜間（節次代碼 50、60）/)).toBeInTheDocument()
+  it('有夜間課的時候，課表長出夜間那幾列', () => {
+    const { container } = render(<App />)
+    const times = [...container.querySelectorAll('.week-time')].map((el) => el.textContent)
+    // 全民國防排在 50、60 節，所以這兩列要在
+    expect(times.some((t) => t?.includes('19:25'))).toBe(true)
+    expect(times.some((t) => t?.includes('20:20'))).toBe(true)
+    // 沒人上的 70 節（21:15）不該憑空長出來
+    expect(times.some((t) => t?.includes('21:15'))).toBe(false)
   })
 
   it('學期起訖預設用官方行事曆的日期', () => {
