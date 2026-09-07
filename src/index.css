@@ -2264,10 +2264,45 @@ table.almanac td {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   行事曆標記：放假、期中／期末評量週
-   底色只是輔助，主要靠日期底下那條實線——深淺兩種主題、
-   以及色弱的人都分得出來。今天那格仍然最優先。
+   行事曆標記：放假、期中／期末評量週、開學與加退選
+   底色加日期底下那條實線，色弱的人靠位置和線也分得出來。
+   考試週用紅色——那是這張表上最需要一眼看到的東西，
+   藍色會和整個鋼藍主題糊在一起。今天那格仍然最優先。
    ══════════════════════════════════════════════════════════════ */
+:root {
+  --mark-exam: hsl(2 72% 48%);
+  /* 數字壓在紅底上要過 AA：hsl(2 80% 38%) 量到 4.55:1，48% 只有 3.28 */
+  --mark-exam-ink: hsl(2 80% 36%);
+  --mark-exam-bg: hsl(2 72% 48% / 0.22);
+  --mark-holiday: hsl(152 56% 40%);
+  --mark-holiday-bg: hsl(152 56% 46% / 0.16);
+  --mark-term: hsl(38 72% 42%);
+  --mark-term-bg: hsl(38 72% 48% / 0.18);
+}
+
+/* 深色底下同樣的色相會變暗，統一調亮並加厚底色 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --mark-exam: hsl(2 86% 66%);
+    --mark-exam-ink: hsl(2 86% 74%);
+    --mark-exam-bg: hsl(2 80% 58% / 0.32);
+    --mark-holiday: hsl(152 52% 56%);
+    --mark-holiday-bg: hsl(152 52% 50% / 0.24);
+    --mark-term: hsl(38 82% 62%);
+    --mark-term-bg: hsl(38 78% 54% / 0.26);
+  }
+}
+
+:root[data-theme='dark'] {
+  --mark-exam: hsl(2 86% 66%);
+  --mark-exam-ink: hsl(2 86% 74%);
+  --mark-exam-bg: hsl(2 80% 58% / 0.32);
+  --mark-holiday: hsl(152 52% 56%);
+  --mark-holiday-bg: hsl(152 52% 50% / 0.24);
+  --mark-term: hsl(38 82% 62%);
+  --mark-term-bg: hsl(38 78% 54% / 0.26);
+}
+
 .almanac-legend {
   margin: 0 0 8px;
 }
@@ -2278,33 +2313,37 @@ table.almanac td {
 }
 
 .legend i[data-mark='exam'] {
-  background: hsl(214 56% 52% / 0.2);
-  border-bottom: 3px solid hsl(214 56% 52%);
+  background: var(--mark-exam-bg);
+  border-color: var(--mark-exam);
+  border-bottom-width: 3px;
 }
 
 .legend i[data-mark='holiday'] {
-  background: hsl(152 56% 46% / 0.2);
-  border-bottom: 3px solid hsl(152 56% 46%);
+  background: var(--mark-holiday-bg);
+  border-bottom: 3px solid var(--mark-holiday);
 }
 
 .legend i[data-mark='term'] {
-  background: hsl(38 68% 48% / 0.2);
-  border-bottom: 3px solid hsl(38 68% 48%);
+  background: var(--mark-term-bg);
+  border-bottom: 3px solid var(--mark-term);
 }
 
+/* 考試週：整格填色、數字加粗變紅，是三種標記裡最重的 */
 .almanac-day[data-mark='exam'] {
-  background: hsl(214 56% 52% / 0.16);
-  box-shadow: inset 0 -3px 0 hsl(214 56% 52%);
+  background: var(--mark-exam-bg);
+  box-shadow: inset 0 -3px 0 var(--mark-exam);
+  color: var(--mark-exam-ink);
+  font-weight: 700;
 }
 
 .almanac-day[data-mark='holiday'] {
-  background: hsl(152 56% 46% / 0.16);
-  box-shadow: inset 0 -3px 0 hsl(152 56% 46%);
+  background: var(--mark-holiday-bg);
+  box-shadow: inset 0 -3px 0 var(--mark-holiday);
 }
 
 .almanac-day[data-mark='term'] {
-  background: hsl(38 68% 48% / 0.16);
-  box-shadow: inset 0 -3px 0 hsl(38 68% 48%);
+  background: var(--mark-term-bg);
+  box-shadow: inset 0 -3px 0 var(--mark-term);
 }
 
 /* 今天那格是實色，標記色不能蓋過去 */
