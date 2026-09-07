@@ -2287,6 +2287,11 @@ table.almanac td {
   border-bottom: 3px solid hsl(152 56% 46%);
 }
 
+.legend i[data-mark='term'] {
+  background: hsl(38 68% 48% / 0.2);
+  border-bottom: 3px solid hsl(38 68% 48%);
+}
+
 .almanac-day[data-mark='exam'] {
   background: hsl(214 56% 52% / 0.16);
   box-shadow: inset 0 -3px 0 hsl(214 56% 52%);
@@ -2295,6 +2300,11 @@ table.almanac td {
 .almanac-day[data-mark='holiday'] {
   background: hsl(152 56% 46% / 0.16);
   box-shadow: inset 0 -3px 0 hsl(152 56% 46%);
+}
+
+.almanac-day[data-mark='term'] {
+  background: hsl(38 68% 48% / 0.16);
+  box-shadow: inset 0 -3px 0 hsl(38 68% 48%);
 }
 
 /* 今天那格是實色，標記色不能蓋過去 */
