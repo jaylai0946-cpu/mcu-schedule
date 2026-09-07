@@ -18,10 +18,17 @@ export interface Course {
   hue: number // 0-360，課程色相
   sat: number // 彩度百分比數值，例如 42
   note?: string
+  /** 修別，決定課塊的顏色 */
+  category?: CourseCategory
+  /** 沒有時段（時間還沒確定）的課，在清單上用這行說明時間 */
+  timeNote?: string
   /** 還在等遞補、還沒真的選上。畫面上用虛線表示，也不算進學分合計 */
   waitlisted?: boolean
   sessions: Session[]
 }
+
+/** 修別：必修 / 選修 / 通識。沒填的課不上色。 */
+export type CourseCategory = 'required' | 'elective' | 'general'
 
 export type ItemKind = 'exam' | 'hw' | 'event' | 'other' // 考試 / 作業 / 活動 / 其他
 

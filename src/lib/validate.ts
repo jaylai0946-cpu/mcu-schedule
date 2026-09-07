@@ -1,7 +1,8 @@
-import { PERIOD_ORDER } from '../constants'
+import { COURSE_CATEGORIES, PERIOD_ORDER } from '../constants'
 import type {
   AppState,
   Course,
+  CourseCategory,
   ItemKind,
   Period,
   SchoolEvent,
@@ -69,6 +70,10 @@ function parseCourse(raw: unknown, index: number): Course {
     hue: num(raw.hue, 214),
     sat: num(raw.sat, 42),
     note: optionalStr(raw.note),
+    category: COURSE_CATEGORIES.includes(raw.category as CourseCategory)
+      ? (raw.category as CourseCategory)
+      : undefined,
+    timeNote: optionalStr(raw.timeNote),
     waitlisted: raw.waitlisted === true ? true : undefined,
     sessions: raw.sessions.map((s, i) => parseSession(s, `課程 ${id} 的第 ${i + 1} 個時段`)),
   }

@@ -1776,13 +1776,22 @@ table.almanac thead th {
   background: var(--panel-2);
 }
 
-/* 課塊一律鋼藍線框，不再用每門課的色相 */
-.week-block,
-.day-row,
-.today-card {
+/*
+  沒有修別的課一律鋼藍線框，不再用每門課的色相。
+  有修別的課走修別配色（檔案最後那段），所以這裡要把它們排除，
+  不然 !important 會把顏色全部蓋成同一個藍。
+*/
+.week-block:not([data-category]),
+.day-row:not([data-category]),
+.today-card:not([data-category]) {
   background: var(--accent-100) !important;
   border: 1px solid var(--accent-600) !important;
   border-left: 3px solid var(--accent-700) !important;
+}
+
+.week-block,
+.day-row,
+.today-card {
   margin: 2px;
 }
 
@@ -2365,17 +2374,7 @@ table.almanac td {
   white-space: nowrap;
 }
 
-.week-block[data-waitlisted='true'] {
-  border-style: dashed;
-  background: transparent;
-  opacity: 0.72;
-}
-
-.today-card[data-waitlisted='true'],
-.day-row[data-waitlisted='true'] {
-  border-style: dashed;
-  opacity: 0.78;
-}
+/* 待遞補的虛線寫在檔案最後，才蓋得過 Industry 覆寫層的 !important */
 
 .course-table tr[data-waitlisted='true'] td {
   color: var(--ink-2);
@@ -2389,4 +2388,190 @@ table.almanac td {
 .course-table tfoot tr[data-waitlisted='true'] td {
   font-weight: 400;
   color: var(--ink-3);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   修別配色：必修＝鋼藍、選修＝青綠、通識＝琥珀。
+   一律不用紅色——紅色在這個 App 已經是期中／期末評量週的意思。
+   只上色到左邊那條色條和標籤，課塊本身維持線圖，不整塊填色。
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  --cat-required: hsl(214 56% 46%);
+  --cat-elective: hsl(168 58% 30%);
+  --cat-general: hsl(38 78% 36%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --cat-required: hsl(214 72% 68%);
+    --cat-elective: hsl(168 52% 58%);
+    --cat-general: hsl(38 78% 62%);
+  }
+}
+
+:root[data-theme='dark'] {
+  --cat-required: hsl(214 72% 68%);
+  --cat-elective: hsl(168 52% 58%);
+  --cat-general: hsl(38 78% 62%);
+}
+
+/*
+  週課表：課塊改吃修別的顏色。左邊一條粗色條，外框和底色也跟著走——
+  只有左邊那條的話，在整片鋼藍的格子裡幾乎分不出來。
+  底色壓得很淡（12%），課名還是黑字，維持線圖的調性。
+*/
+.week-block[data-category='required'] {
+  background: hsl(214 56% 46% / 0.1);
+  border-color: hsl(214 56% 46% / 0.5);
+  border-left: 5px solid var(--cat-required);
+}
+
+.week-block[data-category='elective'] {
+  background: hsl(168 58% 30% / 0.1);
+  border-color: hsl(168 58% 30% / 0.5);
+  border-left: 5px solid var(--cat-elective);
+}
+
+.week-block[data-category='general'] {
+  background: hsl(38 78% 36% / 0.12);
+  border-color: hsl(38 78% 36% / 0.5);
+  border-left: 5px solid var(--cat-general);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .week-block[data-category='required'] {
+    background: hsl(214 72% 68% / 0.14);
+    border-color: hsl(214 72% 68% / 0.45);
+  }
+
+  :root:not([data-theme='light']) .week-block[data-category='elective'] {
+    background: hsl(168 52% 58% / 0.14);
+    border-color: hsl(168 52% 58% / 0.45);
+  }
+
+  :root:not([data-theme='light']) .week-block[data-category='general'] {
+    background: hsl(38 78% 62% / 0.14);
+    border-color: hsl(38 78% 62% / 0.45);
+  }
+}
+
+:root[data-theme='dark'] .week-block[data-category='required'] {
+  background: hsl(214 72% 68% / 0.14);
+  border-color: hsl(214 72% 68% / 0.45);
+}
+
+:root[data-theme='dark'] .week-block[data-category='elective'] {
+  background: hsl(168 52% 58% / 0.14);
+  border-color: hsl(168 52% 58% / 0.45);
+}
+
+:root[data-theme='dark'] .week-block[data-category='general'] {
+  background: hsl(38 78% 62% / 0.14);
+  border-color: hsl(38 78% 62% / 0.45);
+}
+
+/* 待遞補仍然是虛線＋透明，蓋過上面的底色 */
+.week-block[data-waitlisted='true'] {
+  background: transparent;
+}
+
+/* 圖例的方塊也照著填，不然只有一條線看不出是哪個顏色 */
+.legend i[data-category='required'] {
+  background: hsl(214 56% 46% / 0.14);
+}
+
+.legend i[data-category='elective'] {
+  background: hsl(168 58% 30% / 0.14);
+}
+
+.legend i[data-category='general'] {
+  background: hsl(38 78% 36% / 0.16);
+}
+
+/* 清單、今天的課同一套 */
+.day-row[data-category='required'],
+.today-card[data-category='required'] {
+  border-left-color: var(--cat-required);
+}
+
+.day-row[data-category='elective'],
+.today-card[data-category='elective'] {
+  border-left-color: var(--cat-elective);
+}
+
+.day-row[data-category='general'],
+.today-card[data-category='general'] {
+  border-left-color: var(--cat-general);
+}
+
+.course-bar[data-category='required'] {
+  background: var(--cat-required);
+}
+
+.course-bar[data-category='elective'] {
+  background: var(--cat-elective);
+}
+
+.course-bar[data-category='general'] {
+  background: var(--cat-general);
+}
+
+.tag-category {
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.tag-category[data-category='required'] {
+  border-color: var(--cat-required);
+  color: var(--cat-required);
+}
+
+.tag-category[data-category='elective'] {
+  border-color: var(--cat-elective);
+  color: var(--cat-elective);
+}
+
+.tag-category[data-category='general'] {
+  border-color: var(--cat-general);
+  color: var(--cat-general);
+}
+
+/* 修課清單的備註：課名底下一行小字 */
+.course-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  font-family: var(--font-sans);
+}
+
+/* 圖例 */
+.legend i[data-category='required'] {
+  border-color: var(--rule);
+  border-left: 4px solid var(--cat-required);
+}
+
+.legend i[data-category='elective'] {
+  border-color: var(--rule);
+  border-left: 4px solid var(--cat-elective);
+}
+
+.legend i[data-category='general'] {
+  border-color: var(--rule);
+  border-left: 4px solid var(--cat-general);
+}
+
+.legend i[data-kind='wait'] {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--ink-3);
+}
+
+/* ── 待遞補：虛線＋半透明，蓋過上面所有的實線設定 ────────── */
+.week-block[data-waitlisted='true'],
+.day-row[data-waitlisted='true'],
+.today-card[data-waitlisted='true'] {
+  border-style: dashed !important;
+  background: transparent !important;
+  opacity: 0.75;
 }

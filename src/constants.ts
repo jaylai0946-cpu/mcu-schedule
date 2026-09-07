@@ -1,7 +1,7 @@
-import type { ItemKind, Period, SchoolEventKind, Weekday } from './types'
+import type { CourseCategory, ItemKind, Period, SchoolEventKind, Weekday } from './types'
 
 /** 目前的 schema 版本。改動 AppState 結構時 +1，並在 migrations 補上升級函式。 */
-export const SCHEMA_VERSION = 5
+export const SCHEMA_VERSION = 6
 
 export const STORAGE_KEY = 'mcu-schedule.state.v1'
 
@@ -34,6 +34,14 @@ export const WEEKDAY_NAMES: Record<Weekday, string> = {
   3: '三',
   4: '四',
   5: '五',
+}
+
+export const COURSE_CATEGORIES: CourseCategory[] = ['required', 'elective', 'general']
+
+export const COURSE_CATEGORY_NAMES: Record<CourseCategory, string> = {
+  required: '必修',
+  elective: '選修',
+  general: '通識',
 }
 
 export const KIND_NAMES: Record<ItemKind, string> = {

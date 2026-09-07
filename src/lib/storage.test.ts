@@ -26,10 +26,20 @@ describe('種子資料', () => {
     expect(assembly.sessions[0]).toMatchObject({ d: 5, ps: [5], room: '' })
   })
 
-  it('全民國防的節次是 50、60，代碼對不上，寧可不給時段', () => {
+  it('全民國防是夜間時段，1-8 節的格子畫不下，用一行說明代替時段', () => {
     const defense = SEED_COURSES.find((c) => c.id === 'defense')!
     expect(defense.sessions).toEqual([])
-    expect(defense.note).toContain('實際時間未確認')
+    expect(defense.timeNote).toContain('夜間')
+  })
+
+  it('每一門課都有修別', () => {
+    for (const course of SEED_COURSES) {
+      expect(course.category, course.name).toBeDefined()
+    }
+    const byCategory = (cat: string) => SEED_COURSES.filter((c) => c.category === cat).length
+    expect(byCategory('required')).toBe(7)
+    expect(byCategory('elective')).toBe(4)
+    expect(byCategory('general')).toBe(3)
   })
 
   it('會計學有正課和實習兩個時段，教室與教師不同', () => {
@@ -212,6 +222,46 @@ describe('schema v1 -> v2 升級', () => {
     })
     saveState(state)
     expect(loadState().state.schoolEvents[0].end).toBeUndefined()
+  })
+})
+
+describe('schema v5 -> v6 補上修別', () => {
+  function v5State() {
+    const raw = createSeedState() as unknown as Record<string, unknown>
+    raw.version = 5
+    raw.courses = (raw.courses as Record<string, unknown>[]).map((c) => {
+      const copy = { ...c }
+      delete copy.category
+      delete copy.timeNote
+      return copy
+    })
+    return raw
+  }
+
+  it('依課號補上必修／選修／通識', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v5State()))
+    const courses = loadState().state.courses
+    const find = (code: string) => courses.find((c) => c.code === code)!
+
+    expect(find('52125').category).toBe('required') // 會計學
+    expect(find('00531').category).toBe('elective') // 日文一（上）
+    expect(find('00123').category).toBe('general') // 中國文學鑑賞與創作
+    expect(courses.every((c) => c.category !== undefined)).toBe(true)
+  })
+
+  it('順便補上全民國防的夜間時段說明', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v5State()))
+    const defense = loadState().state.courses.find((c) => c.code === '00934')!
+    expect(defense.timeNote).toContain('夜間')
+  })
+
+  it('自己設過的修別不會被蓋掉', () => {
+    const raw = v5State()
+    const courses = raw.courses as Record<string, unknown>[]
+    courses.find((c) => c.code === '52125')!.category = 'elective'
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(raw))
+
+    expect(loadState().state.courses.find((c) => c.code === '52125')!.category).toBe('elective')
   })
 })
 
