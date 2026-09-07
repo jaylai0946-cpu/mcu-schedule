@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ACADEMIC_CALENDAR, ACADEMIC_CALENDAR_SOURCE } from '../data/academicCalendar'
 import type { CalendarPick } from '../data/academicCalendar'
 import { SEMESTER_DEFAULT } from '../constants'
+import { buildDayMarks } from '../lib/almanacMarks'
 import { formatDateWithWeekday, todayISO } from '../lib/dates'
 import type { AppState, SchoolEvent } from '../types'
 
@@ -34,6 +35,9 @@ export function AcademicCalendar({ schoolEvents, semester, onAdd, onSemesterChan
   const [showPicks, setShowPicks] = useState(false)
 
   const current = ACADEMIC_CALENDAR[semesterIndex]
+
+  // 放假和評量週要標色，掃一次整個學期算出每一天標什麼
+  const dayMarks = useMemo(() => buildDayMarks(current), [current])
 
   const alreadyAdded = useMemo(
     () => new Set(schoolEvents.map((e) => `${e.title}|${e.start}`)),
@@ -114,9 +118,22 @@ export function AcademicCalendar({ schoolEvents, semester, onAdd, onSemesterChan
         </div>
       </div>
 
-      <p className="section-note almanac-hint">
-        兩指也可以直接縮放。今天的日期會標成深色。
-      </p>
+      <p className="section-note almanac-hint">兩指也可以直接縮放。</p>
+
+      <div className="legend almanac-legend">
+        <span>
+          <i data-mark="today" />
+          今天
+        </span>
+        <span>
+          <i data-mark="exam" />
+          期中／期末評量週
+        </span>
+        <span>
+          <i data-mark="holiday" />
+          放假（含寒暑假、補假）
+        </span>
+      </div>
 
       <div className="scroll-x almanac-viewport">
         {/* zoom 會重新排版，比 transform: scale 好捲動 */}
@@ -141,16 +158,21 @@ export function AcademicCalendar({ schoolEvents, semester, onAdd, onSemesterChan
                   <td className="almanac-narrow almanac-vertical">{row.year ?? ''}</td>
                   <td className="almanac-narrow almanac-vertical">{row.month ?? ''}</td>
                   <td className="almanac-week">{row.week}</td>
-                  {row.days.map((day, di) => (
-                    <td
-                      key={di}
-                      className="almanac-day mono"
-                      data-today={day?.iso === today}
-                      data-weekend={di === 0 || di === 6}
-                    >
-                      {day?.d ?? ''}
-                    </td>
-                  ))}
+                  {row.days.map((day, di) => {
+                    const marked = day ? dayMarks.get(day.iso) : undefined
+                    return (
+                      <td
+                        key={di}
+                        className="almanac-day mono"
+                        data-today={day?.iso === today}
+                        data-weekend={di === 0 || di === 6}
+                        data-mark={marked?.mark}
+                        title={marked?.titles.join('、')}
+                      >
+                        {day?.d ?? ''}
+                      </td>
+                    )
+                  })}
                   <td className="almanac-events">{row.events}</td>
                 </tr>
               ))}
