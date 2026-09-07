@@ -11,6 +11,7 @@ export const SEED_COURSES: Course[] = [
     credits: 3,
     hue: 214,
     sat: 42,
+    category: 'required',
     sessions: [
       { d: 1, ps: [1, 2, 3], room: 'H402' },
       { d: 4, ps: [7, 8], room: 'B102', label: '實習', teacher: '陳映蓉' },
@@ -24,6 +25,7 @@ export const SEED_COURSES: Course[] = [
     credits: 3,
     hue: 32,
     sat: 42,
+    category: 'required',
     sessions: [{ d: 5, ps: [2, 3, 4], room: 'H402' }],
   },
   {
@@ -34,6 +36,7 @@ export const SEED_COURSES: Course[] = [
     credits: 3,
     hue: 346,
     sat: 42,
+    category: 'required',
     sessions: [{ d: 4, ps: [2, 3, 4], room: 'H402' }],
   },
   {
@@ -44,6 +47,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 266,
     sat: 42,
+    category: 'required',
     sessions: [{ d: 3, ps: [3, 4], room: 'D305' }],
   },
   {
@@ -54,6 +58,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 152,
     sat: 42,
+    category: 'general',
     sessions: [{ d: 1, ps: [5, 6], room: 'B302' }],
   },
   {
@@ -64,6 +69,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 190,
     sat: 42,
+    category: 'general',
     sessions: [{ d: 4, ps: [5, 6], room: 'F612' }],
   },
   {
@@ -74,6 +80,7 @@ export const SEED_COURSES: Course[] = [
     credits: 0,
     hue: 100,
     sat: 34,
+    category: 'required',
     sessions: [{ d: 3, ps: [1, 2], room: '體育館' }],
   },
   {
@@ -85,6 +92,7 @@ export const SEED_COURSES: Course[] = [
     hue: 214,
     sat: 10,
     note: '全學年',
+    category: 'required',
     sessions: [{ d: 3, ps: [20], room: 'B102' }],
   },
   {
@@ -95,7 +103,8 @@ export const SEED_COURSES: Course[] = [
     credits: 0,
     hue: 214,
     sat: 10,
-    note: '班級 57101・必修・教室未定',
+    note: '班級 57101・教室未定',
+    category: 'required',
     sessions: [{ d: 5, ps: [5], room: '' }],
   },
   {
@@ -106,7 +115,8 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 330,
     sat: 42,
-    note: '班級 57151・選修',
+    note: '班級 57151',
+    category: 'elective',
     sessions: [{ d: 5, ps: [6, 7], room: 'D105' }],
   },
   {
@@ -117,7 +127,8 @@ export const SEED_COURSES: Course[] = [
     credits: 3,
     hue: 152,
     sat: 42,
-    note: '班級 57161・選修',
+    note: '班級 57161',
+    category: 'elective',
     sessions: [{ d: 2, ps: [5, 6, 7], room: 'D104' }],
   },
 
@@ -134,8 +145,9 @@ export const SEED_COURSES: Course[] = [
     credits: 1,
     hue: 214,
     sat: 42,
-    note: '課號 00936／00188・待遞補',
+    note: '課號 00936／00188',
     waitlisted: true,
+    category: 'elective',
     sessions: [{ d: 2, ps: [20], room: 'B305' }],
   },
   {
@@ -146,10 +158,12 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 214,
     sat: 42,
-    // 原始課表寫「一 50、60 節」，不是一般的節次代碼，時間還沒確認，
-    // 所以先不給時段——寧可空著，也不要猜一個錯的排進課表。
-    note: '課號 00934／00187・待遞補・原表寫「一 50、60 節」B401，實際時間未確認',
+    // 節次代碼 50、60 是夜間時段，這份課表只有 1-8 節加午休，格子畫不下，
+    // 所以不給時段——寧可空著，也不要硬塞一個錯的節次進去。
+    note: '課號 00934／00187',
+    timeNote: '星期一 夜間（節次代碼 50、60）　B401',
     waitlisted: true,
+    category: 'elective',
     sessions: [],
   },
   {
@@ -160,8 +174,9 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 214,
     sat: 42,
-    note: '課號 00759／00136・待遞補',
+    note: '課號 00759／00136',
     waitlisted: true,
+    category: 'general',
     sessions: [{ d: 3, ps: [5, 6], room: 'H201' }],
   },
 ]

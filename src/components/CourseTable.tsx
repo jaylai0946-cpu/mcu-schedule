@@ -1,4 +1,4 @@
-import { WEEKDAY_NAMES } from '../constants'
+import { COURSE_CATEGORY_NAMES, WEEKDAY_NAMES } from '../constants'
 import { periodSpanTime } from '../lib/dates'
 import { enrolled, splitContiguous, totalCredits, waitlisted } from '../lib/schedule'
 import type { Course, Session } from '../types'
@@ -46,17 +46,23 @@ export function CourseTable({ courses }: { courses: Course[] }) {
                 <tr key={`${course.id}-${i}`} data-waitlisted={course.waitlisted === true}>
                   <td>
                     <div className="course-name-cell">
-                      <span className="course-bar" />
+                      <span className="course-bar" data-category={course.category} />
                       <span className="course-name">
                         {i === 0 ? course.name : ''}
                         {s?.label ? `（${s.label}）` : ''}
+                        {i === 0 && course.category && (
+                          <span className="tag tag-category" data-category={course.category}>
+                            {COURSE_CATEGORY_NAMES[course.category]}
+                          </span>
+                        )}
                         {i === 0 && course.waitlisted && <span className="tag tag-wait">待遞補</span>}
+                        {i === 0 && course.note && <span className="course-note">{course.note}</span>}
                       </span>
                     </div>
                   </td>
                   <td className="when">{i === 0 ? course.code : ''}</td>
                   <td className="when" style={{ whiteSpace: 'pre-line' }}>
-                    {s ? sessionWhen(s) : '時間未定'}
+                    {s ? sessionWhen(s) : course.timeNote ?? '時間未定'}
                   </td>
                   <td>{s ? s.room || '未定' : '—'}</td>
                   <td>{s?.teacher ?? course.teacher}</td>

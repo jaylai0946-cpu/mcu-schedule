@@ -146,6 +146,7 @@ export function WeekSchedule({
             <div
               key={b.key}
               className="week-block"
+              data-category={b.course.category}
               data-waitlisted={b.course.waitlisted === true}
               style={{ gridColumn: b.d + 1, gridRow: `${b.rowStart + 2} / span ${b.rowSpan}` }}
             >
@@ -178,7 +179,12 @@ export function WeekSchedule({
                 <p className="day-empty">整天沒課</p>
               ) : (
                 classes.map((c) => (
-                  <div key={c.key} className="day-row" data-waitlisted={c.course.waitlisted === true}>
+                  <div
+                    key={c.key}
+                    className="day-row"
+                    data-category={c.course.category}
+                    data-waitlisted={c.course.waitlisted === true}
+                  >
                     <div className="day-row-time">
                       {c.start}–{c.end}
                       <b>
@@ -204,6 +210,22 @@ export function WeekSchedule({
       </div>
 
       <div className="legend">
+        <span>
+          <i data-category="required" />
+          必修
+        </span>
+        <span>
+          <i data-category="elective" />
+          選修
+        </span>
+        <span>
+          <i data-category="general" />
+          通識
+        </span>
+        <span>
+          <i data-kind="wait" />
+          待遞補
+        </span>
         <span>
           <i data-kind="class" />
           有課

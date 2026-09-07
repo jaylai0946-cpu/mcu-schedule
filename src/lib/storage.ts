@@ -38,6 +38,45 @@ function addNewCourses(raw: Record<string, unknown>): unknown {
   return [...raw.courses, ...structuredClone(missing)]
 }
 
+/**
+ * 修別。schema v5 -> v6 依課號補上，使用者自己設過的不覆蓋。
+ * 中國文學、大一英文、體育、人工智慧、邏輯與批判思考、職場素養、國防
+ * 這幾門的修別是照一般的課程架構判斷的，在「編輯課表」可以自己改。
+ */
+const CATEGORY_BY_CODE_V6: Record<string, 'required' | 'elective' | 'general'> = {
+  '52125': 'required', // 會計學（一）
+  '55125': 'required', // 經濟學（一）
+  M1101: 'required', // 企業概論
+  '00911': 'required', // 人工智慧概論
+  '00121': 'required', // 體育（壹）
+  '00997': 'required', // 班會
+  '00999': 'required', // 週會
+  '00123': 'general', // 中國文學鑑賞與創作（一）
+  '01115': 'general', // 大一英文（一）
+  '00759': 'general', // 邏輯與批判思考
+  '00531': 'elective', // 日文一（上）
+  '57476': 'elective', // 永續發展目標績效管理實務
+  '00936': 'elective', // 職場素養與實務
+  '00934': 'elective', // 全民國防教育軍事訓練（四）
+}
+
+/** 全民國防的時間查到了：星期一夜間。格子只有 1-8 節，畫不下，改成一行說明。 */
+const DEFENSE_TIME_NOTE_V6 = '星期一 夜間（節次代碼 50、60）　B401'
+
+function applyCategories(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+  return raw.courses.map((course) => {
+    if (typeof course !== 'object' || course === null) return course
+    const c = course as { code?: unknown; category?: unknown; timeNote?: unknown }
+    const next: Record<string, unknown> = { ...c }
+    if (c.category === undefined && typeof c.code === 'string' && CATEGORY_BY_CODE_V6[c.code]) {
+      next.category = CATEGORY_BY_CODE_V6[c.code]
+    }
+    if (c.code === '00934' && c.timeNote === undefined) next.timeNote = DEFENSE_TIME_NOTE_V6
+    return next
+  })
+}
+
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
 function applyRoomMoves(raw: Record<string, unknown>): unknown {
   if (!Array.isArray(raw.courses)) return raw.courses
@@ -97,6 +136,9 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   // 4 -> 5：選課定案。補上週會、日文一（上）、永續發展目標績效管理實務，
   //         以及三門還在等遞補的課；已經有同課號的就不重複加。
   4: (raw) => ({ ...raw, courses: addNewCourses(raw), version: 5 }),
+  // 5 -> 6：課塊照必修／選修／通識上色，依課號補修別；
+  //         順便補上全民國防查到的夜間時段說明。
+  5: (raw) => ({ ...raw, courses: applyCategories(raw), version: 6 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

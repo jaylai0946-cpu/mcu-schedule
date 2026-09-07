@@ -25,7 +25,12 @@ export function TodayClasses({ courses, today }: { courses: Course[]; today: str
       ) : (
         <div className="today-list">
           {classes.map((c) => (
-            <article key={c.key} className="today-card" data-waitlisted={c.course.waitlisted === true}>
+            <article
+              key={c.key}
+              className="today-card"
+              data-category={c.course.category}
+              data-waitlisted={c.course.waitlisted === true}
+            >
               <div className="today-time">
                 {c.start}
                 <br />

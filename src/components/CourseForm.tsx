@@ -1,8 +1,16 @@
 import { useState } from 'react'
-import { DEFAULT_COURSE_COLOR, PERIOD_ORDER, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
+import {
+  COURSE_CATEGORIES,
+  COURSE_CATEGORY_NAMES,
+  DEFAULT_COURSE_COLOR,
+  PERIOD_ORDER,
+  PERIOD_TIMES,
+  WEEKDAYS,
+  WEEKDAY_NAMES,
+} from '../constants'
 import { describeConflict, detectConflicts } from '../lib/conflicts'
 import { sortPeriods } from '../lib/dates'
-import type { Course, Period, Session, Weekday } from '../types'
+import type { Course, CourseCategory, Period, Session, Weekday } from '../types'
 
 function emptySession(): Session {
   return { d: 1, ps: [], room: '' }
@@ -29,6 +37,7 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
   const [credits, setCredits] = useState(String(course?.credits ?? 2))
   const [note, setNote] = useState(course?.note ?? '')
   const [pending, setPending] = useState(course?.waitlisted === true)
+  const [category, setCategory] = useState<CourseCategory | ''>(course?.category ?? '')
   const [sessions, setSessions] = useState<Session[]>(
     course ? structuredClone(course.sessions) : [emptySession()],
   )
@@ -75,6 +84,8 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
       hue: course?.hue ?? DEFAULT_COURSE_COLOR.hue,
       sat: course?.sat ?? DEFAULT_COURSE_COLOR.sat,
       note: note.trim() || undefined,
+      category: category || undefined,
+      timeNote: course?.timeNote,
       waitlisted: pending || undefined,
       sessions: sessions.map((s) => ({
         d: s.d,
@@ -121,6 +132,22 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
           value={credits}
           onChange={(e) => setCredits(e.target.value)}
         />
+      </div>
+
+      <div className="field">
+        <label htmlFor="course-category">修別</label>
+        <select
+          id="course-category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value as CourseCategory | '')}
+        >
+          <option value="">未分類</option>
+          {COURSE_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {COURSE_CATEGORY_NAMES[c]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="field">

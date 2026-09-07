@@ -36,6 +36,23 @@ describe('首頁', () => {
     expect(screen.getAllByText('待遞補').length).toBeGreaterThan(0)
   })
 
+  it('課塊帶著修別，週課表有必修／選修／通識的圖例', () => {
+    const { container } = render(<App />)
+    expect(container.querySelector('.week-block[data-category="required"]')).toBeInTheDocument()
+    expect(container.querySelector('.week-block[data-category="elective"]')).toBeInTheDocument()
+    expect(container.querySelector('.week-block[data-category="general"]')).toBeInTheDocument()
+
+    const legend = container.querySelector('.legend')!
+    expect(legend).toHaveTextContent('必修')
+    expect(legend).toHaveTextContent('選修')
+    expect(legend).toHaveTextContent('通識')
+  })
+
+  it('全民國防沒有時段，清單上寫出夜間時間', () => {
+    render(<App />)
+    expect(screen.getByText(/星期一 夜間（節次代碼 50、60）/)).toBeInTheDocument()
+  })
+
   it('學期起訖預設用官方行事曆的日期', () => {
     render(<App />)
     const semester = loadState().state.semester
