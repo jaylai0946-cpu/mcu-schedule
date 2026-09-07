@@ -52,11 +52,12 @@ describe('JSON 備份', () => {
     const file = new File([exportJSON(backup)], 'backup.json', { type: 'application/json' })
     fireEvent.change(input, { target: { files: [file] } })
 
-    await waitFor(
-      () => expect(screen.getByText(/已還原：8 門課、1 筆待辦/)).toBeInTheDocument(),
-      { timeout: 5000 },
-    )
-    expect(loadState().state.items[0].title).toBe('從備份還原的考試')
+    // 訊息出現和寫進 localStorage 是兩件事：畫面先更新，存檔在下一個 effect
+    // 才跑。所以兩個條件要一起等，不能看到訊息就馬上讀 localStorage。
+    await waitFor(() => {
+      expect(screen.getByText(/已還原：8 門課、1 筆待辦/)).toBeInTheDocument()
+      expect(loadState().state.items[0]?.title).toBe('從備份還原的考試')
+    }, { timeout: 5000 })
   })
 
   it('壞掉的備份會被拒絕，而且不動到現有資料', async () => {
@@ -71,6 +72,7 @@ describe('JSON 備份', () => {
       () => expect(screen.getByText(/匯入失敗，資料沒有被動到/)).toBeInTheDocument(),
       { timeout: 5000 },
     )
+    // 這筆是「不該變」，等訊息出現之後再確認一次就夠
     expect(loadState().state).toEqual(before)
   })
 })
