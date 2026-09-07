@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { WEEKDAY_NAMES } from '../constants'
-import { splitContiguous, totalCredits } from '../lib/schedule'
+import { enrolled, splitContiguous, totalCredits, waitlisted } from '../lib/schedule'
 import { periodSpanTime } from '../lib/dates'
 import type { Course, Session, TodoItem } from '../types'
 import { CourseForm } from './CourseForm'
@@ -34,7 +34,8 @@ export function CourseEditor({ courses, items, onSave, onDelete }: Props) {
       <div className="section-head">
         <h2>編輯課表</h2>
         <span className="section-note">
-          {courses.length} 門，共 {totalCredits(courses)} 學分
+          {enrolled(courses).length} 門，共 {totalCredits(enrolled(courses))} 學分
+          {waitlisted(courses).length > 0 && `，另有 ${waitlisted(courses).length} 門待遞補`}
         </span>
       </div>
 

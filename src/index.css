@@ -1,140 +1,114 @@
-/* ══════════════════════════════════════════════════════════════
-   Industry 主題 — 鋼藍單色、方角、髮絲線框。
-   來自設計交接稿 design_handoff_mcu_ui/industry-theme.css。
-   字體用 index.html 的 <link> 載入，不用 @import（@import 會擋住渲染，
-   而且必須放在檔案最前面，之後要加規則很容易踩到）。
-   ══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════
+   日系主題 — MCU 課表（手機 4a ＋ 電腦 5a）
+   來源：設計交接稿 jp-theme.css（§1 變數 ＋ §2 覆寫層）＋ README。
+   字體改由 index.html 的 <link> 載入，不用 @import（會擋住渲染）。
+   ══════════════════════════════════════════════════════════════════ */
 
+/* ── §1 變數 ─────────────────────────────────────────────────── */
 :root {
-  --ground: #f2f2f3;
-  --panel: #f2f2f3; /* 卡片不填色，是線圖 */
-  --panel-2: #e7e7ea;
-  --slot: transparent; /* 空堂不填色 */
+  /* 面 */
+  --ground: #faf8f3;      /* 底色・米白 */
+  --panel: #fffefc;       /* 卡片 */
+  --panel-2: #f2eee5;     /* 次要面・午休格 */
+  --slot: #fbf9f4;        /* 空堂格（比底色淺一點，不描邊） */
 
-  --ink: #1d1f20;
-  --ink-2: #5d5d60;
-  /* 交接稿是 #7a7a7d，壓在 #f2f2f3 上只有 3.82:1；而且它也會壓在
-     午休列的 --panel-2 上，那裡更嚴苛。調到兩種底色都過 4.5。 */
-  --ink-3: #666669;
+  /* 字 */
+  --ink: #2b2723;
+  --ink-2: #6b635b;
+  --ink-3: #a29a90;
+  --ink-4: #c4bdb2;
 
-  --rule: rgb(29 31 32 / 0.16);
-  --rule-strong: #1d1f20;
+  /* 線與強調 */
+  --rule: #e6e1d7;
+  --rule-strong: #ded8cc;
+  --accent: #b5615a;      /* 朱色・只用在少數重點 */
+  --accent-soft: #f7ece9;
+  --danger: #a3564f;
 
-  --accent: #5980a6;
-  --accent-100: #eef6ff;
-  --accent-200: #d6ebff;
-  --accent-300: #b5d9fd;
-  --accent-600: #597ea3;
-  --accent-700: #416180;
-  --accent-800: #2c455d;
-  --accent-900: #1d2d3d;
+  /* 形 */
+  --r-card: 14px;
+  --r-block: 10px;
+  --r-btn: 10px;
+  --r-chip: 8px;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 
-  --danger: #a3342a;
-  --shadow: none; /* 這一版靠線條，不靠陰影 */
-
-  /*
-    交接稿把實色物件上的文字寫死成 #fff。淺色模式沒問題，但深色模式的
-    --accent 會變成亮藍（#94bce3），白字壓上去就看不清楚了，所以拆成 token。
-  */
-  --on-accent: #ffffff;
-
-  /*
-    #5980a6 配白字只有 4.14:1，16px 的內文需要 4.5。
-    強調色本身不動（線框、色條都還是 #5980a6），只有「白字壓上去」的
-    實色物件改用這個深一階的值，量到 4.68:1。
-  */
-  --accent-solid: #52789c;
-
-  /* 「接下來」第一列的實色欄。深色模式不能直接用 --accent-900，
-     那個值在深色是亮藍色，會變成淺底配淺字。 */
-  --band-bg: #1d2d3d;
-  --band-ink: #eef6ff;
-  --band-ink-2: #b5d9fd;
-  --band-tag: #d6ebff;
-
-  --font-serif: 'Barlow Condensed', 'Noto Sans TC', 'PingFang TC', sans-serif;
-  --font-sans: 'Barlow', 'Noto Sans TC', 'PingFang TC', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-
-  --max-width: 1180px;
+  /* 間距 */
+  --pad-card: 18px;
+  --gap-card: 10px;
+  --gap-section: 32px;
   --tap: 44px;
+  --rail: 216px;          /* 電腦版左側欄寬（5a） */
+  --tabbar: 68px;         /* 手機版底部 tab bar 高（4a） */
 
+  /* 字體 */
+  --font-serif: 'Noto Serif TC', serif;
+  --font-sans: 'Noto Sans TC', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --max-width: 1280px;
   color-scheme: light;
 }
 
-/*
-  深色：鋼藍色階整個反過來——數字小的變成深底，數字大的變成亮字。
-  交接稿只給了 100/200/300/900，600/700/800 沒給；沿用淺色那組的話
-  會變成深藍字配近黑底（例如 .masthead-today 用 --accent-700 #416180），
-  對比不足，所以這裡一併補上反轉後的值。
-*/
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --ground: #16191c;
-    --panel: #16191c;
-    --panel-2: #22262b;
-
-    --ink: #eceae4;
-    --ink-2: #a8aeb8;
-    --ink-3: #8d949e;
-
-    --rule: rgb(236 234 228 / 0.18);
-    --rule-strong: #eceae4;
-
-    --accent: #94bce3;
-    --accent-100: #22303c;
-    --accent-200: #2c4457;
-    --accent-300: #416180;
-    --accent-600: #7ea9d0;
-    --accent-700: #a8cbe8;
-    --accent-800: #c4dcf0;
-    --accent-900: #d6ebff;
-
-    --danger: #e08a7f;
-
-    --on-accent: #16191c;
-    /* 深色的 --accent 是亮藍，配深字有 9:1，不用另外調 */
-    --accent-solid: #94bce3;
-    --band-bg: #24384a;
-    --band-ink: #eef6ff;
-    --band-ink-2: #94bce3;
-    --band-tag: #b5d9fd;
-
+    --ground: #1c1a18;
+    --panel: #24211e;
+    --panel-2: #2c2825;
+    --slot: #201d1b;
+    --ink: #f0ece4;
+    --ink-2: #b8b0a6;
+    --ink-3: #8a8279;
+    --ink-4: #6b645c;
+    --rule: #37322d;
+    --rule-strong: #443e38;
+    --accent: #d98b83;
+    --accent-soft: #332725;
+    --on-accent: #241f1c;
     color-scheme: dark;
   }
 }
-
 :root[data-theme='dark'] {
-  --ground: #16191c;
-  --panel: #16191c;
-  --panel-2: #22262b;
-
-  --ink: #eceae4;
-  --ink-2: #a8aeb8;
-  --ink-3: #8d949e;
-
-  --rule: rgb(236 234 228 / 0.18);
-  --rule-strong: #eceae4;
-
-  --accent: #94bce3;
-  --accent-100: #22303c;
-  --accent-200: #2c4457;
-  --accent-300: #416180;
-  --accent-600: #7ea9d0;
-  --accent-700: #a8cbe8;
-  --accent-800: #c4dcf0;
-  --accent-900: #d6ebff;
-
-  --danger: #e08a7f;
-
-  --on-accent: #16191c;
-  --accent-solid: #94bce3;
-  --band-bg: #24384a;
-  --band-ink: #eef6ff;
-  --band-ink-2: #94bce3;
-  --band-tag: #b5d9fd;
-
+  --ground: #1c1a18; --panel: #24211e; --panel-2: #2c2825; --slot: #201d1b;
+  --ink: #f0ece4; --ink-2: #b8b0a6; --ink-3: #8a8279; --ink-4: #6b645c;
+  --rule: #37322d; --rule-strong: #443e38;
+  --accent: #d98b83; --accent-soft: #332725;
   color-scheme: dark;
+}
+
+
+/* ── 舊 token 對照 ────────────────────────────────────────────
+   底層樣式（下面 1500 行）還在用 Industry 那套名字。全部改名風險太大，
+   改成在這裡把舊名字接到新色票上，行為一致又不用動每一條規則。
+   ──────────────────────────────────────────────────────────── */
+:root {
+  --accent-100: var(--accent-soft);
+  --accent-200: var(--accent-soft);
+  --accent-300: var(--rule);
+  --accent-600: var(--accent);
+  --accent-700: var(--accent);
+  --accent-800: var(--accent);
+  --accent-900: var(--accent);
+  --accent-solid: var(--accent);
+  --on-accent: #fffefc;
+
+  /* 「接下來」第一列原本是實色欄，日系版改成淡朱底、深色字 */
+  --band-bg: var(--accent-soft);
+  --band-ink: var(--ink);
+  --band-ink-2: var(--ink-2);
+  --band-tag: var(--ink-2);
+
+  /* 實色朱底上的文字。淺色用米白，深色的朱色偏亮，要改用深字 */
+  --on-accent: #fffefc;
+
+  /* 課塊顏色改由 --h 色相驅動（見最後的「課塊配色」），這幾個只是保底 */
+  --c-bg: var(--panel);
+  --c-bg-dark: var(--panel);
+  --c-border: var(--rule);
+  --c-border-dark: var(--rule);
+  --c-bar: var(--accent);
+  --c-bar-dark: var(--accent);
+  --c-text: var(--ink);
+  --c-text-dark: var(--ink);
 }
 
 /* ── 基礎 ──────────────────────────────────────────────── */
@@ -1643,453 +1617,6 @@ table.almanac thead th {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Industry 覆寫層 — 來自設計交接稿。class 名稱全部沿用現有的。
-   ══════════════════════════════════════════════════════════════ */
-
-/* 2.1 全部方角、無陰影：這一版是工程圖，不是圓角卡片 */
-.panel, .btn, .tag, .field input, .field select, .period-chip,
-.notice, .confirm-box, .session-box, .empty, .day-empty, .today-card,
-.week-grid, .week-block, .day-row, .week-empty-day, .almanac-viewport,
-.sync-key, table.almanac th, table.almanac td, .legend i, .export-cta {
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-/* 2.2 標頭 */
-.masthead {
-  border-bottom: 1px solid var(--ink);
-}
-
-.masthead h1 {
-  font-family: var(--font-serif);
-  font-size: 32px;
-  letter-spacing: -0.015em;
-}
-
-.masthead-today {
-  color: var(--accent-700);
-  font-weight: 500;
-}
-
-/* 2.3 區段標題 */
-.section-head {
-  border-bottom: 1px solid var(--ink);
-}
-
-.section-head h2 {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  letter-spacing: -0.015em;
-}
-
-.section-note {
-  font-size: 12px;
-}
-
-/*
-  2.4 藍圖角標。
-  交接稿是套在所有 .panel 上，但 .scroll-x.panel（修課清單、行事曆）是
-  overflow: auto 容器，負偏移的絕對定位子元素會被裁掉、還會撐出捲動範圍，
-  所以那兩個排除掉。
-*/
-.panel:not(.scroll-x),
-.setting-block {
-  position: relative;
-}
-
-.panel:not(.scroll-x)::before,
-.panel:not(.scroll-x)::after,
-.setting-block::before,
-.setting-block::after {
-  content: '';
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  background:
-    linear-gradient(var(--ink-3), var(--ink-3)) 5px 0 / 1px 100% no-repeat,
-    linear-gradient(var(--ink-3), var(--ink-3)) 0 5px / 100% 1px no-repeat;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.panel:not(.scroll-x)::before,
-.setting-block::before {
-  top: -6px;
-  left: -6px;
-}
-
-.panel:not(.scroll-x)::after,
-.setting-block::after {
-  bottom: -6px;
-  right: -6px;
-}
-
-/* 2.5 週課表：格線是線，不是縫隙 */
-.week-grid {
-  gap: 0;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-top: 1px solid var(--ink);
-  grid-template-columns: 74px repeat(5, minmax(112px, 1fr));
-  /* 表頭 16px 字配上下各 9px padding 需要 35px，34px 會讓文字壓到框線 */
-  grid-template-rows: 38px repeat(var(--week-rows, 9), minmax(58px, auto));
-}
-
-.week-head {
-  background: transparent;
-  border-bottom: 1px solid var(--ink);
-  border-left: 1px solid var(--rule);
-  font-family: var(--font-serif);
-  font-size: 16px;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-}
-
-.week-head[data-today='true'] {
-  color: var(--accent-700);
-}
-
-.week-time {
-  background: transparent;
-  border-bottom: 1px solid var(--rule);
-  justify-content: flex-start;
-  align-items: flex-end;
-  padding-top: 5px;
-  padding-right: 8px;
-  text-align: right;
-}
-
-.week-time b {
-  font-family: var(--font-serif);
-  font-size: 15px;
-}
-
-.week-slot {
-  background: transparent;
-  border-bottom: 1px solid var(--rule);
-  border-left: 1px solid var(--rule);
-}
-
-.week-slot[data-lunch='true'],
-.week-time[data-lunch='true'] {
-  background: var(--panel-2);
-}
-
-/*
-  沒有修別的課一律鋼藍線框，不再用每門課的色相。
-  有修別的課走修別配色（檔案最後那段），所以這裡要把它們排除，
-  不然 !important 會把顏色全部蓋成同一個藍。
-*/
-.week-block:not([data-category]),
-.day-row:not([data-category]),
-.today-card:not([data-category]) {
-  background: var(--accent-100) !important;
-  border: 1px solid var(--accent-600) !important;
-  border-left: 3px solid var(--accent-700) !important;
-}
-
-.week-block,
-.day-row,
-.today-card {
-  margin: 2px;
-}
-
-.week-block-name,
-.day-row-name,
-.today-name {
-  font-family: var(--font-serif);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--accent-900) !important;
-}
-
-.week-block-meta,
-.day-row-meta,
-.today-where,
-.day-row-time,
-.today-time {
-  color: var(--accent-700) !important;
-}
-
-.course-bar,
-.event-bar {
-  background: var(--accent) !important;
-}
-
-.week-empty-day {
-  background: transparent;
-  border: 1px dashed var(--ink-3);
-}
-
-.week-empty-main {
-  font-family: var(--font-serif);
-}
-
-/* 2.6 按鈕：主按鈕是唯一的實色物件 */
-.btn {
-  background: transparent;
-  border-color: var(--rule);
-  color: var(--ink-2);
-  font-size: 14px;
-}
-
-.btn:hover {
-  background: var(--accent-100);
-  border-color: var(--accent);
-  color: var(--ink);
-}
-
-.btn-primary {
-  background: var(--accent-solid);
-  border-color: var(--accent-solid);
-  color: var(--on-accent);
-  font-weight: 500;
-}
-
-.btn-primary:hover {
-  background: var(--accent-600);
-  border-color: var(--accent-600);
-  color: var(--on-accent);
-  filter: none;
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* 2.7 分頁：檔案夾頁籤 */
-.nav {
-  border-bottom: 1px solid var(--ink);
-  gap: 0;
-}
-
-.nav button {
-  border: 1px solid var(--rule);
-  border-bottom: 0;
-  border-radius: 0;
-  font-family: var(--font-serif);
-  font-size: 16px;
-  /* --ink-3 在這個底色上只有 3.82:1，未選中的頁籤還是要讀得清楚 */
-  color: var(--ink-2);
-}
-
-.nav button[aria-current='true'] {
-  background: var(--accent-solid);
-  border-color: var(--accent-solid);
-  color: var(--on-accent);
-  font-weight: 400;
-}
-
-/* 2.8 chip / tag */
-.period-chip {
-  background: transparent;
-  border-color: var(--rule);
-}
-
-.period-chip[aria-pressed='true'] {
-  background: var(--accent-solid);
-  border-color: var(--accent-solid);
-  color: var(--on-accent);
-}
-
-.tag {
-  border-color: var(--rule);
-  color: var(--ink-2);
-  font-size: 11px;
-}
-
-.tag-school {
-  border-color: var(--accent);
-  color: var(--accent-700);
-}
-
-/* 2.9 表單 */
-.field label,
-.field-legend {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-.field input,
-.field select {
-  background: transparent;
-  border-color: var(--rule);
-}
-
-.field input:focus-visible,
-.field select:focus-visible {
-  outline: 2px solid var(--accent);
-}
-
-/* 2.10 提示條 */
-.notice,
-.export-cta {
-  background: var(--accent-100);
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent);
-  color: var(--accent-900);
-}
-
-.notice[data-tone='warn'] {
-  background: transparent;
-  border-left-color: var(--danger);
-  color: var(--danger);
-}
-
-/* 2.11 官方行事曆表格 */
-.almanac-viewport {
-  border: 1px solid var(--rule);
-  background: transparent;
-}
-
-table.almanac thead th {
-  background: var(--ground);
-  border-bottom: 1px solid var(--ink);
-  font-family: var(--font-serif);
-  font-size: 13px;
-}
-
-table.almanac th,
-table.almanac td {
-  border-color: var(--rule);
-}
-
-.almanac-day[data-weekend='true'] {
-  background: var(--panel-2);
-}
-
-.almanac-day[data-today='true'] {
-  background: var(--accent-900);
-  color: var(--ground);
-}
-
-/*
-  2.12 「接下來」最上面一筆做成鋼藍實色欄。
-  交接稿寫 .todo-list.panel .todo-row:first-child，但那會連「已完成」那一區的
-  第一列也一起吃到，所以這裡把已完成排除掉。
-*/
-.todo-list.panel:not(.done-list) .todo-row:first-child,
-.todo-row[data-tone='ongoing'] {
-  background: var(--band-bg);
-  color: var(--band-ink);
-  border-color: var(--band-bg);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .todo-title,
-.todo-row[data-tone='ongoing'] .todo-title {
-  color: var(--band-ink);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .todo-sub,
-.todo-list.panel:not(.done-list) .todo-row:first-child .todo-countdown,
-.todo-row[data-tone='ongoing'] .todo-sub,
-.todo-row[data-tone='ongoing'] .todo-countdown {
-  color: var(--band-ink-2) !important;
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .event-status,
-.todo-row[data-tone='ongoing'] .event-status {
-  color: var(--band-ink-2) !important;
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .tag,
-.todo-row[data-tone='ongoing'] .tag {
-  border-color: rgb(255 255 255 / 0.35);
-  color: var(--band-tag);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .btn,
-.todo-row[data-tone='ongoing'] .btn {
-  border-color: rgb(255 255 255 / 0.35);
-  color: var(--band-tag);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .btn:hover,
-.todo-row[data-tone='ongoing'] .btn:hover {
-  background: var(--accent-800);
-  color: var(--band-ink);
-}
-
-.todo-list.panel:not(.done-list) .todo-row:first-child .link-btn,
-.todo-row[data-tone='ongoing'] .link-btn {
-  color: var(--band-ink-2);
-}
-
-/* ── 手機微調：覆寫層改過格線設定，這裡再套回窄螢幕的尺寸 ──── */
-@media (max-width: 720px) {
-  .week-grid-wrap .week-grid {
-    min-width: 600px;
-    grid-template-columns: 54px repeat(5, minmax(0, 1fr));
-    grid-template-rows: 34px repeat(var(--week-rows, 9), minmax(52px, auto));
-  }
-
-  .week-grid-wrap .week-head {
-    font-size: 14px;
-    padding: 5px 3px;
-  }
-
-  .masthead h1 {
-    font-size: 27px;
-  }
-
-  .section-head h2 {
-    font-size: 20px;
-  }
-}
-
-/*
-  強調色當「文字」用的時候要更深。
-  --accent (#5980a6) 壓在底色上只有 3.71:1；--accent-700 有 5.98:1。
-  線框與色條維持 --accent 不變，只有文字改。
-  深色模式的 --accent-700 是亮藍，壓在深底上一樣過關。
-*/
-.todo-countdown[data-tone='soon'],
-.event-status[data-tone='soon'],
-.event-status[data-tone='ongoing'],
-.editor-row[data-tone='ongoing'] .event-status,
-.week-head[data-today='true'],
-.day-head[data-today='true'] h3 {
-  color: var(--accent-700);
-}
-
-.todo-countdown[data-tone='ongoing'] {
-  color: var(--accent-700);
-}
-
-/* 實色欄裡面的還是要走反白那組，不能被上面這條蓋掉 */
-.todo-list.panel:not(.done-list) .todo-row:first-child .todo-countdown,
-.todo-row[data-tone='ongoing'] .todo-countdown {
-  color: var(--band-ink-2) !important;
-}
-
-/*
-  放大之後格子會超出螢幕要左右捲，這時左邊的節次時間欄必須釘住，
-  不然捲到星期四、五就不知道自己在看第幾節。
-  釘住的欄位不能是透明的，否則課塊會從底下透出來。
-*/
-.week-grid-wrap .week-time,
-.week-grid-wrap .week-head:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 3;
-  background: var(--ground);
-}
-
-.week-grid-wrap .week-time[data-lunch='true'] {
-  background: var(--panel-2);
-}
-
-/* 釘住的那一欄要有右邊界，跟被它蓋過去的內容分開 */
-.week-grid-wrap .week-time,
-.week-grid-wrap .week-head:first-child {
-  border-right: 1px solid var(--rule);
-}
-
-/* ══════════════════════════════════════════════════════════════
    新生入學輔導的官方表格（貼在「接下來」那筆學校行事曆底下）
    預設收起來；表格照原表畫，窄螢幕左右捲，樣式跟修課清單同一套。
    ══════════════════════════════════════════════════════════════ */
@@ -2390,188 +1917,527 @@ table.almanac td {
   color: var(--ink-3);
 }
 
+
+/* ── §2 覆寫層 ───────────────────────────────────────────────── */
+
+/* 2.1 基礎：字小、行高高、留白換乾淨 */
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.mono, .num, time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, .masthead h1, .section-head h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.masthead h1 { font-size: 20px; }        /* 標題不要放大 */
+.section-head h2 { font-size: 17px; }
+.section { margin-bottom: var(--gap-section); }
+
+/* 2.2 卡片：圓角 14、內距 18、極淡單層陰影、不描邊 */
+.panel, .today-card, .notice, .confirm-box, .session-box, .empty,
+.export-cta, .setting-block, .almanac-viewport {
+  background: var(--panel);
+  border: 0;
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  padding: var(--pad-card);
+}
+.panel + .panel { margin-top: var(--gap-card); }
+.hr { display: none; }                    /* 用留白分組，不用線 */
+
+/* 2.3 標頭與區段：只留必要的線 */
+.masthead { border-bottom: 0; padding-bottom: 4px; }
+.masthead-today { color: var(--ink-3); font-family: var(--font-mono); font-size: 12px; }
+.section-head { border-bottom: 0; align-items: baseline; }
+.section-note { color: var(--ink-3); font-size: 12px; }
+
+/* 2.4 週課表：空堂用填色，不描邊 */
+.week-grid {
+  gap: 4px;
+  padding: var(--pad-card);
+  background: var(--panel);
+  border: 0;
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  grid-template-columns: 58px repeat(5, minmax(0, 1fr));
+  grid-auto-rows: 58px;                   /* 單節格要放得下 課名＋教室 兩行 */
+}
+.week-head {
+  background: transparent; border: 0;
+  font-family: var(--font-serif); font-weight: 600; font-size: 14px; color: var(--ink-2);
+}
+.week-head[data-today='true'] { color: var(--accent); }
+.week-time {
+  background: transparent; border: 0;
+  flex-direction: row; align-items: center; justify-content: flex-end; gap: 6px;
+  font-size: 12px; color: var(--ink-2);
+}
+.week-time b { font-weight: 400; }
+.week-time small, .week-time .mono { font-size: 10px; color: var(--ink-4); }
+.week-slot { background: var(--slot); border: 0; border-radius: 8px; }
+.week-slot[data-lunch='true'], .week-time[data-lunch='true'] { background: var(--panel-2); }
+.week-time[data-lunch='true'], .week-time[data-evening='true'] { color: var(--ink-3); }
+
+/* 課塊：背景 94%／邊框 82%／文字 34%，只換色相。
+   交接稿寫死 34% 彩度；這裡多一個 --s，班會、週會這種 0 學分的
+   行政時段走低彩度（README 說的「次要項目用 30 度低彩度」）。 */
+.week-block, .day-row {
+  border-radius: var(--r-block);
+  border: 1px solid hsl(var(--h, 205) var(--s, 34%) 82%);
+  background: hsl(var(--h, 205) var(--s, 34%) 94%);
+  color: hsl(var(--h, 205) var(--s, 34%) 34%);
+  padding: 8px 10px;
+  gap: 3px;
+  box-shadow: none;
+  margin: 0;
+}
+.week-block-name, .day-row-name {
+  font-family: var(--font-sans); font-weight: 500; font-size: 13px; line-height: 1.35;
+  color: hsl(var(--h, 205) var(--s, 34%) 34%);
+}
+.week-block-meta, .day-row-meta {
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.3;
+  color: hsl(var(--h, 205) var(--s, 34%) 34%); opacity: 0.75;
+}
+/* 單節格塞不下第三行：老師交給課程詳情 */
+.week-block[data-span='1'] .week-block-teacher { display: none; }
+/* 待遞補：虛線、降彩度 */
+.week-block[data-waitlisted='true'],
+.day-row[data-waitlisted='true'],
+.today-card[data-waitlisted='true'] {
+  border-style: dashed;
+  border-color: hsl(var(--h, 205) 14% 82%);
+  background: var(--panel);
+  color: hsl(var(--h, 205) 20% 48%);
+}
+
+.week-block[data-waitlisted='true'] .week-block-name,
+.week-block[data-waitlisted='true'] .week-block-meta,
+.day-row[data-waitlisted='true'] .day-row-name,
+.day-row[data-waitlisted='true'] .day-row-meta {
+  color: hsl(var(--h, 205) 20% 48%);
+}
+.week-empty-day { border: 0; border-radius: var(--r-block); background: var(--panel-2); }
+.week-empty-main { font-family: var(--font-serif); font-weight: 600; color: var(--ink-2); }
+.legend i { border-radius: 4px; border: 0; }
+
+/* 2.5 今天摘要卡（4a／5a 的主角）。
+   設計稿叫 .today-card，但這個 class 在現有程式裡是「今天的課」的每一列，
+   所以摘要卡另外叫 .today-summary，兩者不會打架。 */
+.today-summary {
+  display: grid; gap: 12px;
+  border: 1px solid var(--panel-2);
+}
+.today-summary .today-kicker {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--accent);
+}
+.today-summary .today-kicker::before {
+  content: ''; width: 6px; height: 6px; border-radius: 99px; background: var(--accent);
+}
+.today-summary .today-name { font-family: var(--font-serif); font-weight: 600; font-size: 20px; line-height: 1.5; }
+.today-summary .today-where { font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }
+
+/* 2.6 待辦／接下來：一列一張卡的節奏 */
+.todo-list { display: flex; flex-direction: column; gap: var(--gap-card); background: transparent; border: 0; box-shadow: none; padding: 0; }
+.todo-row {
+  align-items: center;
+  min-height: 66px;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 0;
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+}
+.todo-countdown { font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }
+.todo-countdown[data-tone='soon'] { color: var(--accent); }
+.todo-countdown[data-tone='overdue'] { color: var(--danger); }
+.todo-countdown[data-tone='ongoing'] { color: var(--accent); }
+.todo-title { font-size: 15px; font-weight: 500; line-height: 1.5; }
+.todo-sub { font-size: 12px; color: var(--ink-3); gap: 8px; }
+.todo-row[data-tone='ongoing'] { background: var(--accent-soft); }
+.todo-row[data-done='true'] { box-shadow: none; background: transparent; }
+.todo-row[data-done='true'] .todo-title { color: var(--ink-3); }
+.done-block > summary { font-family: var(--font-serif); font-weight: 600; color: var(--ink-2); }
+
+/* 2.7 按鈕與 chip：圓角 10、不描粗邊 */
+.btn {
+  min-height: var(--tap);
+  padding: 0 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-btn);
+  background: var(--panel);
+  color: var(--ink-2);
+  font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+  box-shadow: none;
+}
+.btn:hover { background: var(--panel-2); color: var(--ink); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fffefc; }
+.btn-primary:hover { background: #a5564f; border-color: #a5564f; filter: none; }
+.btn-danger { color: var(--danger); border-color: var(--rule); background: var(--panel); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.link-btn { color: var(--accent); }
+.tag, .period-chip {
+  border: 1px solid var(--rule); border-radius: var(--r-chip);
+  background: var(--panel-2); color: var(--ink-2);
+  font-size: 11px; padding: 2px 8px;
+}
+.period-chip { min-height: 38px; min-width: 38px; }
+.period-chip[aria-pressed='true'] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.tag-school { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+
+/* 2.8 表單 */
+.field label { font-size: 12px; color: var(--ink-3); letter-spacing: 0; text-transform: none; }
+.field input, .field select, .field textarea {
+  min-height: var(--tap);
+  border: 1px solid var(--rule); border-radius: var(--r-btn);
+  background: var(--panel); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px;
+}
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* 2.9 提示 */
+.notice, .export-cta { background: var(--accent-soft); color: var(--ink); border: 0; }
+.notice[data-tone='warn'] { background: var(--panel-2); }
+.empty { color: var(--ink-2); text-align: center; }
+
+/* 2.10 官方行事曆表格 */
+table.almanac th, table.almanac td { border-color: var(--rule); font-size: 12px; }
+table.almanac thead th { background: var(--panel); color: var(--ink-2); font-family: var(--font-serif); font-weight: 600; border-bottom: 1px solid var(--rule); }
+.almanac-day[data-weekend='true'] { background: var(--panel-2); }
+.almanac-day[data-today='true'] { background: var(--accent); color: #fffefc; border-radius: 6px; }
+
+/* ── 2.11 電腦版 5a：導覽變左側直欄 ───────────────────────── */
+@media (min-width: 900px) {
+  .nav {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 20;
+    width: var(--rail);
+    flex-direction: column; align-items: stretch; gap: 4px;
+    padding: 26px 18px;
+    background: var(--panel);
+    border-bottom: 0; border-right: 1px solid var(--rule);
+    overflow-y: auto;
+  }
+  .nav-brand { font-family: var(--font-serif); font-weight: 600; font-size: 18px; margin-bottom: 22px; }
+  .nav button {
+    justify-content: flex-start;
+    min-height: var(--tap);
+    padding: 0 14px;
+    border: 0; border-radius: 12px;
+    background: transparent;
+    font-family: var(--font-sans); font-size: 14px; color: var(--ink-3);
+  }
+  .nav button:hover { background: var(--panel-2); color: var(--ink); }
+  .nav button[aria-current='true'] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+  /* 主內容讓出左欄。app 的最外層容器 class 若不是 .app，改成你的 */
+  .app, main, .page { padding-left: calc(var(--rail) + 28px); padding-right: 28px; max-width: var(--max-width); }
+}
+
+/* ── 2.12 手機版 4a：導覽變底部 tab bar ───────────────────── */
+@media (max-width: 899px) {
+  .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    gap: 0;
+    padding: 8px 4px calc(18px + env(safe-area-inset-bottom));
+    background: var(--panel);
+    border-top: 1px solid var(--rule); border-bottom: 0;
+  }
+  .nav button {
+    flex-direction: column; gap: 4px;
+    min-height: 46px; padding: 4px 0;
+    border: 0; border-radius: 0; background: transparent;
+    font-size: 10px; color: var(--ink-3);
+  }
+  .nav button[aria-current='true'] { color: var(--accent); font-weight: 500; }
+  .nav button svg { width: 21px; height: 21px; stroke-width: 1.5; }
+  .app, main, .page { padding-bottom: calc(var(--tabbar) + env(safe-area-inset-bottom) + 16px); }
+
+  /*
+    交接稿這裡是「小色塊地圖」（18px 欄、20px 列、只留課名）。
+    這個 App 的格子本來就能縮放、也能切成清單，再把教室和時間全部拿掉
+    只會更難用，所以保留現有的格子，只縮字級。
+  */
+  .week-grid { padding: 14px; gap: 3px; }
+  .week-block { padding: 5px 6px; border-radius: 8px; }
+  .week-block-name { font-size: 12px; line-height: 1.25; }
+  .week-block-meta { font-size: 10px; }
+  .week-block[data-span='1'] .week-block-meta { font-size: 9.5px; }
+}
+
 /* ══════════════════════════════════════════════════════════════
-   修別配色：必修＝鋼藍、選修＝青綠、通識＝琥珀。
-   一律不用紅色——紅色在這個 App 已經是期中／期末評量週的意思。
-   只上色到左邊那條色條和標籤，課塊本身維持線圖，不整塊填色。
+   §3 專案自己的部分（交接稿沒有涵蓋，但這個 App 有）
    ══════════════════════════════════════════════════════════════ */
-:root {
-  --cat-required: hsl(214 56% 46%);
-  --cat-elective: hsl(168 58% 30%);
-  --cat-general: hsl(38 78% 36%);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --cat-required: hsl(214 72% 68%);
-    --cat-elective: hsl(168 52% 58%);
-    --cat-general: hsl(38 78% 62%);
-  }
-}
-
-:root[data-theme='dark'] {
-  --cat-required: hsl(214 72% 68%);
-  --cat-elective: hsl(168 52% 58%);
-  --cat-general: hsl(38 78% 62%);
-}
-
-/*
-  週課表：課塊改吃修別的顏色。左邊一條粗色條，外框和底色也跟著走——
-  只有左邊那條的話，在整片鋼藍的格子裡幾乎分不出來。
-  底色壓得很淡（12%），課名還是黑字，維持線圖的調性。
-*/
-.week-block[data-category='required'] {
-  background: hsl(214 56% 46% / 0.1);
-  border-color: hsl(214 56% 46% / 0.5);
-  border-left: 5px solid var(--cat-required);
-}
-
-.week-block[data-category='elective'] {
-  background: hsl(168 58% 30% / 0.1);
-  border-color: hsl(168 58% 30% / 0.5);
-  border-left: 5px solid var(--cat-elective);
-}
-
-.week-block[data-category='general'] {
-  background: hsl(38 78% 36% / 0.12);
-  border-color: hsl(38 78% 36% / 0.5);
-  border-left: 5px solid var(--cat-general);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .week-block[data-category='required'] {
-    background: hsl(214 72% 68% / 0.14);
-    border-color: hsl(214 72% 68% / 0.45);
-  }
-
-  :root:not([data-theme='light']) .week-block[data-category='elective'] {
-    background: hsl(168 52% 58% / 0.14);
-    border-color: hsl(168 52% 58% / 0.45);
-  }
-
-  :root:not([data-theme='light']) .week-block[data-category='general'] {
-    background: hsl(38 78% 62% / 0.14);
-    border-color: hsl(38 78% 62% / 0.45);
-  }
-}
-
-:root[data-theme='dark'] .week-block[data-category='required'] {
-  background: hsl(214 72% 68% / 0.14);
-  border-color: hsl(214 72% 68% / 0.45);
-}
-
-:root[data-theme='dark'] .week-block[data-category='elective'] {
-  background: hsl(168 52% 58% / 0.14);
-  border-color: hsl(168 52% 58% / 0.45);
-}
-
-:root[data-theme='dark'] .week-block[data-category='general'] {
-  background: hsl(38 78% 62% / 0.14);
-  border-color: hsl(38 78% 62% / 0.45);
-}
-
-/* 待遞補仍然是虛線＋透明，蓋過上面的底色 */
-.week-block[data-waitlisted='true'] {
-  background: transparent;
-}
-
-/* 圖例的方塊也照著填，不然只有一條線看不出是哪個顏色 */
-.legend i[data-category='required'] {
-  background: hsl(214 56% 46% / 0.14);
-}
-
-.legend i[data-category='elective'] {
-  background: hsl(168 58% 30% / 0.14);
-}
-
-.legend i[data-category='general'] {
-  background: hsl(38 78% 36% / 0.16);
-}
-
-/* 清單、今天的課同一套 */
-.day-row[data-category='required'],
-.today-card[data-category='required'] {
-  border-left-color: var(--cat-required);
-}
-
-.day-row[data-category='elective'],
-.today-card[data-category='elective'] {
-  border-left-color: var(--cat-elective);
-}
-
-.day-row[data-category='general'],
-.today-card[data-category='general'] {
-  border-left-color: var(--cat-general);
-}
-
-.course-bar[data-category='required'] {
-  background: var(--cat-required);
-}
-
-.course-bar[data-category='elective'] {
-  background: var(--cat-elective);
-}
-
-.course-bar[data-category='general'] {
-  background: var(--cat-general);
-}
-
+/* ── 課塊配色：色相＝修別 ─────────────────────────────────────
+   交接稿的建議色相是一課一色。這裡改成一個修別一個色相——
+   使用者要的是「一眼看出必修／選修／通識」，一課一色只是好看。
+   數值仍照參考庫的七色：空 205、若竹 160、山吹 35。
+   0 學分的行政時段（班會、週會）走 30 度低彩度，和交接稿一致。
+   實際的 --h / --s 由 courseColorStyle() 掛在元素的 style 上。
+   ──────────────────────────────────────────────────────────── */
 .tag-category {
   margin-left: 6px;
   white-space: nowrap;
+  border-color: hsl(var(--cat-h, 205) 34% 72%);
+  background: hsl(var(--cat-h, 205) 34% 94%);
+  color: hsl(var(--cat-h, 205) 34% 34%);
 }
 
-.tag-category[data-category='required'] {
-  border-color: var(--cat-required);
-  color: var(--cat-required);
+.tag-category[data-category='required'] { --cat-h: 205; }
+.tag-category[data-category='elective'] { --cat-h: 160; }
+.tag-category[data-category='general'] { --cat-h: 35; }
+
+.tag-wait {
+  margin-left: 6px;
+  white-space: nowrap;
+  border-style: dashed;
+  background: transparent;
+  color: var(--ink-3);
 }
 
-.tag-category[data-category='elective'] {
-  border-color: var(--cat-elective);
-  color: var(--cat-elective);
+.course-bar {
+  width: 3px;
+  border-radius: 99px;
+  background: hsl(var(--cat-h, 205) 34% 72%);
 }
 
-.tag-category[data-category='general'] {
-  border-color: var(--cat-general);
-  color: var(--cat-general);
-}
+.course-bar[data-category='required'] { --cat-h: 205; }
+.course-bar[data-category='elective'] { --cat-h: 160; }
+.course-bar[data-category='general'] { --cat-h: 35; }
 
-/* 修課清單的備註：課名底下一行小字 */
 .course-note {
   display: block;
   margin-top: 2px;
   color: var(--ink-3);
   font-size: 11.5px;
+}
+
+.legend i[data-category] {
+  border: 1px solid hsl(var(--cat-h, 205) 34% 82%);
+  background: hsl(var(--cat-h, 205) 34% 94%);
+}
+
+.legend i[data-category='required'] { --cat-h: 205; }
+.legend i[data-category='elective'] { --cat-h: 160; }
+.legend i[data-category='general'] { --cat-h: 35; }
+
+.legend i[data-kind='wait'] {
+  border: 1px dashed var(--ink-4);
+  background: transparent;
+}
+
+/* ── 今天的課：一列一張卡（4a 的「今日の授業」） ────────────── */
+.today-list { gap: var(--gap-card); }
+
+.today-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 66px;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.today-time {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-align: left;
+}
+
+.today-card .today-name {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.today-card .today-where {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ── 今天摘要卡的上排 ───────────────────────────────────────── */
+.today-summary-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.today-summary-head .mono {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.today-summary-head .muted {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.today-summary-next {
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.today-summary .today-kicker {
+  margin-bottom: 8px;
+}
+
+.today-summary .today-where {
+  margin-top: 6px;
+}
+
+/* ── 左側欄的班級與這學期小卡（5a） ─────────────────────────── */
+.nav-brand,
+.nav-summary {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .nav-brand,
+  .nav-summary {
+    display: block;
+  }
+
+  .nav-brand div:last-child {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .nav-summary {
+    margin-top: auto;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--ground);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .nav-summary b {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+
+  /* 桌機的班級資訊在左欄，上面就不用再來一次 */
+  .masthead {
+    display: none;
+  }
+}
+
+/* 分頁按鈕的圖示 */
+.nav button svg {
+  flex: none;
+}
+
+@media (min-width: 900px) {
+  .nav button svg {
+    width: 19px;
+    height: 19px;
+  }
+}
+
+/* ── 週課表：釘住左邊的節次欄 ───────────────────────────────
+   放大後格子會超出螢幕，捲到星期四五時要看得出自己在第幾節。
+   ──────────────────────────────────────────────────────────── */
+.week-grid-wrap .week-time,
+.week-grid-wrap .week-head:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--panel);
+}
+
+.week-grid-wrap .week-time[data-lunch='true'] {
+  background: var(--panel-2);
+  border-radius: 8px;
+}
+
+/* ── 行事曆的今天：日系版是朱色圓角，不是深藍方塊 ─────────── */
+.almanac-day[data-today='true'],
+.almanac-day[data-today='true'][data-mark] {
+  background: var(--accent);
+  color: #fffefc;
+  box-shadow: none;
+  border-radius: 6px;
+}
+
+/* 「接下來」進行中那列在日系版是淡朱底、深色字，把反白那組收掉 */
+.todo-list.panel:not(.done-list) .todo-row:first-child .todo-title,
+.todo-row[data-tone='ongoing'] .todo-title {
+  color: var(--ink);
+}
+
+.todo-list.panel:not(.done-list) .todo-row:first-child .todo-sub,
+.todo-row[data-tone='ongoing'] .todo-sub {
+  color: var(--ink-3) !important;
+}
+
+/* ── 分頁按鈕：圖示和文字要排在一起 ──────────────────────────
+   底層的 .nav button 沒有 display: flex，圖示會黏在文字上。
+   ──────────────────────────────────────────────────────────── */
+.nav button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-sans);
 }
 
-/* 圖例 */
-.legend i[data-category='required'] {
-  border-color: var(--rule);
-  border-left: 4px solid var(--cat-required);
+@media (max-width: 899px) {
+  .nav button {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav button svg {
+    width: 21px;
+    height: 21px;
+  }
 }
 
-.legend i[data-category='elective'] {
-  border-color: var(--rule);
-  border-left: 4px solid var(--cat-elective);
+@media (min-width: 900px) {
+  .nav button {
+    gap: 12px;
+  }
 }
 
-.legend i[data-category='general'] {
-  border-color: var(--rule);
-  border-left: 4px solid var(--cat-general);
+/* ── 實色朱底的文字：深色模式要用深字 ─────────────────────── */
+.btn-primary,
+.almanac-day[data-today='true'],
+.almanac-day[data-today='true'][data-mark] {
+  color: var(--on-accent);
 }
 
-.legend i[data-kind='wait'] {
-  background: transparent;
-  border-style: dashed;
-  border-color: var(--ink-3);
-}
-
-/* ── 待遞補：虛線＋半透明，蓋過上面所有的實線設定 ────────── */
-.week-block[data-waitlisted='true'],
-.day-row[data-waitlisted='true'],
+/* ── 今天的課：左邊那條線用課程的色相（5a 右卡的做法） ────── */
+.today-card,
+:root[data-theme='dark'] .today-card,
 .today-card[data-waitlisted='true'] {
-  border-style: dashed !important;
-  background: transparent !important;
-  opacity: 0.75;
+  border-left: 3px solid hsl(var(--h, 205) var(--s, 34%) 72%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .today-card {
+    border-left-color: hsl(var(--h, 205) var(--s, 34%) 52%);
+  }
+}
+
+:root[data-theme='dark'] .today-card {
+  border-left-color: hsl(var(--h, 205) var(--s, 34%) 52%);
 }
