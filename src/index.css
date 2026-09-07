@@ -2493,3 +2493,26 @@ table.almanac thead th { background: var(--panel); color: var(--ink-2); font-fam
 .today-card .today-where > span {
   white-space: nowrap;
 }
+
+/* ── 節次欄：起訖時間直排、不斷行 ────────────────────────────
+   這一欄只有 54px，時間字串被拆成兩行就會撐爆格子、疊到下一列。
+   ──────────────────────────────────────────────────────────── */
+.week-time {
+  overflow: hidden;
+}
+
+.week-time-range {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--ink-4);
+}
+
+.week-time b {
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+}
