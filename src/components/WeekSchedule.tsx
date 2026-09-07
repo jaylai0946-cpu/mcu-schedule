@@ -117,9 +117,12 @@ export function WeekSchedule({
                 style={{ gridColumn: 1, gridRow: i + 2 }}
               >
                 <b>{p}</b>
-                {PERIOD_TIMES[p].start}
-                <br />
-                {PERIOD_TIMES[p].end}
+                {/* 起訖包成一個直排的區塊：這一欄很窄，散在 flex 裡的文字
+                    會被拆行，然後撐出格子高度、疊到下一列去 */}
+                <span className="week-time-range">
+                  <span>{PERIOD_TIMES[p].start}</span>
+                  <span>{PERIOD_TIMES[p].end}</span>
+                </span>
               </div>
               {WEEKDAYS.map((d) =>
                 occupied.has(`${d}-${i}`) || emptyDays.includes(d) ? null : (
