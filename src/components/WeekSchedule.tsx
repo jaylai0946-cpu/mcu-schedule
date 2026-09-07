@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { WEEK_ZOOM_MAX, WEEK_ZOOM_MIN, useWeekView } from '../useWeekView'
 import { EVENING_PERIODS, LUNCH_PERIOD, PERIOD_TIMES, WEEKDAYS, WEEKDAY_NAMES } from '../constants'
 import { weekdayOf } from '../lib/dates'
+import { courseColorStyle } from '../lib/courseColor'
 import { buildWeekLayout, classesOnWeekday } from '../lib/schedule'
 import type { Course } from '../types'
 
@@ -152,7 +153,12 @@ export function WeekSchedule({
               className="week-block"
               data-category={b.course.category}
               data-waitlisted={b.course.waitlisted === true}
-              style={{ gridColumn: b.d + 1, gridRow: `${b.rowStart + 2} / span ${b.rowSpan}` }}
+              data-span={b.rowSpan}
+              style={{
+                ...courseColorStyle(b.course),
+                gridColumn: b.d + 1,
+                gridRow: `${b.rowStart + 2} / span ${b.rowSpan}`,
+              }}
             >
               <div className="week-block-name">
                 {b.course.name}
@@ -160,9 +166,12 @@ export function WeekSchedule({
               </div>
               <div className="week-block-meta">
                 {b.course.waitlisted && '待遞補　'}
-                {b.session.teacher ?? b.course.teacher}
-                {'　'}
-                {b.session.room}
+                {b.session.room || '教室未定'}
+                {/* 單節格塞不下第三行，老師交給清單 */}
+                <span className="week-block-teacher">
+                  {'　'}
+                  {b.session.teacher ?? b.course.teacher}
+                </span>
               </div>
             </div>
           ))}
@@ -188,6 +197,7 @@ export function WeekSchedule({
                     className="day-row"
                     data-category={c.course.category}
                     data-waitlisted={c.course.waitlisted === true}
+                    style={courseColorStyle(c.course)}
                   >
                     <div className="day-row-time">
                       {c.start}–{c.end}

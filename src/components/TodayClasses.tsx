@@ -1,5 +1,6 @@
 import { WEEKDAY_NAMES } from '../constants'
 import { weekdayOf } from '../lib/dates'
+import { courseColorStyle } from '../lib/courseColor'
 import { classesOnWeekday } from '../lib/schedule'
 import type { Course } from '../types'
 
@@ -30,6 +31,7 @@ export function TodayClasses({ courses, today }: { courses: Course[]; today: str
               className="today-card"
               data-category={c.course.category}
               data-waitlisted={c.course.waitlisted === true}
+              style={courseColorStyle(c.course)}
             >
               <div className="today-time">
                 {c.start}
