@@ -45,7 +45,8 @@ export function TodayClasses({ courses, today }: { courses: Course[]; today: str
                   {c.course.waitlisted && <span className="tag tag-wait">待遞補</span>}
                 </div>
                 <div className="today-where">
-                  {c.session.room}　{c.teacher}
+                  <span>{c.session.room || '教室未定'}</span>
+                  <span>{c.teacher}</span>
                 </div>
               </div>
             </article>
