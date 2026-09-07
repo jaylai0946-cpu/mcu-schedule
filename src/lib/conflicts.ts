@@ -8,6 +8,8 @@ export interface Conflict {
   /** 撞到的課程名稱；同一門課自己重複時是自己 */
   withName: string
   withLabel?: string
+  /** 撞到的那門課還在等遞補 */
+  withWaitlisted?: boolean
   /** 撞到的是不是草稿自己的另一個時段 */
   selfOverlap: boolean
 }
@@ -22,7 +24,9 @@ export function describeConflict(c: Conflict): string {
   const where = `${WEEKDAY_NAMES[c.d]} ${periodText(c.ps)}`
   if (c.selfOverlap) return `星期${where}：這門課自己有兩個時段排在同一節`
   const name = c.withLabel ? `${c.withName}（${c.withLabel}）` : c.withName
-  return `星期${where}：和「${name}」衝堂`
+  // 撞到待遞補的課要講清楚，不然使用者不知道擋住自己的是一門還沒選上的課
+  const prefix = c.withWaitlisted ? '待遞補的' : ''
+  return `星期${where}：和${prefix}「${name}」衝堂`
 }
 
 /**
@@ -60,6 +64,7 @@ export function detectConflicts(draft: Course, courses: Course[]): Conflict[] {
             ps: hit,
             withName: other.name,
             withLabel: otherSession.label,
+            withWaitlisted: other.waitlisted === true,
             selfOverlap: false,
           })
         }

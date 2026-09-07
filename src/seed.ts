@@ -87,6 +87,83 @@ export const SEED_COURSES: Course[] = [
     note: '全學年',
     sessions: [{ d: 3, ps: [20], room: 'B102' }],
   },
+  {
+    id: 'assembly',
+    name: '週會',
+    code: '00999',
+    teacher: '',
+    credits: 0,
+    hue: 214,
+    sat: 10,
+    note: '班級 57101・必修・教室未定',
+    sessions: [{ d: 5, ps: [5], room: '' }],
+  },
+  {
+    id: 'jpn',
+    name: '日文一（上）',
+    code: '00531',
+    teacher: '闕茹玉',
+    credits: 2,
+    hue: 330,
+    sat: 42,
+    note: '班級 57151・選修',
+    sessions: [{ d: 5, ps: [6, 7], room: 'D105' }],
+  },
+  {
+    id: 'sdg',
+    name: '永續發展目標績效管理實務',
+    code: '57476',
+    teacher: '胡秀華',
+    credits: 3,
+    hue: 152,
+    sat: 42,
+    note: '班級 57161・選修',
+    sessions: [{ d: 2, ps: [5, 6, 7], room: 'D104' }],
+  },
+
+  /*
+    以下三門還在等遞補，還沒真的選上。放進來是為了看得到時間卡在哪，
+    畫面上會是虛線，也不算進學分合計。遞補上了就到「編輯課表」把
+    「待遞補」取消掉。
+  */
+  {
+    id: 'career',
+    name: '職場素養與實務',
+    code: '00936',
+    teacher: '高木蘭',
+    credits: 1,
+    hue: 214,
+    sat: 42,
+    note: '課號 00936／00188・待遞補',
+    waitlisted: true,
+    sessions: [{ d: 2, ps: [20], room: 'B305' }],
+  },
+  {
+    id: 'defense',
+    name: '全民國防教育軍事訓練（四）',
+    code: '00934',
+    teacher: '陳連偉',
+    credits: 2,
+    hue: 214,
+    sat: 42,
+    // 原始課表寫「一 50、60 節」，不是一般的節次代碼，時間還沒確認，
+    // 所以先不給時段——寧可空著，也不要猜一個錯的排進課表。
+    note: '課號 00934／00187・待遞補・原表寫「一 50、60 節」B401，實際時間未確認',
+    waitlisted: true,
+    sessions: [],
+  },
+  {
+    id: 'logic',
+    name: '邏輯與批判思考',
+    code: '00759',
+    teacher: '孔令信',
+    credits: 2,
+    hue: 214,
+    sat: 42,
+    note: '課號 00759／00136・待遞補',
+    waitlisted: true,
+    sessions: [{ d: 3, ps: [5, 6], room: 'H201' }],
+  },
 ]
 
 export function createSeedState(): AppState {

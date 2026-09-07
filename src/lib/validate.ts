@@ -69,6 +69,7 @@ function parseCourse(raw: unknown, index: number): Course {
     hue: num(raw.hue, 214),
     sat: num(raw.sat, 42),
     note: optionalStr(raw.note),
+    waitlisted: raw.waitlisted === true ? true : undefined,
     sessions: raw.sessions.map((s, i) => parseSession(s, `課程 ${id} 的第 ${i + 1} 個時段`)),
   }
 }

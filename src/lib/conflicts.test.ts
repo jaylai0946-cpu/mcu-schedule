@@ -40,7 +40,7 @@ describe('detectConflicts', () => {
     expect(conflicts[0].ps).toEqual([3])
   })
 
-  it('星期二整天沒課，怎麼排都不會衝', () => {
+  it('星期二上午沒課，怎麼排都不會衝', () => {
     expect(
       detectConflicts(draft({ sessions: [{ d: 2, ps: [1, 2, 3, 4], room: 'X101' }] }), SEED_COURSES),
     ).toEqual([])

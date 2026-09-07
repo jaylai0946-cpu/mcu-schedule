@@ -9,9 +9,27 @@ beforeEach(() => {
 })
 
 describe('種子資料', () => {
-  it('8 門課，共 15 學分', () => {
-    expect(SEED_COURSES).toHaveLength(8)
-    expect(SEED_COURSES.reduce((sum, c) => sum + c.credits, 0)).toBe(15)
+  it('11 門選上的課共 20 學分，另外三門在等遞補', () => {
+    const taken = SEED_COURSES.filter((c) => !c.waitlisted)
+    const pending = SEED_COURSES.filter((c) => c.waitlisted)
+    expect(taken).toHaveLength(11)
+    expect(taken.reduce((sum, c) => sum + c.credits, 0)).toBe(20)
+    expect(pending.map((c) => c.name)).toEqual([
+      '職場素養與實務',
+      '全民國防教育軍事訓練（四）',
+      '邏輯與批判思考',
+    ])
+  })
+
+  it('週會的教室還沒公布，先留空', () => {
+    const assembly = SEED_COURSES.find((c) => c.id === 'assembly')!
+    expect(assembly.sessions[0]).toMatchObject({ d: 5, ps: [5], room: '' })
+  })
+
+  it('全民國防的節次是 50、60，代碼對不上，寧可不給時段', () => {
+    const defense = SEED_COURSES.find((c) => c.id === 'defense')!
+    expect(defense.sessions).toEqual([])
+    expect(defense.note).toContain('實際時間未確認')
   })
 
   it('會計學有正課和實習兩個時段，教室與教師不同', () => {
@@ -21,9 +39,9 @@ describe('種子資料', () => {
     expect(acc.sessions[1]).toMatchObject({ d: 4, room: 'B102', label: '實習', teacher: '陳映蓉' })
   })
 
-  it('星期二整天沒課', () => {
-    const tuesday = SEED_COURSES.flatMap((c) => c.sessions).filter((s) => s.d === 2)
-    expect(tuesday).toEqual([])
+  it('星期二有永續發展目標績效管理實務', () => {
+    const sdg = SEED_COURSES.find((c) => c.id === 'sdg')!
+    expect(sdg.sessions[0]).toMatchObject({ d: 2, ps: [5, 6, 7], room: 'D104' })
   })
 
   it('班會在星期三的午休節次', () => {
@@ -40,7 +58,7 @@ describe('loadState', () => {
   it('localStorage 空的時候用種子資料重建而不是崩潰', () => {
     const result = loadState()
     expect(result.source).toBe('seed')
-    expect(result.state.courses).toHaveLength(8)
+    expect(result.state.courses).toHaveLength(14)
     // 並且順手寫回去，下次開啟就是 stored
     expect(loadState().source).toBe('stored')
   })
@@ -67,7 +85,7 @@ describe('loadState', () => {
     localStorage.setItem(STORAGE_KEY, '{這不是 JSON')
     const result = loadState()
     expect(result.source).toBe('recovered')
-    expect(result.state.courses).toHaveLength(8)
+    expect(result.state.courses).toHaveLength(14)
     expect(localStorage.getItem(CORRUPT_KEY)).toBe('{這不是 JSON')
   })
 
@@ -89,7 +107,7 @@ describe('loadState', () => {
     const result = loadState()
     expect(result.source).toBe('stored')
     expect(result.state.version).toBe(SCHEMA_VERSION)
-    expect(result.state.courses).toHaveLength(8)
+    expect(result.state.courses).toHaveLength(14)
   })
 })
 
@@ -157,7 +175,7 @@ describe('schema v1 -> v2 升級', () => {
     expect(result.state.version).toBe(SCHEMA_VERSION)
     expect(result.state.schoolEvents).toEqual([])
     expect(result.state.items[0].title).toBe('舊的作業')
-    expect(result.state.courses).toHaveLength(8)
+    expect(result.state.courses).toHaveLength(14)
   })
 
   it('匯入 v1 時代的舊備份也吃得下', () => {
@@ -194,6 +212,54 @@ describe('schema v1 -> v2 升級', () => {
     })
     saveState(state)
     expect(loadState().state.schoolEvents[0].end).toBeUndefined()
+  })
+})
+
+describe('schema v4 -> v5 補上選課定案後的課', () => {
+  /** 把種子資料退回 v4 的樣子：拿掉這次新加的六門 */
+  function v4State() {
+    const raw = createSeedState() as unknown as Record<string, unknown>
+    raw.version = 4
+    const added = ['assembly', 'jpn', 'sdg', 'career', 'defense', 'logic']
+    raw.courses = (raw.courses as { id: string }[]).filter((c) => !added.includes(c.id))
+    return raw
+  }
+
+  it('六門都補進來，待遞補的旗標也在', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v4State()))
+    const { state, source } = loadState()
+
+    expect(source).toBe('stored')
+    expect(state.version).toBe(SCHEMA_VERSION)
+    expect(state.courses).toHaveLength(14)
+    expect(state.courses.find((c) => c.code === '00531')?.name).toBe('日文一（上）')
+    expect(state.courses.find((c) => c.code === '00759')?.waitlisted).toBe(true)
+    expect(state.courses.find((c) => c.code === '00999')?.waitlisted).toBeUndefined()
+  })
+
+  it('自己已經加過同課號的不會被加第二次', () => {
+    const raw = v4State()
+    const courses = raw.courses as Record<string, unknown>[]
+    courses.push({
+      id: 'my-jpn',
+      name: '日文一（上）自己加的',
+      code: '00531',
+      teacher: '闕茹玉',
+      credits: 2,
+      hue: 214,
+      sat: 42,
+      sessions: [{ d: 5, ps: [6, 7], room: 'D105' }],
+    })
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(raw))
+
+    const names = loadState().state.courses.filter((c) => c.code === '00531')
+    expect(names).toHaveLength(1)
+    expect(names[0].name).toBe('日文一（上）自己加的')
+  })
+
+  it('升級過的資料一樣通過驗證', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(v4State()))
+    expect(validateAppState(loadState().state).ok).toBe(true)
   })
 })
 

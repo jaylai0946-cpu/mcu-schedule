@@ -28,6 +28,7 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
   const [teacher, setTeacher] = useState(course?.teacher ?? '')
   const [credits, setCredits] = useState(String(course?.credits ?? 2))
   const [note, setNote] = useState(course?.note ?? '')
+  const [pending, setPending] = useState(course?.waitlisted === true)
   const [sessions, setSessions] = useState<Session[]>(
     course ? structuredClone(course.sessions) : [emptySession()],
   )
@@ -53,10 +54,9 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
     const problems: string[] = []
 
     if (!trimmedName) problems.push('課名不能空白')
-    if (sessions.length === 0) problems.push('至少要有一個上課時段')
+    // 教室可以留空——學校有時候還沒公布。時段本身還是要選到節次。
     sessions.forEach((s, i) => {
       if (s.ps.length === 0) problems.push(`第 ${i + 1} 個時段還沒選節次`)
-      if (!s.room.trim()) problems.push(`第 ${i + 1} 個時段還沒填教室`)
     })
 
     if (problems.length > 0) {
@@ -75,6 +75,7 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
       hue: course?.hue ?? DEFAULT_COURSE_COLOR.hue,
       sat: course?.sat ?? DEFAULT_COURSE_COLOR.sat,
       note: note.trim() || undefined,
+      waitlisted: pending || undefined,
       sessions: sessions.map((s) => ({
         d: s.d,
         ps: sortPeriods(s.ps),
@@ -125,6 +126,18 @@ export function CourseForm({ course, courses, onSave, onCancel }: Props) {
       <div className="field">
         <label htmlFor="course-note">備註</label>
         <input id="course-note" value={note} onChange={(e) => setNote(e.target.value)} />
+      </div>
+
+      <div className="field field-wide field-check">
+        <label htmlFor="course-waitlisted">
+          <input
+            id="course-waitlisted"
+            type="checkbox"
+            checked={pending}
+            onChange={(e) => setPending(e.target.checked)}
+          />
+          待遞補（還在等候補上，畫成虛線，不算進學分合計，也不匯出到行事曆）
+        </label>
       </div>
 
       <div className="field-wide">
