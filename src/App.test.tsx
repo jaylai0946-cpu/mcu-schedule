@@ -22,16 +22,18 @@ describe('首頁', () => {
     expect(screen.getByText(/目前沒有待辦/)).toBeInTheDocument()
   })
 
-  it('列出修課清單與學分合計', () => {
+  it('列出修課清單與學分合計，待遞補的另外算', () => {
     render(<App />)
     expect(screen.getByText('學分合計')).toBeInTheDocument()
     const table = screen.getByRole('table')
-    expect(within(table).getByText('15')).toBeInTheDocument()
+    expect(within(table).getByText('20')).toBeInTheDocument()
+    expect(within(table).getByText('待遞補（還沒算進上面）')).toBeInTheDocument()
+    expect(within(table).getByText('5')).toBeInTheDocument()
   })
 
-  it('星期二在週課表上顯示整天沒課', () => {
+  it('待遞補的課標成「待遞補」', () => {
     render(<App />)
-    expect(screen.getAllByText('整天沒課').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('待遞補').length).toBeGreaterThan(0)
   })
 
   it('學期起訖預設用官方行事曆的日期', () => {

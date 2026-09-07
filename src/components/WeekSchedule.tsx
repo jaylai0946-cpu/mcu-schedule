@@ -146,6 +146,7 @@ export function WeekSchedule({
             <div
               key={b.key}
               className="week-block"
+              data-waitlisted={b.course.waitlisted === true}
               style={{ gridColumn: b.d + 1, gridRow: `${b.rowStart + 2} / span ${b.rowSpan}` }}
             >
               <div className="week-block-name">
@@ -153,6 +154,7 @@ export function WeekSchedule({
                 {b.session.label ? `（${b.session.label}）` : ''}
               </div>
               <div className="week-block-meta">
+                {b.course.waitlisted && '待遞補　'}
                 {b.session.teacher ?? b.course.teacher}
                 {'　'}
                 {b.session.room}
@@ -176,7 +178,7 @@ export function WeekSchedule({
                 <p className="day-empty">整天沒課</p>
               ) : (
                 classes.map((c) => (
-                  <div key={c.key} className="day-row">
+                  <div key={c.key} className="day-row" data-waitlisted={c.course.waitlisted === true}>
                     <div className="day-row-time">
                       {c.start}–{c.end}
                       <b>
@@ -189,6 +191,7 @@ export function WeekSchedule({
                         {c.session.label ? `（${c.session.label}）` : ''}
                       </div>
                       <div className="day-row-meta">
+                        {c.course.waitlisted && '待遞補　'}
                         {c.teacher}　{c.session.room}
                       </div>
                     </div>

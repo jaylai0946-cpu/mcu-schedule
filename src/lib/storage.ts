@@ -1,5 +1,5 @@
 import { LEGACY_SEMESTER_PLACEHOLDER, SCHEMA_VERSION, SEMESTER_DEFAULT, STORAGE_KEY } from '../constants'
-import { createSeedState } from '../seed'
+import { SEED_COURSES, createSeedState } from '../seed'
 import type { AppState } from '../types'
 import { validateAppState } from './validate'
 
@@ -16,6 +16,27 @@ const ROOM_MOVES_V4: { courseId: string; d: number; from: string; to: string }[]
   { courseId: 'hr', d: 3, from: 'D106', to: 'B102' }, // 班會
   { courseId: 'acc', d: 4, from: 'D105', to: 'B102' }, // 會計學（一）實習
 ]
+
+/**
+ * 115-1 選課定案後新增的課。schema v4 -> v5 用它補進已經存在裝置上的課表。
+ * 三門正式選上的，加上三門還在等遞補的（waitlisted，畫虛線、不算學分）。
+ */
+const ADDED_COURSE_IDS_V5 = ['assembly', 'jpn', 'sdg', 'career', 'defense', 'logic']
+
+/**
+ * 補上使用者還沒有的課。以課號比對：課號一樣就當成已經有了，不重複加，
+ * 使用者自己改過的名稱、教室、時間也不動。
+ */
+function addNewCourses(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+  const existing = new Set(
+    raw.courses.map((c) => (typeof c === 'object' && c !== null ? (c as { code?: unknown }).code : undefined)),
+  )
+  const missing = SEED_COURSES.filter(
+    (c) => ADDED_COURSE_IDS_V5.includes(c.id) && !existing.has(c.code),
+  )
+  return [...raw.courses, ...structuredClone(missing)]
+}
 
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
 function applyRoomMoves(raw: Record<string, unknown>): unknown {
@@ -73,6 +94,9 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   // 3 -> 4：學校換教室。只換掉「還停在舊教室」的時段，
   //         使用者自己改過的不能動。
   3: (raw) => ({ ...raw, courses: applyRoomMoves(raw), version: 4 }),
+  // 4 -> 5：選課定案。補上週會、日文一（上）、永續發展目標績效管理實務，
+  //         以及三門還在等遞補的課；已經有同課號的就不重複加。
+  4: (raw) => ({ ...raw, courses: addNewCourses(raw), version: 5 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

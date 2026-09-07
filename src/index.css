@@ -2353,3 +2353,40 @@ table.almanac td {
   color: var(--ground);
   box-shadow: none;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   待遞補的課：還沒真的選上，畫成虛線＋半透明，和已選上的課分開
+   ══════════════════════════════════════════════════════════════ */
+.tag-wait {
+  margin-left: 6px;
+  border-style: dashed;
+  border-color: var(--accent);
+  color: var(--accent-700);
+  white-space: nowrap;
+}
+
+.week-block[data-waitlisted='true'] {
+  border-style: dashed;
+  background: transparent;
+  opacity: 0.72;
+}
+
+.today-card[data-waitlisted='true'],
+.day-row[data-waitlisted='true'] {
+  border-style: dashed;
+  opacity: 0.78;
+}
+
+.course-table tr[data-waitlisted='true'] td {
+  color: var(--ink-2);
+}
+
+.course-table tr[data-waitlisted='true'] .course-bar {
+  background: transparent;
+  border-left: 3px dashed var(--accent);
+}
+
+.course-table tfoot tr[data-waitlisted='true'] td {
+  font-weight: 400;
+  color: var(--ink-3);
+}

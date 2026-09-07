@@ -25,7 +25,7 @@ export function TodayClasses({ courses, today }: { courses: Course[]; today: str
       ) : (
         <div className="today-list">
           {classes.map((c) => (
-            <article key={c.key} className="today-card">
+            <article key={c.key} className="today-card" data-waitlisted={c.course.waitlisted === true}>
               <div className="today-time">
                 {c.start}
                 <br />
@@ -35,6 +35,7 @@ export function TodayClasses({ courses, today }: { courses: Course[]; today: str
                 <div className="today-name">
                   {c.course.name}
                   {c.session.label ? `（${c.session.label}）` : ''}
+                  {c.course.waitlisted && <span className="tag tag-wait">待遞補</span>}
                 </div>
                 <div className="today-where">
                   {c.session.room}　{c.teacher}

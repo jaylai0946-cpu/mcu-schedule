@@ -54,7 +54,7 @@ describe('新增課程的衝堂偵測', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
-  it('沒選節次或沒填教室會說明缺什麼', () => {
+  it('沒填課名或沒選節次會說明缺什麼', () => {
     gotoEditor()
     fireEvent.click(screen.getByRole('button', { name: '＋ 新增課程' }))
     fireEvent.click(screen.getByRole('button', { name: '新增課程' }))
@@ -62,7 +62,18 @@ describe('新增課程的衝堂偵測', () => {
     const alert = screen.getByRole('alert')
     expect(alert).toHaveTextContent('課名不能空白')
     expect(alert).toHaveTextContent('第 1 個時段還沒選節次')
-    expect(alert).toHaveTextContent('第 1 個時段還沒填教室')
+  })
+
+  it('教室可以留空——學校有時候還沒公布', () => {
+    gotoEditor()
+    fireEvent.click(screen.getByRole('button', { name: '＋ 新增課程' }))
+    fireEvent.change(screen.getByLabelText('課名'), { target: { value: '教室未定的課' } })
+    fireEvent.change(screen.getByLabelText('星期'), { target: { value: '2' } })
+    pickPeriods('1')
+    fireEvent.click(screen.getByRole('button', { name: '新增課程' }))
+
+    const saved = loadState().state.courses.find((c) => c.name === '教室未定的課')!
+    expect(saved.sessions).toEqual([{ d: 2, ps: [1], room: '' }])
   })
 
   it('一門課可以有多個時段，教室和老師各自獨立', () => {
@@ -79,15 +90,15 @@ describe('新增課程的衝堂偵測', () => {
     fireEvent.change(within(second).getByLabelText('教室'), { target: { value: 'B202' } })
     fireEvent.change(within(second).getByLabelText('星期'), { target: { value: '2' } })
     fireEvent.change(within(second).getByLabelText('這段的教師'), { target: { value: '助教' } })
-    fireEvent.click(within(second).getByRole('button', { name: '7' }))
-    fireEvent.click(within(second).getByRole('button', { name: '8' }))
+    fireEvent.click(within(second).getByRole('button', { name: '3' }))
+    fireEvent.click(within(second).getByRole('button', { name: '4' }))
 
     fireEvent.click(screen.getByRole('button', { name: '新增課程' }))
 
     const saved = loadState().state.courses.find((c) => c.name === '雙時段課')!
     expect(saved.sessions).toEqual([
       { d: 2, ps: [1, 2], room: 'A101' },
-      { d: 2, ps: [7, 8], room: 'B202', teacher: '助教' },
+      { d: 2, ps: [3, 4], room: 'B202', teacher: '助教' },
     ])
   })
 
@@ -132,7 +143,7 @@ describe('編輯與刪除課程', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('確定要刪除「體育（壹）」嗎？')
     fireEvent.click(within(screen.getByRole('alert')).getByRole('button', { name: '取消' }))
 
-    expect(loadState().state.courses).toHaveLength(8)
+    expect(loadState().state.courses).toHaveLength(14)
   })
 
   it('確定刪除後課程消失，綁在上面的待辦留著但科目清空', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SEED_COURSES } from '../seed'
-import { buildWeekLayout, classesOnWeekday, splitContiguous, totalCredits } from './schedule'
+import { buildWeekLayout, classesOnWeekday, splitContiguous, totalCredits, enrolled, waitlisted } from './schedule'
 import type { Period } from '../types'
 
 describe('splitContiguous', () => {
@@ -36,8 +36,8 @@ describe('buildWeekLayout', () => {
     expect(acc[0].end).toBe('11:00')
   })
 
-  it('星期二整天沒課', () => {
-    expect(layout.emptyDays).toEqual([2])
+  it('每天都有課了，沒有整天空的星期', () => {
+    expect(layout.emptyDays).toEqual([])
   })
 
   it('午休的班會落在第 5 列（索引 4）', () => {
@@ -71,13 +71,16 @@ describe('classesOnWeekday', () => {
     expect(acc.session.room).toBe('B102')
   })
 
-  it('星期二沒有任何課', () => {
-    expect(classesOnWeekday(SEED_COURSES, 2)).toEqual([])
+  it('星期二有一門正課和一門待遞補', () => {
+    const tue = classesOnWeekday(SEED_COURSES, 2)
+    // 職場素養是午休（12:10）那節，排在下午的永續之前
+    expect(tue.map((c) => c.course.id)).toEqual(['career', 'sdg'])
   })
 })
 
 describe('學分', () => {
-  it('學分合計 15', () => {
-    expect(totalCredits(SEED_COURSES)).toBe(15)
+  it('選上的 11 門共 20 學分，待遞補的不算', () => {
+    expect(totalCredits(enrolled(SEED_COURSES))).toBe(20)
+    expect(totalCredits(waitlisted(SEED_COURSES))).toBe(5)
   })
 })

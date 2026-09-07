@@ -102,7 +102,8 @@ function vtimezone(): string[] {
 function courseEvents(courses: Course[], semester: AppState['semester'], stamp: string): string[] {
   const lines: string[] = []
 
-  for (const course of courses) {
+  // 還在等遞補的課不匯出——還沒選上的東西不該跑進系統行事曆
+  for (const course of courses.filter((c) => !c.waitlisted)) {
     for (const [si, session] of course.sessions.entries()) {
       // 一段連續節次 = 一個事件，開始是第一節、結束是最後一節
       for (const [ri, run] of splitContiguous(session.ps).entries()) {

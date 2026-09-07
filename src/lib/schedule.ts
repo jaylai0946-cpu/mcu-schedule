@@ -108,3 +108,13 @@ export function totalCredits(courses: Course[]): number {
   return courses.reduce((sum, c) => sum + c.credits, 0)
 }
 
+/** 真的選上的課。學分合計、.ics 匯出都只算這些。 */
+export function enrolled(courses: Course[]): Course[] {
+  return courses.filter((c) => !c.waitlisted)
+}
+
+/** 還在等遞補的課。 */
+export function waitlisted(courses: Course[]): Course[] {
+  return courses.filter((c) => c.waitlisted)
+}
+

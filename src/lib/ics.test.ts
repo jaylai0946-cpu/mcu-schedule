@@ -109,8 +109,8 @@ describe('課程是週期性事件', () => {
     expect(event).toContain('DTEND;TZID=Asia/Taipei:20260909T130000')
   })
 
-  it('9 個時段就是 9 個事件', () => {
-    expect(unfold(ics).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(9)
+  it('12 個時段就是 12 個事件', () => {
+    expect(unfold(ics).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(12)
   })
 })
 
@@ -200,7 +200,7 @@ describe('只匯出待辦', () => {
   it('只匯出課程時不含待辦', () => {
     const ics = buildICS(stateWith(items), { includeItems: false, now: NOW })
     expect(ics).not.toContain('會計學期中考')
-    expect(unfold(ics).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(9)
+    expect(unfold(ics).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(12)
   })
 })
 
@@ -296,7 +296,7 @@ describe('學校行事曆是全天事件', () => {
     expect(unfold(without).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(0)
   })
 
-  it('匯出全部時三種事件都在（9 課程 + 1 待辦 + 3 學校）', () => {
+  it('匯出全部時三種事件都在（12 課程 + 1 待辦 + 3 學校）', () => {
     const full = buildICS(
       {
         ...state(),
@@ -313,6 +313,6 @@ describe('學校行事曆是全天事件', () => {
       },
       { now: NOW },
     )
-    expect(unfold(full).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(13)
+    expect(unfold(full).filter((l) => l === 'BEGIN:VEVENT')).toHaveLength(16)
   })
 })
