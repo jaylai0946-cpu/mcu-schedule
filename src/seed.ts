@@ -132,6 +132,25 @@ export const SEED_COURSES: Course[] = [
     sessions: [{ d: 2, ps: [5, 6, 7], room: 'D104' }],
   },
 
+  /*
+    沒出現在選課定案表上，所以還不算選上，維持「待遞補」：畫虛線、
+    不算進學分合計、也不匯出到系統行事曆。真的上了就到「編輯課表」
+    把待遞補取消掉。
+  */
+  {
+    id: 'defense',
+    name: '全民國防教育軍事訓練（四）',
+    code: '00934',
+    teacher: '陳連偉',
+    credits: 2,
+    hue: 214,
+    sat: 42,
+    note: '課號 00934／00187・夜間',
+    waitlisted: true,
+    category: 'elective',
+    // 50、60 是夜間節次（19:25、20:20），有課才會長出夜間那幾列
+    sessions: [{ d: 1, ps: [50, 60], room: 'B401' }],
+  },
   {
     id: 'career',
     name: '職場素養與實務',
