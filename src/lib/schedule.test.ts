@@ -86,18 +86,18 @@ describe('classesOnWeekday', () => {
   })
 
   it('有課用到夜間節次時，課表才長出那幾列', () => {
-    // 全民國防排在 50、60 節，所以這兩列在；沒人上的 40、70 不長出來
-    expect(periodRows(SEED_COURSES)).toEqual([1, 2, 3, 4, 20, 5, 6, 7, 8, 50, 60])
+    // 國防（三）在 9、40 節，（四）在 50、60 節；沒人上的 70 不長出來
+    expect(periodRows(SEED_COURSES)).toEqual([1, 2, 3, 4, 20, 5, 6, 7, 8, 9, 40, 50, 60])
 
-    const daytimeOnly = SEED_COURSES.filter((c) => c.code !== '00934')
+    const daytimeOnly = SEED_COURSES.filter((c) => !['00933', '00934'].includes(c.code))
     expect(periodRows(daytimeOnly)).toEqual([1, 2, 3, 4, 20, 5, 6, 7, 8])
   })
 })
 
 describe('學分', () => {
-  it('選上的 12 門共 21 學分，待遞補的不算', () => {
+  it('選上的 12 門共 21 學分，候補的三門另外算 6 學分', () => {
     expect(totalCredits(enrolled(SEED_COURSES))).toBe(21)
-    expect(waitlisted(SEED_COURSES).map((c) => c.code)).toEqual(['00934'])
-    expect(totalCredits(waitlisted(SEED_COURSES))).toBe(2)
+    expect(waitlisted(SEED_COURSES)).toHaveLength(3)
+    expect(totalCredits(waitlisted(SEED_COURSES))).toBe(6)
   })
 })
