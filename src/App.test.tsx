@@ -29,12 +29,12 @@ describe('首頁', () => {
     expect(within(table).getByText('21')).toBeInTheDocument()
   })
 
-  it('遞補都結束了，沒有課再掛「待遞補」標籤', () => {
+  it('還在等的全民國防標成待遞補，學分另外算', () => {
     const { container } = render(<App />)
-    // 週課表的圖例還是留著「待遞補」這一項，那是說明不是課
-    expect(container.querySelector('.tag-wait')).toBeNull()
-    expect(container.querySelector('[data-waitlisted="true"]')).toBeNull()
-    expect(screen.queryByText('待遞補（還沒算進上面）')).not.toBeInTheDocument()
+    expect(container.querySelector('.tag-wait')).not.toBeNull()
+    // 待遞補那一列的學分是 2（全民國防），和上面的合計分開算
+    const pendingRow = screen.getByText('待遞補（還沒算進上面）').closest('tr')!
+    expect(within(pendingRow).getByText('2')).toBeInTheDocument()
   })
 
   it('課塊帶著修別，週課表有必修／選修／通識的圖例', () => {
@@ -49,11 +49,13 @@ describe('首頁', () => {
     expect(legend).toHaveTextContent('通識')
   })
 
-  it('沒有夜間課了，夜間那幾列就不畫出來', () => {
+  it('有夜間課才長出夜間那幾列', () => {
     const { container } = render(<App />)
     const times = [...container.querySelectorAll('.week-time')].map((el) => el.textContent)
-    expect(times.some((t) => t?.includes('08:10'))).toBe(true)
-    expect(times.some((t) => t?.includes('19:25'))).toBe(false)
+    // 全民國防排在 50、60 節
+    expect(times.some((t) => t?.includes('19:25'))).toBe(true)
+    expect(times.some((t) => t?.includes('20:20'))).toBe(true)
+    // 沒人上的 70 節不該憑空長出來
     expect(times.some((t) => t?.includes('21:15'))).toBe(false)
   })
 

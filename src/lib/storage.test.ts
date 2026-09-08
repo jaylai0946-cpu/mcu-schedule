@@ -9,10 +9,12 @@ beforeEach(() => {
 })
 
 describe('種子資料', () => {
-  it('遞補結果出來後是 12 門、21 學分，沒有待遞補的課', () => {
-    expect(SEED_COURSES).toHaveLength(12)
-    expect(SEED_COURSES.reduce((sum, c) => sum + c.credits, 0)).toBe(21)
-    expect(SEED_COURSES.filter((c) => c.waitlisted)).toEqual([])
+  it('選上的 12 門共 21 學分，全民國防還在等遞補', () => {
+    const taken = SEED_COURSES.filter((c) => !c.waitlisted)
+    const pending = SEED_COURSES.filter((c) => c.waitlisted)
+    expect(taken).toHaveLength(12)
+    expect(taken.reduce((sum, c) => sum + c.credits, 0)).toBe(21)
+    expect(pending.map((c) => c.code)).toEqual(['00934'])
   })
 
   it('週會的教室還沒公布，先留空', () => {
@@ -20,9 +22,8 @@ describe('種子資料', () => {
     expect(assembly.sessions[0]).toMatchObject({ d: 5, ps: [5], room: '' })
   })
 
-  it('沒遞補上的兩門不在課表裡', () => {
-    expect(SEED_COURSES.find((c) => c.code === '00934')).toBeUndefined() // 全民國防
-    expect(SEED_COURSES.find((c) => c.code === '00759')).toBeUndefined() // 邏輯與批判思考
+  it('邏輯與批判思考沒上，移除了', () => {
+    expect(SEED_COURSES.find((c) => c.code === '00759')).toBeUndefined()
   })
 
   it('每一門課都有修別', () => {
@@ -32,7 +33,7 @@ describe('種子資料', () => {
     // 修別照官方選課單的「選別」欄：只有職場素養與實務是通識
     const byCategory = (cat: string) => SEED_COURSES.filter((c) => c.category === cat).length
     expect(byCategory('required')).toBe(9)
-    expect(byCategory('elective')).toBe(2)
+    expect(byCategory('elective')).toBe(3) // 日文、永續、全民國防（待遞補）
     expect(byCategory('general')).toBe(1)
   })
 
@@ -62,7 +63,7 @@ describe('loadState', () => {
   it('localStorage 空的時候用種子資料重建而不是崩潰', () => {
     const result = loadState()
     expect(result.source).toBe('seed')
-    expect(result.state.courses).toHaveLength(12)
+    expect(result.state.courses).toHaveLength(13)
     // 並且順手寫回去，下次開啟就是 stored
     expect(loadState().source).toBe('stored')
   })
@@ -89,7 +90,7 @@ describe('loadState', () => {
     localStorage.setItem(STORAGE_KEY, '{這不是 JSON')
     const result = loadState()
     expect(result.source).toBe('recovered')
-    expect(result.state.courses).toHaveLength(12)
+    expect(result.state.courses).toHaveLength(13)
     expect(localStorage.getItem(CORRUPT_KEY)).toBe('{這不是 JSON')
   })
 
@@ -111,7 +112,7 @@ describe('loadState', () => {
     const result = loadState()
     expect(result.source).toBe('stored')
     expect(result.state.version).toBe(SCHEMA_VERSION)
-    expect(result.state.courses).toHaveLength(12)
+    expect(result.state.courses).toHaveLength(13)
   })
 })
 
@@ -179,7 +180,7 @@ describe('schema v1 -> v2 升級', () => {
     expect(result.state.version).toBe(SCHEMA_VERSION)
     expect(result.state.schoolEvents).toEqual([])
     expect(result.state.items[0].title).toBe('舊的作業')
-    expect(result.state.courses).toHaveLength(12)
+    expect(result.state.courses).toHaveLength(13)
   })
 
   it('匯入 v1 時代的舊備份也吃得下', () => {
@@ -245,15 +246,16 @@ describe('遞補結果之後的升級（v4 一路升到現在）', () => {
       SEED_COURSES.map((c) => c.code).sort(),
     )
     expect(state.courses.every((c) => c.category !== undefined)).toBe(true)
-    expect(state.courses.filter((c) => c.waitlisted)).toEqual([])
+    // 全民國防還在等，其他都選上了
+    expect(state.courses.filter((c) => c.waitlisted).map((c) => c.code)).toEqual(['00934'])
   })
 
-  it('沒遞補上的兩門會被移除，補上的那門不再是待遞補', () => {
+  it('邏輯移除、職場素養轉正、國防留著繼續等', () => {
     const raw = v4Device()
-    const courses = raw.courses as Record<string, unknown>[]
+    const seeded = raw.courses as Record<string, unknown>[]
     // 手動塞回當初那三門待遞補的課，模擬中途升級過的裝置
     for (const [id, code] of [['career', '00936'], ['defense', '00934'], ['logic', '00759']]) {
-      courses.push({
+      seeded.push({
         id,
         name: id,
         code,
@@ -267,13 +269,14 @@ describe('遞補結果之後的升級（v4 一路升到現在）', () => {
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(raw))
 
-    const codes = loadState().state.courses.map((c) => c.code)
-    expect(codes).not.toContain('00934') // 全民國防
-    expect(codes).not.toContain('00759') // 邏輯與批判思考
-    expect(loadState().state.courses.find((c) => c.code === '00936')!.waitlisted).toBeUndefined()
+    const courses = loadState().state.courses
+    expect(courses.map((c) => c.code)).not.toContain('00759') // 邏輯與批判思考沒上，移除
+    // 全民國防沒上但要留著繼續等，維持待遞補
+    expect(courses.find((c) => c.code === '00934')!.waitlisted).toBe(true)
+    expect(courses.find((c) => c.code === '00936')!.waitlisted).toBeUndefined()
   })
 
-  it('自己把待遞補取消掉的不會被刪——那代表使用者知道自己有上', () => {
+  it('自己把待遞補取消掉的邏輯課不會被刪——那代表使用者知道自己有上', () => {
     const raw = v4Device()
     ;(raw.courses as Record<string, unknown>[]).push({
       id: 'defense',

@@ -89,7 +89,7 @@ describe('pull', () => {
 
     const result = await pull(CONFIG)
     expect(result.status).toBe('ok')
-    if (result.status === 'ok') expect(result.record.state.courses).toHaveLength(12)
+    if (result.status === 'ok') expect(result.record.state.courses).toHaveLength(13)
     expect(spy.mock.calls[0][0]).toBe(`${CONFIG.endpoint}/s/${CONFIG.key}`)
   })
 
@@ -173,7 +173,7 @@ describe('push', () => {
     const state = createSeedState()
     await push(CONFIG, state)
     const body = JSON.parse(spy.mock.calls[0][1]!.body as string)
-    expect(body.state.courses).toHaveLength(12)
+    expect(body.state.courses).toHaveLength(13)
     expect(body.version).toBe(state.version)
   })
 })
@@ -206,6 +206,6 @@ describe('describeState', () => {
       { id: 'a', kind: 'hw', title: 'A', date: '2026-10-01', done: false, createdAt: '' },
       { id: 'b', kind: 'hw', title: 'B', date: '2026-10-02', done: true, createdAt: '' },
     )
-    expect(describeState(state)).toBe('12 門課、2 筆待辦（1 筆未完成）、0 筆重要日期')
+    expect(describeState(state)).toBe('13 門課、2 筆待辦（1 筆未完成）、0 筆重要日期')
   })
 })

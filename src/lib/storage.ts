@@ -104,7 +104,11 @@ function applyCategories(raw: Record<string, unknown>): unknown {
  * 官方的「選別」欄也確定了中國文學和大一英文是必修，不是通識。
  */
 const ENROLLED_V8 = '00936'
-const NOT_ENROLLED_V8 = ['00934', '00759']
+/**
+ * 只有邏輯與批判思考確定不留。全民國防雖然也沒在定案表上，
+ * 使用者要留著繼續等，所以維持待遞補。
+ */
+const NOT_ENROLLED_V8 = ['00759']
 const CATEGORY_FIX_V8: Record<string, 'required' | 'general'> = {
   '00936': 'general', // 職場素養與實務・選別 5
   '00123': 'required', // 中國文學鑑賞與創作（一）・選別 1
@@ -135,6 +139,18 @@ function applyEnrolmentResult(raw: Record<string, unknown>): unknown {
       }
       return next
     })
+}
+
+/** 全民國防被 v8 刪掉的話補回來，維持待遞補。 */
+function restoreDefense(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+  const has = raw.courses.some(
+    (c) => typeof c === 'object' && c !== null && (c as { code?: unknown }).code === '00934',
+  )
+  if (has) return raw.courses
+
+  const defense = SEED_COURSES.find((c) => c.code === '00934')
+  return defense ? [...raw.courses, structuredClone(defense)] : raw.courses
 }
 
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
@@ -204,6 +220,9 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   // 7 -> 8：遞補結果。職場素養補上（通識），國防和邏輯沒上就刪掉，
   //         中國文學和大一英文照官方的選別改回必修。
   7: (raw) => ({ ...raw, courses: applyEnrolmentResult(raw), version: 8 }),
+  // 8 -> 9：v8 一開始把全民國防也刪掉了，後來決定留著等。已經升到 v8 的
+  //         裝置補回來（還在 v7 的走上面那步就不會被刪，這裡就沒事做）。
+  8: (raw) => ({ ...raw, courses: restoreDefense(raw), version: 9 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {
