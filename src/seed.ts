@@ -58,7 +58,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 152,
     sat: 42,
-    category: 'general',
+    category: 'required',
     sessions: [{ d: 1, ps: [5, 6], room: 'B302' }],
   },
   {
@@ -69,7 +69,7 @@ export const SEED_COURSES: Course[] = [
     credits: 2,
     hue: 190,
     sat: 42,
-    category: 'general',
+    category: 'required',
     sessions: [{ d: 4, ps: [5, 6], room: 'F612' }],
   },
   {
@@ -132,11 +132,6 @@ export const SEED_COURSES: Course[] = [
     sessions: [{ d: 2, ps: [5, 6, 7], room: 'D104' }],
   },
 
-  /*
-    以下三門還在等遞補，還沒真的選上。放進來是為了看得到時間卡在哪，
-    畫面上會是虛線，也不算進學分合計。遞補上了就到「編輯課表」把
-    「待遞補」取消掉。
-  */
   {
     id: 'career',
     name: '職場素養與實務',
@@ -145,37 +140,9 @@ export const SEED_COURSES: Course[] = [
     credits: 1,
     hue: 214,
     sat: 42,
-    note: '課號 00936／00188',
-    waitlisted: true,
-    category: 'elective',
-    sessions: [{ d: 2, ps: [20], room: 'B305' }],
-  },
-  {
-    id: 'defense',
-    name: '全民國防教育軍事訓練（四）',
-    code: '00934',
-    teacher: '陳連偉',
-    credits: 2,
-    hue: 214,
-    sat: 42,
-    note: '課號 00934／00187・夜間',
-    waitlisted: true,
-    category: 'elective',
-    // 50、60 是夜間節次（19:25、20:20），有課才會長出夜間那幾列
-    sessions: [{ d: 1, ps: [50, 60], room: 'B401' }],
-  },
-  {
-    id: 'logic',
-    name: '邏輯與批判思考',
-    code: '00759',
-    teacher: '孔令信',
-    credits: 2,
-    hue: 214,
-    sat: 42,
-    note: '課號 00759／00136',
-    waitlisted: true,
+    note: '班級 00188・課號 00936',
     category: 'general',
-    sessions: [{ d: 3, ps: [5, 6], room: 'H201' }],
+    sessions: [{ d: 2, ps: [20], room: 'B305' }],
   },
 ]
 

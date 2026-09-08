@@ -113,7 +113,7 @@ describe('啟用之後', () => {
 
     await waitFor(() => expect(screen.getByText(/同步失敗/)).toBeInTheDocument())
     expect(screen.getByText(/本機資料沒有受影響/)).toBeInTheDocument()
-    expect(loadState().state.courses).toHaveLength(14)
+    expect(loadState().state.courses).toHaveLength(12)
   })
 
   it('顯示密鑰之後看得到完整那一組，方便填到第二台', async () => {
@@ -160,8 +160,8 @@ describe('衝突', () => {
 
     await waitFor(() => expect(screen.getByText(/兩邊都改過，我不會自己選/)).toBeInTheDocument())
     const box = screen.getByRole('alert')
-    expect(box).toHaveTextContent('這台：14 門課、0 筆待辦')
-    expect(box).toHaveTextContent('雲端：14 門課、1 筆待辦')
+    expect(box).toHaveTextContent('這台：12 門課、0 筆待辦')
+    expect(box).toHaveTextContent('雲端：12 門課、1 筆待辦')
     expect(within(box).getByRole('button', { name: '用這台的，覆蓋雲端' })).toBeInTheDocument()
     expect(within(box).getByRole('button', { name: '用雲端的，覆蓋這台' })).toBeInTheDocument()
     // 還沒選之前，本機資料不能被動到

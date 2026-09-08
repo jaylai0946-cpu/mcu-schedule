@@ -251,7 +251,7 @@ export function AcademicCalendar({ schoolEvents, semester, onAdd, onSemesterChan
 }
 
 /** 從標題猜類型，猜不到就當「其他」。使用者加進去之後還是可以自己改。 */
-function guessKind(title: string): SchoolEvent['kind'] {
+export function guessKind(title: string): SchoolEvent['kind'] {
   if (/評量|考試|考|測驗/.test(title)) return 'exam'
   if (/放假|休假|補假|寒假|暑假|紀念日|節$|連假/.test(title)) return 'holiday'
   if (/開學|註冊|上課|選課|結束|開始/.test(title)) return 'term'
