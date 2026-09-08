@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { SEED_COURSES } from '../seed'
-import { buildWeekLayout, classesOnWeekday, splitContiguous, totalCredits, enrolled, waitlisted } from './schedule'
+import {
+  buildWeekLayout,
+  classesOnWeekday,
+  enrolled,
+  periodRows,
+  splitContiguous,
+  totalCredits,
+  waitlisted,
+} from './schedule'
 import type { Period } from '../types'
 
 describe('splitContiguous', () => {
@@ -71,16 +79,31 @@ describe('classesOnWeekday', () => {
     expect(acc.session.room).toBe('B102')
   })
 
-  it('星期二有一門正課和一門待遞補', () => {
+  it('星期二是職場素養（午休）和永續', () => {
     const tue = classesOnWeekday(SEED_COURSES, 2)
     // 職場素養是午休（12:10）那節，排在下午的永續之前
     expect(tue.map((c) => c.course.id)).toEqual(['career', 'sdg'])
   })
+
+  it('有課用到夜間節次時，課表才長出那幾列', () => {
+    expect(periodRows(SEED_COURSES)).toEqual([1, 2, 3, 4, 20, 5, 6, 7, 8])
+
+    const evening = [
+      { ...SEED_COURSES[0], id: 'night', sessions: [{ d: 1 as const, ps: [50 as const], room: 'B401' }] },
+    ]
+    expect(periodRows([...SEED_COURSES, ...evening])).toEqual([1, 2, 3, 4, 20, 5, 6, 7, 8, 50])
+  })
 })
 
 describe('學分', () => {
-  it('選上的 11 門共 20 學分，待遞補的不算', () => {
-    expect(totalCredits(enrolled(SEED_COURSES))).toBe(20)
-    expect(totalCredits(waitlisted(SEED_COURSES))).toBe(5)
+  it('12 門共 21 學分，現在沒有待遞補的課', () => {
+    expect(totalCredits(enrolled(SEED_COURSES))).toBe(21)
+    expect(waitlisted(SEED_COURSES)).toEqual([])
+  })
+
+  it('標成待遞補的課不算進學分', () => {
+    const pending = [{ ...SEED_COURSES[0], id: 'x', waitlisted: true }]
+    expect(totalCredits(enrolled([...SEED_COURSES, ...pending]))).toBe(21)
+    expect(waitlisted([...SEED_COURSES, ...pending])).toHaveLength(1)
   })
 })

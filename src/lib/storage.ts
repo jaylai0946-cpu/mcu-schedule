@@ -98,6 +98,45 @@ function applyCategories(raw: Record<string, unknown>): unknown {
   })
 }
 
+/**
+ * 遞補結果出來了（115-1 選課定案表）：
+ * 職場素養與實務補上了，選別是通識；全民國防（四）和邏輯與批判思考沒上。
+ * 官方的「選別」欄也確定了中國文學和大一英文是必修，不是通識。
+ */
+const ENROLLED_V8 = '00936'
+const NOT_ENROLLED_V8 = ['00934', '00759']
+const CATEGORY_FIX_V8: Record<string, 'required' | 'general'> = {
+  '00936': 'general', // 職場素養與實務・選別 5
+  '00123': 'required', // 中國文學鑑賞與創作（一）・選別 1
+  '01115': 'required', // 大一英文（一）・選別 1
+}
+
+function applyEnrolmentResult(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+
+  return raw.courses
+    .filter((course) => {
+      if (typeof course !== 'object' || course === null) return true
+      const c = course as { code?: unknown; waitlisted?: unknown }
+      // 沒上的才刪。使用者自己把「待遞補」取消掉的，代表他知道自己有上，不動
+      return !(typeof c.code === 'string' && NOT_ENROLLED_V8.includes(c.code) && c.waitlisted === true)
+    })
+    .map((course) => {
+      if (typeof course !== 'object' || course === null) return course
+      const c = course as { code?: unknown; waitlisted?: unknown; category?: unknown }
+      if (typeof c.code !== 'string') return course
+
+      const next: Record<string, unknown> = { ...c }
+      if (c.code === ENROLLED_V8 && c.waitlisted === true) delete next.waitlisted
+      // 修別只改「還是我當初猜的那個值」的，使用者自己設過的不動
+      const fix = CATEGORY_FIX_V8[c.code]
+      if (fix && (c.category === 'elective' || c.category === 'general') && c.category !== fix) {
+        next.category = fix
+      }
+      return next
+    })
+}
+
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
 function applyRoomMoves(raw: Record<string, unknown>): unknown {
   if (!Array.isArray(raw.courses)) return raw.courses
@@ -162,6 +201,9 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   5: (raw) => ({ ...raw, courses: applyCategories(raw), version: 6 }),
   // 6 -> 7：節次代碼表到手，全民國防的「一 50、60」排進課表的夜間列。
   6: (raw) => ({ ...raw, courses: applyDefenseSession(raw), version: 7 }),
+  // 7 -> 8：遞補結果。職場素養補上（通識），國防和邏輯沒上就刪掉，
+  //         中國文學和大一英文照官方的選別改回必修。
+  7: (raw) => ({ ...raw, courses: applyEnrolmentResult(raw), version: 8 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

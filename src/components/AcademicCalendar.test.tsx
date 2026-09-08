@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import App from '../App'
+import { guessKind } from './AcademicCalendar'
 import { ACADEMIC_CALENDAR } from '../data/academicCalendar'
 import { loadState } from '../lib/storage'
 
@@ -109,18 +110,24 @@ describe('一鍵加入重要日期', () => {
   })
 
   it('類型會依標題猜：評量算考試、寒假算放假、開學算學期', () => {
+    // 直接測函式。之前是從畫面上挑「開學」那一筆來點，但清單只列未來的事項，
+    // 開學日一過那筆就不見了，測試會在某一天自己壞掉。
+    expect(guessKind('期中學習評量週')).toBe('exam')
+    expect(guessKind('寒假開始')).toBe('holiday')
+    expect(guessKind('預定舊生註冊、開學、正式上課')).toBe('term')
+    expect(guessKind('全校導師研習會')).toBe('other')
+  })
+
+  it('清單上第一筆加得進去，類型和猜的一致', () => {
     gotoAlmanac()
     fireEvent.click(screen.getByRole('button', { name: /展開/ }))
 
-    for (const [title, kind] of [
-      ['期中學習評量週', 'exam'],
-      ['寒假開始', 'holiday'],
-      ['預定舊生註冊、開學、正式上課', 'term'],
-    ] as const) {
-      const row = screen.getByText(title).closest('li')!
-      fireEvent.click(within(row).getByRole('button', { name: '＋ 加入' }))
-      expect(loadState().state.schoolEvents.find((e) => e.title === title)?.kind).toBe(kind)
-    }
+    const first = screen.getAllByRole('button', { name: '＋ 加入' })[0]
+    const title = first.closest('li')!.querySelector('.pick-title')!.textContent!
+    fireEvent.click(first)
+
+    const saved = loadState().state.schoolEvents.find((e) => e.title === title)!
+    expect(saved.kind).toBe(guessKind(title))
   })
 })
 

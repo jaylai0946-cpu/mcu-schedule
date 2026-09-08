@@ -143,7 +143,7 @@ describe('編輯與刪除課程', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('確定要刪除「體育（壹）」嗎？')
     fireEvent.click(within(screen.getByRole('alert')).getByRole('button', { name: '取消' }))
 
-    expect(loadState().state.courses).toHaveLength(14)
+    expect(loadState().state.courses).toHaveLength(12)
   })
 
   it('確定刪除後課程消失，綁在上面的待辦留著但科目清空', () => {
