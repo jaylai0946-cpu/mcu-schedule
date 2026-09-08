@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import App from '../App'
-import { guessKind } from './AcademicCalendar'
+import { guessKind } from '../lib/schoolCalendar'
 import { ACADEMIC_CALENDAR } from '../data/academicCalendar'
 import { loadState } from '../lib/storage'
 
