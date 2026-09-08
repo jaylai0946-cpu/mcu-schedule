@@ -29,12 +29,12 @@ describe('首頁', () => {
     expect(within(table).getByText('21')).toBeInTheDocument()
   })
 
-  it('還在等的全民國防標成待遞補，學分另外算', () => {
+  it('候補的三門標成待遞補，學分另外算', () => {
     const { container } = render(<App />)
-    expect(container.querySelector('.tag-wait')).not.toBeNull()
-    // 待遞補那一列的學分是 2（全民國防），和上面的合計分開算
+    expect(container.querySelectorAll('.tag-wait').length).toBeGreaterThan(0)
+    // 候補那三門合計 6 學分，和上面的 21 分開算
     const pendingRow = screen.getByText('待遞補（還沒算進上面）').closest('tr')!
-    expect(within(pendingRow).getByText('2')).toBeInTheDocument()
+    expect(within(pendingRow).getByText('6')).toBeInTheDocument()
   })
 
   it('課塊帶著修別，週課表有必修／選修／通識的圖例', () => {

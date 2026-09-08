@@ -105,10 +105,10 @@ function applyCategories(raw: Record<string, unknown>): unknown {
  */
 const ENROLLED_V8 = '00936'
 /**
- * 只有邏輯與批判思考確定不留。全民國防雖然也沒在定案表上，
- * 使用者要留著繼續等，所以維持待遞補。
+ * 一開始以為沒上的就該刪掉，後來確認三門都還在候補清單上等，
+ * 所以這裡不刪任何課，只處理「補上了」和修別。
  */
-const NOT_ENROLLED_V8 = ['00759']
+const NOT_ENROLLED_V8: string[] = []
 const CATEGORY_FIX_V8: Record<string, 'required' | 'general'> = {
   '00936': 'general', // 職場素養與實務・選別 5
   '00123': 'required', // 中國文學鑑賞與創作（一）・選別 1
@@ -141,16 +141,20 @@ function applyEnrolmentResult(raw: Record<string, unknown>): unknown {
     })
 }
 
-/** 全民國防被 v8 刪掉的話補回來，維持待遞補。 */
-function restoreDefense(raw: Record<string, unknown>): unknown {
+/**
+ * 把指定課號的課補回來（沿用種子資料那筆）。
+ * 只補「整筆不見」的，使用者自己改過的不動。
+ */
+function addCoursesByCode(raw: Record<string, unknown>, codes: string[]): unknown {
   if (!Array.isArray(raw.courses)) return raw.courses
-  const has = raw.courses.some(
-    (c) => typeof c === 'object' && c !== null && (c as { code?: unknown }).code === '00934',
-  )
-  if (has) return raw.courses
 
-  const defense = SEED_COURSES.find((c) => c.code === '00934')
-  return defense ? [...raw.courses, structuredClone(defense)] : raw.courses
+  const have = new Set(
+    raw.courses.map((c) =>
+      typeof c === 'object' && c !== null ? (c as { code?: unknown }).code : undefined,
+    ),
+  )
+  const missing = SEED_COURSES.filter((c) => codes.includes(c.code) && !have.has(c.code))
+  return missing.length > 0 ? [...raw.courses, ...structuredClone(missing)] : raw.courses
 }
 
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
@@ -222,7 +226,10 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   7: (raw) => ({ ...raw, courses: applyEnrolmentResult(raw), version: 8 }),
   // 8 -> 9：v8 一開始把全民國防也刪掉了，後來決定留著等。已經升到 v8 的
   //         裝置補回來（還在 v7 的走上面那步就不會被刪，這裡就沒事做）。
-  8: (raw) => ({ ...raw, courses: restoreDefense(raw), version: 9 }),
+  8: (raw) => ({ ...raw, courses: addCoursesByCode(raw, ['00934']), version: 9 }),
+  // 9 -> 10：候補清單上還有兩門在等——邏輯與批判思考（v8 誤刪，補回來）
+  //          和全民國防（三）。兩門都是待遞補。
+  9: (raw) => ({ ...raw, courses: addCoursesByCode(raw, ['00759', '00933']), version: 10 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {
