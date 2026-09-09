@@ -19,7 +19,8 @@ const ROOM_MOVES_V4: { courseId: string; d: number; from: string; to: string }[]
 
 /**
  * 115-1 選課定案後新增的課。schema v4 -> v5 用它補進已經存在裝置上的課表。
- * 三門正式選上的，加上三門還在等遞補的（waitlisted，畫虛線、不算學分）。
+ * 當時有幾門還在等遞補，後來的 migration 會再處理上或沒上；
+ * 已經從種子資料移除的課號在這裡找不到，就自然跳過。
  */
 const ADDED_COURSE_IDS_V5 = ['assembly', 'jpn', 'sdg', 'career', 'defense', 'logic']
 
@@ -157,6 +158,36 @@ function addCoursesByCode(raw: Record<string, unknown>, codes: string[]): unknow
   return missing.length > 0 ? [...raw.courses, ...structuredClone(missing)] : raw.courses
 }
 
+/**
+ * 115-1 最後一版選課定案表（9/9）：全民國防教育軍事訓練（四）補上了，
+ * 選別 5 是通識；候補清單上剩下的兩門就不留了。
+ */
+const ENROLLED_V11 = '00934'
+const NOT_ENROLLED_V11 = ['00933', '00759']
+
+function applyFinalEnrolment(raw: Record<string, unknown>): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+
+  return raw.courses
+    .filter((course) => {
+      if (typeof course !== 'object' || course === null) return true
+      const c = course as { code?: unknown; waitlisted?: unknown }
+      // 只刪還掛著「待遞補」的那兩門；使用者自己取消掉待遞補的代表他有上，留著
+      return !(typeof c.code === 'string' && NOT_ENROLLED_V11.includes(c.code) && c.waitlisted === true)
+    })
+    .map((course) => {
+      if (typeof course !== 'object' || course === null) return course
+      const c = course as { code?: unknown; waitlisted?: unknown; category?: unknown }
+      if (c.code !== ENROLLED_V11 || c.waitlisted !== true) return course
+
+      const next: Record<string, unknown> = { ...c }
+      delete next.waitlisted
+      // 修別只改「還是我當初猜的選修」的，使用者自己設過的不動
+      if (c.category === 'elective') next.category = 'general'
+      return next
+    })
+}
+
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
 function applyRoomMoves(raw: Record<string, unknown>): unknown {
   if (!Array.isArray(raw.courses)) return raw.courses
@@ -214,7 +245,7 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   //         使用者自己改過的不能動。
   3: (raw) => ({ ...raw, courses: applyRoomMoves(raw), version: 4 }),
   // 4 -> 5：選課定案。補上週會、日文一（上）、永續發展目標績效管理實務，
-  //         以及三門還在等遞補的課；已經有同課號的就不重複加。
+  //         以及當時還在等遞補的課；已經有同課號的就不重複加。
   4: (raw) => ({ ...raw, courses: addNewCourses(raw), version: 5 }),
   // 5 -> 6：課塊照必修／選修／通識上色，依課號補修別；
   //         順便補上全民國防查到的夜間時段說明。
@@ -228,8 +259,12 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   //         裝置補回來（還在 v7 的走上面那步就不會被刪，這裡就沒事做）。
   8: (raw) => ({ ...raw, courses: addCoursesByCode(raw, ['00934']), version: 9 }),
   // 9 -> 10：候補清單上還有兩門在等——邏輯與批判思考（v8 誤刪，補回來）
-  //          和全民國防（三）。兩門都是待遞補。
+  //          和全民國防（三）。這兩門後來確定沒上，種子資料已經拿掉，
+  //          所以這一步現在補不到東西，留著只是為了讓版本鏈接得起來。
   9: (raw) => ({ ...raw, courses: addCoursesByCode(raw, ['00759', '00933']), version: 10 }),
+  // 10 -> 11：9/9 的選課定案表。全民國防（四）補上了，選別是通識；
+  //           候補的全民國防（三）和邏輯與批判思考不再等了，刪掉。
+  10: (raw) => ({ ...raw, courses: applyFinalEnrolment(raw), version: 11 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

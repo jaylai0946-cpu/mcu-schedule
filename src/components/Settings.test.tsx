@@ -55,7 +55,7 @@ describe('JSON 備份', () => {
     // 訊息出現和寫進 localStorage 是兩件事：畫面先更新，存檔在下一個 effect
     // 才跑。所以兩個條件要一起等，不能看到訊息就馬上讀 localStorage。
     await waitFor(() => {
-      expect(screen.getByText(/已還原：15 門課、1 筆待辦/)).toBeInTheDocument()
+      expect(screen.getByText(/已還原：13 門課、1 筆待辦/)).toBeInTheDocument()
       expect(loadState().state.items[0]?.title).toBe('從備份還原的考試')
     }, { timeout: 5000 })
   })
