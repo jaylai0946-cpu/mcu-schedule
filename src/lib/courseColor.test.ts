@@ -16,9 +16,9 @@ describe('courseHue', () => {
     expect(courseHue(find('assembly'))).toEqual({ hue: 30, sat: 14 }) // 週會
   })
 
-  it('候補的課色相照修別走，虛線由 CSS 處理', () => {
-    expect(courseHue(find('logic')).hue).toBe(35) // 通識・山吹
-    expect(courseHue(find('defense3')).hue).toBe(160) // 選修・若竹
+  it('待遞補只是虛線，色相還是照修別走', () => {
+    const pending = { ...find('jpn'), waitlisted: true }
+    expect(courseHue(pending).hue).toBe(160) // 選修・若竹
   })
 
   it('輸出的是 CSS 變數，顏色交給樣式表算', () => {

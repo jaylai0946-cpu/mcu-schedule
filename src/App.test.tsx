@@ -26,15 +26,13 @@ describe('首頁', () => {
     render(<App />)
     expect(screen.getByText('學分合計')).toBeInTheDocument()
     const table = screen.getByRole('table')
-    expect(within(table).getByText('21')).toBeInTheDocument()
+    expect(within(table).getByText('23')).toBeInTheDocument()
   })
 
-  it('候補的三門標成待遞補，學分另外算', () => {
+  it('選課定案了，沒有待遞補的課', () => {
     const { container } = render(<App />)
-    expect(container.querySelectorAll('.tag-wait').length).toBeGreaterThan(0)
-    // 候補那三門合計 6 學分，和上面的 21 分開算
-    const pendingRow = screen.getByText('待遞補（還沒算進上面）').closest('tr')!
-    expect(within(pendingRow).getByText('6')).toBeInTheDocument()
+    expect(container.querySelector('.tag-wait')).toBeNull()
+    expect(screen.queryByText('待遞補（還沒算進上面）')).not.toBeInTheDocument()
   })
 
   it('課塊帶著修別，週課表有必修／選修／通識的圖例', () => {

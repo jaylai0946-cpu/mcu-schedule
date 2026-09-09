@@ -9,18 +9,16 @@ beforeEach(() => {
 })
 
 describe('種子資料', () => {
-  it('選上的 12 門共 21 學分，另外三門還在候補', () => {
-    const taken = SEED_COURSES.filter((c) => !c.waitlisted)
-    const pending = SEED_COURSES.filter((c) => c.waitlisted)
-    expect(taken).toHaveLength(12)
-    expect(taken.reduce((sum, c) => sum + c.credits, 0)).toBe(21)
-    // 候補清單上的三門：國防（四）、國防（三）、邏輯與批判思考
-    expect(pending.map((c) => c.code).sort()).toEqual(['00759', '00933', '00934'])
+  it('選課定案：13 門共 23 學分，沒有待遞補的了', () => {
+    expect(SEED_COURSES).toHaveLength(13)
+    expect(SEED_COURSES.reduce((sum, c) => sum + c.credits, 0)).toBe(23)
+    expect(SEED_COURSES.filter((c) => c.waitlisted)).toEqual([])
   })
 
-  it('全民國防（三）是星期一傍晚的 9、40 節', () => {
-    const d3 = SEED_COURSES.find((c) => c.code === '00933')!
-    expect(d3.sessions).toEqual([{ d: 1, ps: [9, 40], room: '' }])
+  it('全民國防（四）是星期一夜間的 50、60 節', () => {
+    const defense = SEED_COURSES.find((c) => c.code === '00934')!
+    expect(defense.sessions).toEqual([{ d: 1, ps: [50, 60], room: 'B401' }])
+    expect(defense.waitlisted).toBeUndefined()
   })
 
   it('週會的教室還沒公布，先留空', () => {
@@ -28,19 +26,21 @@ describe('種子資料', () => {
     expect(assembly.sessions[0]).toMatchObject({ d: 5, ps: [5], room: '' })
   })
 
-  it('邏輯與批判思考還在候補清單上，維持待遞補', () => {
-    expect(SEED_COURSES.find((c) => c.code === '00759')!.waitlisted).toBe(true)
+  it('沒選上的兩門不留在課表裡', () => {
+    for (const code of ['00933', '00759']) {
+      expect(SEED_COURSES.find((c) => c.code === code), code).toBeUndefined()
+    }
   })
 
   it('每一門課都有修別', () => {
     for (const course of SEED_COURSES) {
       expect(course.category, course.name).toBeDefined()
     }
-    // 修別照官方選課單的「選別」欄：只有職場素養與實務是通識
+    // 修別照官方選課單的「選別」欄
     const byCategory = (cat: string) => SEED_COURSES.filter((c) => c.category === cat).length
     expect(byCategory('required')).toBe(9)
-    expect(byCategory('elective')).toBe(4) // 日文、永續、國防（三）（四）
-    expect(byCategory('general')).toBe(2) // 職場素養、邏輯與批判思考
+    expect(byCategory('elective')).toBe(2) // 日文、永續
+    expect(byCategory('general')).toBe(2) // 職場素養、全民國防（四）
   })
 
   it('會計學有正課和實習兩個時段，教室與教師不同', () => {
@@ -69,7 +69,7 @@ describe('loadState', () => {
   it('localStorage 空的時候用種子資料重建而不是崩潰', () => {
     const result = loadState()
     expect(result.source).toBe('seed')
-    expect(result.state.courses).toHaveLength(15)
+    expect(result.state.courses).toHaveLength(13)
     // 並且順手寫回去，下次開啟就是 stored
     expect(loadState().source).toBe('stored')
   })
@@ -96,7 +96,7 @@ describe('loadState', () => {
     localStorage.setItem(STORAGE_KEY, '{這不是 JSON')
     const result = loadState()
     expect(result.source).toBe('recovered')
-    expect(result.state.courses).toHaveLength(15)
+    expect(result.state.courses).toHaveLength(13)
     expect(localStorage.getItem(CORRUPT_KEY)).toBe('{這不是 JSON')
   })
 
@@ -118,7 +118,7 @@ describe('loadState', () => {
     const result = loadState()
     expect(result.source).toBe('stored')
     expect(result.state.version).toBe(SCHEMA_VERSION)
-    expect(result.state.courses).toHaveLength(15)
+    expect(result.state.courses).toHaveLength(13)
   })
 })
 
@@ -186,7 +186,7 @@ describe('schema v1 -> v2 升級', () => {
     expect(result.state.version).toBe(SCHEMA_VERSION)
     expect(result.state.schoolEvents).toEqual([])
     expect(result.state.items[0].title).toBe('舊的作業')
-    expect(result.state.courses).toHaveLength(15)
+    expect(result.state.courses).toHaveLength(13)
   })
 
   it('匯入 v1 時代的舊備份也吃得下', () => {
@@ -252,15 +252,11 @@ describe('遞補結果之後的升級（v4 一路升到現在）', () => {
       SEED_COURSES.map((c) => c.code).sort(),
     )
     expect(state.courses.every((c) => c.category !== undefined)).toBe(true)
-    // 候補清單上那三門還在等，其他都選上了
-    expect(state.courses.filter((c) => c.waitlisted).map((c) => c.code).sort()).toEqual([
-      '00759',
-      '00933',
-      '00934',
-    ])
+    // 定案表上的課都選上了，沒有待遞補的
+    expect(state.courses.filter((c) => c.waitlisted)).toEqual([])
   })
 
-  it('職場素養轉正，還在候補的三門留著繼續等', () => {
+  it('職場素養和全民國防轉正，沒上的那門刪掉', () => {
     const raw = v4Device()
     const seeded = raw.courses as Record<string, unknown>[]
     // 手動塞回當初那三門待遞補的課，模擬中途升級過的裝置
@@ -280,11 +276,13 @@ describe('遞補結果之後的升級（v4 一路升到現在）', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(raw))
 
     const courses = loadState().state.courses
-    // 還在候補的三門都留著、都是待遞補；補上的那門轉正
-    for (const code of ['00934', '00759', '00933']) {
-      expect(courses.find((c) => c.code === code)!.waitlisted, code).toBe(true)
+    // 兩門補上的轉正，選別 5 的國防算通識
+    for (const code of ['00936', '00934']) {
+      expect(courses.find((c) => c.code === code)!.waitlisted, code).toBeUndefined()
     }
-    expect(courses.find((c) => c.code === '00936')!.waitlisted).toBeUndefined()
+    expect(courses.find((c) => c.code === '00934')!.category).toBe('general')
+    // 一直沒補上的那門就不留了
+    expect(courses.find((c) => c.code === '00759')).toBeUndefined()
   })
 
   it('自己把待遞補取消掉的課不會被動到——那代表使用者知道自己有上', () => {
@@ -309,6 +307,7 @@ describe('遞補結果之後的升級（v4 一路升到現在）', () => {
     const find = (code: string) => loadState().state.courses.find((c) => c.code === code)!
 
     expect(find('00936').category).toBe('general') // 職場素養與實務
+    expect(find('00934').category).toBe('general') // 全民國防教育軍事訓練（四）
     expect(find('00123').category).toBe('required') // 中國文學鑑賞與創作（一）
     expect(find('01115').category).toBe('required') // 大一英文（一）
     expect(find('00531').category).toBe('elective') // 日文一（上）

@@ -3,7 +3,7 @@ import { SEED_COURSES } from '../seed'
 import { formatMinutes, kickerText, nextClassToday } from './nextClass'
 
 // 2026-09-07 是星期一：會計學 08:10-11:00、中國文學 13:10-15:00、
-// 全民國防（待遞補）19:25-21:10
+// 全民國防 19:25-21:10
 const MONDAY = '2026-09-07'
 
 describe('nextClassToday', () => {
@@ -21,11 +21,22 @@ describe('nextClassToday', () => {
     expect(info.minutes).toBe(100) // 到 13:10
   })
 
-  it('待遞補的課不算「下一堂」——還沒真的選上', () => {
+  it('傍晚還有夜間課，會報下一堂', () => {
     const info = nextClassToday(SEED_COURSES, MONDAY, '16:00')
+    expect(info.status).toBe('next')
+    expect(info.cls?.course.id).toBe('defense')
+    expect(info.minutes).toBe(205) // 到 19:25
+    expect(info.count).toBe(3)
+  })
+
+  it('待遞補的課不算「下一堂」——還沒真的選上', () => {
+    const withPending = SEED_COURSES.map((c) =>
+      c.id === 'defense' ? { ...c, waitlisted: true } : c,
+    )
+    const info = nextClassToday(withPending, MONDAY, '16:00')
     expect(info.status).toBe('done')
     expect(info.cls).toBeUndefined()
-    // 但今天的堂數只算選上的那兩堂
+    // 今天的堂數只算選上的那兩堂
     expect(info.count).toBe(2)
   })
 
