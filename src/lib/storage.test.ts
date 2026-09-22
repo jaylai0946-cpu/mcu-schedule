@@ -9,8 +9,8 @@ beforeEach(() => {
 })
 
 describe('種子資料', () => {
-  it('選課定案：13 門共 23 學分，沒有待遞補的了', () => {
-    expect(SEED_COURSES).toHaveLength(13)
+  it('選課定案：14 門共 23 學分，沒有待遞補的了', () => {
+    expect(SEED_COURSES).toHaveLength(14)
     expect(SEED_COURSES.reduce((sum, c) => sum + c.credits, 0)).toBe(23)
     expect(SEED_COURSES.filter((c) => c.waitlisted)).toEqual([])
   })
@@ -19,6 +19,13 @@ describe('種子資料', () => {
     const defense = SEED_COURSES.find((c) => c.code === '00934')!
     expect(defense.sessions).toEqual([{ d: 1, ps: [50, 60], room: 'B401' }])
     expect(defense.waitlisted).toBeUndefined()
+  })
+
+  it('會計學的 TA 時間排在星期四午休，教室 H402', () => {
+    const ta = SEED_COURSES.find((c) => c.id === 'accTa')!
+    expect(ta.name).toBe('TA會計學')
+    expect(ta.credits).toBe(0) // 不算學分
+    expect(ta.sessions).toEqual([{ d: 4, ps: [20], room: 'H402' }])
   })
 
   it('週會的教室還沒公布，先留空', () => {
@@ -38,7 +45,7 @@ describe('種子資料', () => {
     }
     // 修別照官方選課單的「選別」欄
     const byCategory = (cat: string) => SEED_COURSES.filter((c) => c.category === cat).length
-    expect(byCategory('required')).toBe(9)
+    expect(byCategory('required')).toBe(10)
     expect(byCategory('elective')).toBe(2) // 日文、永續
     expect(byCategory('general')).toBe(2) // 職場素養、全民國防（四）
   })
@@ -69,7 +76,7 @@ describe('loadState', () => {
   it('localStorage 空的時候用種子資料重建而不是崩潰', () => {
     const result = loadState()
     expect(result.source).toBe('seed')
-    expect(result.state.courses).toHaveLength(13)
+    expect(result.state.courses).toHaveLength(14)
     // 並且順手寫回去，下次開啟就是 stored
     expect(loadState().source).toBe('stored')
   })
@@ -96,7 +103,7 @@ describe('loadState', () => {
     localStorage.setItem(STORAGE_KEY, '{這不是 JSON')
     const result = loadState()
     expect(result.source).toBe('recovered')
-    expect(result.state.courses).toHaveLength(13)
+    expect(result.state.courses).toHaveLength(14)
     expect(localStorage.getItem(CORRUPT_KEY)).toBe('{這不是 JSON')
   })
 
@@ -118,7 +125,7 @@ describe('loadState', () => {
     const result = loadState()
     expect(result.source).toBe('stored')
     expect(result.state.version).toBe(SCHEMA_VERSION)
-    expect(result.state.courses).toHaveLength(13)
+    expect(result.state.courses).toHaveLength(14)
   })
 })
 
@@ -186,7 +193,7 @@ describe('schema v1 -> v2 升級', () => {
     expect(result.state.version).toBe(SCHEMA_VERSION)
     expect(result.state.schoolEvents).toEqual([])
     expect(result.state.items[0].title).toBe('舊的作業')
-    expect(result.state.courses).toHaveLength(13)
+    expect(result.state.courses).toHaveLength(14)
   })
 
   it('匯入 v1 時代的舊備份也吃得下', () => {
