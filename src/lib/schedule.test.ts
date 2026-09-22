@@ -67,10 +67,10 @@ describe('buildWeekLayout', () => {
 })
 
 describe('classesOnWeekday', () => {
-  it('星期四的三堂課照時間排序', () => {
+  it('星期四的四堂照時間排序，TA 夾在午休那格', () => {
     const thu = classesOnWeekday(SEED_COURSES, 4)
-    expect(thu.map((c) => c.course.id)).toEqual(['biz', 'eng', 'acc'])
-    expect(thu.map((c) => c.start)).toEqual(['09:10', '13:10', '15:10'])
+    expect(thu.map((c) => c.course.id)).toEqual(['biz', 'accTa', 'eng', 'acc'])
+    expect(thu.map((c) => c.start)).toEqual(['09:10', '12:10', '13:10', '15:10'])
   })
 
   it('實習時段用自己的教師覆蓋課程教師', () => {
@@ -95,8 +95,8 @@ describe('classesOnWeekday', () => {
 })
 
 describe('學分', () => {
-  it('選上的 13 門共 23 學分，沒有候補的了', () => {
-    expect(enrolled(SEED_COURSES)).toHaveLength(13)
+  it('選上的 14 門共 23 學分，沒有候補的了', () => {
+    expect(enrolled(SEED_COURSES)).toHaveLength(14)
     expect(totalCredits(enrolled(SEED_COURSES))).toBe(23)
     expect(waitlisted(SEED_COURSES)).toEqual([])
   })

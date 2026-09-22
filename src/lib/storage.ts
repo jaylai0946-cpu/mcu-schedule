@@ -188,6 +188,22 @@ function applyFinalEnrolment(raw: Record<string, unknown>): unknown {
     })
 }
 
+/**
+ * 把指定 id 的課補回來（沿用種子資料那筆）。
+ * 給沒有課號的自訂時段用——那種課比對課號會全部撞在一起。
+ */
+function addCoursesById(raw: Record<string, unknown>, ids: string[]): unknown {
+  if (!Array.isArray(raw.courses)) return raw.courses
+
+  const have = new Set(
+    raw.courses.map((c) =>
+      typeof c === 'object' && c !== null ? (c as { id?: unknown }).id : undefined,
+    ),
+  )
+  const missing = SEED_COURSES.filter((c) => ids.includes(c.id) && !have.has(c.id))
+  return missing.length > 0 ? [...raw.courses, ...structuredClone(missing)] : raw.courses
+}
+
 /** 把還停在舊教室的時段換成新教室；其餘原封不動地回傳。 */
 function applyRoomMoves(raw: Record<string, unknown>): unknown {
   if (!Array.isArray(raw.courses)) return raw.courses
@@ -265,6 +281,8 @@ const migrations: Record<number, (raw: Record<string, unknown>) => Record<string
   // 10 -> 11：9/9 的選課定案表。全民國防（四）補上了，選別是通識；
   //           候補的全民國防（三）和邏輯與批判思考不再等了，刪掉。
   10: (raw) => ({ ...raw, courses: applyFinalEnrolment(raw), version: 11 }),
+  // 11 -> 12：星期四午休原本是空堂，補上會計學的 TA 時間（H402）。
+  11: (raw) => ({ ...raw, courses: addCoursesById(raw, ['accTa']), version: 12 }),
 }
 
 function migrate(raw: Record<string, unknown>): Record<string, unknown> {

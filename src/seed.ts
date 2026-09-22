@@ -18,6 +18,19 @@ export const SEED_COURSES: Course[] = [
     ],
   },
   {
+    id: 'accTa',
+    name: 'TA會計學',
+    code: '',
+    teacher: '',
+    credits: 0,
+    hue: 214,
+    sat: 10,
+    note: '會計學（一）助教時間',
+    category: 'required',
+    // 星期四的 20 節是午休（12:10-13:00），原本是空堂
+    sessions: [{ d: 4, ps: [20], room: 'H402' }],
+  },
+  {
     id: 'eco',
     name: '經濟學（一）',
     code: '55125',
